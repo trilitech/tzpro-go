@@ -210,6 +210,8 @@ var ZmqRawOpColumns = []string{
 	"is_batch",
 	"is_sapling",
 	"block",
+	"n_contract_calls",
+	"n_register_constant",
 }
 
 var ZmqStatusColumns = []string{
