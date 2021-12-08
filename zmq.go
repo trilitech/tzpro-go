@@ -211,7 +211,7 @@ var ZmqRawOpColumns = []string{
 	"delegate",
 	"is_batch",
 	"is_sapling",
-	"block",
+	"block_hash",
 }
 
 var ZmqStatusColumns = []string{

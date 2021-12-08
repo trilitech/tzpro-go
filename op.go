@@ -21,7 +21,7 @@ type Op struct {
 	RowId        uint64              `json:"row_id"`
 	Hash         tezos.OpHash        `json:"hash"`
 	Type         tezos.OpType        `json:"type"`
-	BlockHash    tezos.BlockHash     `json:"block"`
+	BlockHash    tezos.BlockHash     `json:"block_hash"`
 	Timestamp    time.Time           `json:"time"`
 	Height       int64               `json:"height"`
 	Cycle        int64               `json:"cycle"`
@@ -83,6 +83,14 @@ type Op struct {
 	withPrim bool
 	withMeta bool
 	onError  int
+}
+
+func (o *Op) BlockId() BlockId {
+	return BlockId{
+		Height: o.Height,
+		Hash:   o.BlockHash.Clone(),
+		Time:   o.Timestamp,
+	}
 }
 
 func (o *Op) Content() []*Op {
@@ -248,7 +256,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			if err == nil {
 				op.Timestamp = time.Unix(0, ts*1000000).UTC()
 			}
-		case "block":
+		case "block_hash":
 			op.BlockHash, err = tezos.ParseBlockHash(f.(string))
 		case "height":
 			op.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
