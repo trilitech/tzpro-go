@@ -116,6 +116,7 @@ var ZmqRawBlockColumns = []string{
 	"n_ops",
 	"n_ops_failed",
 	"n_ops_contract",
+	"n_contract_calls",
 	"n_tx",
 	"n_activation",
 	"n_seed_nonce_revelation",
@@ -127,6 +128,7 @@ var ZmqRawBlockColumns = []string{
 	"n_origination",
 	"n_proposal",
 	"n_ballot",
+	"n_register_constant",
 	"volume",
 	"fee",
 	"reward",
@@ -150,8 +152,6 @@ var ZmqRawBlockColumns = []string{
 	"lb_esc_vote",
 	"lb_esc_ema",
 	"protocol",
-	"n_contract_calls",
-	"n_register_constant",
 }
 
 var ZmqRawOpColumns = []string{
