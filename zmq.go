@@ -135,8 +135,6 @@ var ZmqRawBlockColumns = []string{
 	"burned_supply",
 	"n_accounts",
 	"n_new_accounts",
-	"n_new_implicit",
-	"n_new_managed",
 	"n_new_contracts",
 	"n_cleared_accounts",
 	"n_funded_accounts",
