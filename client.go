@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ClientVersion    = "0.10.0"
+	ClientVersion    = "0.11.3"
 	DefaultLimit     = 50000
 	DefaultCacheSize = 2048
 	userAgent        = "tzpro-go/v" + ClientVersion
