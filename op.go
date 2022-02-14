@@ -162,10 +162,11 @@ func (o *Op) OnError(action int) *Op {
 }
 
 type OpList struct {
-	Rows    []*Op
-	columns []string
-	ctx     context.Context
-	client  *Client
+	Rows     []*Op
+	withPrim bool
+	columns  []string
+	ctx      context.Context
+	client   *Client
 }
 
 func (l OpList) Len() int {
@@ -192,7 +193,8 @@ func (l *OpList) UnmarshalJSON(data []byte) error {
 	}
 	for _, v := range array {
 		op := &Op{
-			columns: l.columns,
+			withPrim: l.withPrim,
+			columns:  l.columns,
 		}
 		// we may need contract scripts
 		if is, ok := getTableColumn(v, l.columns, "is_contract"); ok && is == "1" {
@@ -495,9 +497,10 @@ func (c *Client) NewOpQuery() OpQuery {
 
 func (q OpQuery) Run(ctx context.Context) (*OpList, error) {
 	result := &OpList{
-		columns: q.Columns,
-		ctx:     ctx,
-		client:  q.client,
+		columns:  q.Columns,
+		ctx:      ctx,
+		client:   q.client,
+		withPrim: q.Prim,
 	}
 	if err := q.client.QueryTable(ctx, &q.tableQuery, result); err != nil {
 		return nil, err
