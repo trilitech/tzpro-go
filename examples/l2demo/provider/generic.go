@@ -142,7 +142,7 @@ func (p *GenericProvider) ConnectBlock(ctx context.Context, block *tzpro.Block) 
 		// process updates
 		for _, o := range op.Content() {
 			// skip all ops that do not match our contract
-			if o.Type != tezos.OpTypeTransaction || !o.Receiver.Equal(p.address) {
+			if o.Type != tzpro.OpTypeTransaction || !o.Receiver.Equal(p.address) {
 				continue
 			}
 			if err := p.ConnectOp(ctx, o); err != nil {
@@ -179,7 +179,7 @@ func (p *GenericProvider) DisconnectBlock(ctx context.Context, block *tzpro.Bloc
 		// process bigmap updates
 		for _, o := range op.Content() {
 			// skip all ops that do not match our contract
-			if o.Type != tezos.OpTypeTransaction || !o.Receiver.Equal(p.address) {
+			if o.Type != tzpro.OpTypeTransaction || !o.Receiver.Equal(p.address) {
 				continue
 			}
 

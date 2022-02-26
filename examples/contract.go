@@ -194,7 +194,7 @@ func getContractCall(ctx context.Context, c *tzpro.Client, hash tezos.OpHash) er
 		return err
 	}
 	for _, op := range ops {
-		if op.Type != tezos.OpTypeTransaction {
+		if op.Type != tzpro.OpTypeTransaction {
 			continue
 		}
 		if !op.IsContract {

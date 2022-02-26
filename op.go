@@ -20,7 +20,7 @@ import (
 type Op struct {
 	RowId        uint64              `json:"row_id"`
 	Hash         tezos.OpHash        `json:"hash"`
-	Type         tezos.OpType        `json:"type"`
+	Type         OpType              `json:"type"`
 	BlockHash    tezos.BlockHash     `json:"block_hash"`
 	Timestamp    time.Time           `json:"time"`
 	Height       int64               `json:"height"`
@@ -277,7 +277,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 		case "op_p":
 			op.OpP, err = strconv.Atoi(f.(json.Number).String())
 		case "type":
-			op.Type = tezos.ParseOpType(f.(string))
+			op.Type = ParseOpType(f.(string))
 		case "status":
 			op.Status = tezos.ParseOpStatus(f.(string))
 		case "gas_limit":
