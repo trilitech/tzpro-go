@@ -143,19 +143,10 @@ func (w *BlockWatcher) recvLoop() {
 			break
 		}
 
-		// determine which block to fetch next
-		// ensure the last/initial block was not reorged
-		if b.IsOrphan {
-			// one block earlier
-			w.last.Height = b.Height - 1
-			w.last.Hash = b.ParentHash.Clone()
-			w.last.Time = time.Time{}
-		} else {
-			// next block
-			w.last.Height = b.Height + 1
-			w.last.Hash = b.FollowerHash.Clone()
-			w.last.Time = time.Time{}
-		}
+		// next block
+		w.last.Height = b.Height + 1
+		w.last.Hash = b.FollowerHash.Clone()
+		w.last.Time = time.Time{}
 	}
 
 	log.Infof("Switching to ZMQ events")
@@ -180,35 +171,19 @@ func (w *BlockWatcher) recvLoop() {
 		}
 
 		// ensure block order
-		if b.IsOrphan {
-			if !w.last.IsSameBlock(b) {
-				log.Errorf("ZMQ invalid reorg block: expected %d %s got %d %s",
-					w.last.Height,
-					w.last.Hash,
-					b.Height,
-					b.Hash,
-				)
-				return
-			}
-			// one block earlier
-			w.last.Height = b.Height - 1
-			w.last.Hash = b.ParentHash.Clone()
-			w.last.Time = time.Time{}
-		} else {
-			if !w.last.IsNextBlock(b) {
-				log.Errorf("ZMQ invalid next block: expected parent block %d %s got %d %s",
-					w.last.Height,
-					w.last.Hash,
-					b.Height-1,
-					b.ParentHash,
-				)
-				return
-			}
-			// this block
-			w.last.Height = b.Height
-			w.last.Hash = b.Hash.Clone()
-			w.last.Time = b.Timestamp
+		if !w.last.IsNextBlock(b) {
+			log.Errorf("ZMQ invalid next block: expected parent block %d %s got %d %s",
+				w.last.Height,
+				w.last.Hash,
+				b.Height-1,
+				b.ParentHash,
+			)
+			return
 		}
+		// this block
+		w.last.Height = b.Height
+		w.last.Hash = b.Hash.Clone()
+		w.last.Time = b.Timestamp
 
 		// queue block, stop with context
 		select {

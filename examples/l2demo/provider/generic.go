@@ -205,12 +205,12 @@ func (p *GenericProvider) DisconnectBlock(ctx context.Context, block *tzpro.Bloc
 }
 
 func (p *GenericProvider) ConnectOp(ctx context.Context, op *tzpro.Op) error {
-	log.Infof("Processing %s %s", op.Hash, op.Entrypoint)
+	log.Infof("Processing %s %s", op.Hash, op.Parameters.Entrypoint)
 	return nil
 }
 
 func (p *GenericProvider) DisconnectOp(ctx context.Context, op *tzpro.Op) error {
-	log.Infof("Rolling back %s %s", op.Hash, op.Entrypoint)
+	log.Infof("Rolling back %s %s", op.Hash, op.Parameters.Entrypoint)
 	return nil
 }
 

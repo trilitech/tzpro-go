@@ -12,62 +12,64 @@ type OpType byte
 
 // enums are allocated in chronological order with most often used ops first
 const (
-    OpTypeBake                         OpType = iota // 0
-    OpTypeEndorsement                                // 1
-    OpTypeTransaction                                // 2
-    OpTypeReveal                                     // 3
-    OpTypeDelegation                                 // 4
-    OpTypeOrigination                                // 5
-    OpTypeSeedNonceRevelation                        // 6
-    OpTypeActivateAccount                            // 7
-    OpTypeBallot                                     // 8
-    OpTypeProposals                                  // 9
-    OpTypeDoubleBakingEvidence                       // 10
-    OpTypeDoubleEndorsementEvidence                  // 11
-    OpTypeUnfreeze                                   // 12 implicit event
-    OpTypeInvoice                                    // 13 implicit event
-    OpTypeAirdrop                                    // 14 implicit event
-    OpTypeSeedSlash                                  // 15 implicit event
-    OpTypeMigration                                  // 16 implicit event
-    OpTypeRegisterConstant                           // 17 v011
-    OpTypePreendorsement                             // 28 v012
-    OpTypeDoublePreendorsementEvidence               // 19 v012
-    OpTypeSetDepositsLimit                           // 20 v012
-    OpTypeDeposit                                    // 21 v012 implicit event (baker deposit)
-    OpTypeBonus                                      // 22 v012 implicit event (baker extra bonus)
-    OpTypeReward                                     // 23 v012 implicit event (endorsement reward pay/burn)
-    OpTypeBatch                        = 254         // API output only
-    OpTypeInvalid                      = 255
+    OpTypeBake                 OpType = iota // 0
+    OpTypeEndorsement                        // 1
+    OpTypeTransaction                        // 2
+    OpTypeReveal                             // 3
+    OpTypeDelegation                         // 4
+    OpTypeOrigination                        // 5
+    OpTypeNonceRevelation                    // 6
+    OpTypeActivation                         // 7
+    OpTypeBallot                             // 8
+    OpTypeProposal                           // 9
+    OpTypeDoubleBaking                       // 10
+    OpTypeDoubleEndorsement                  // 11
+    OpTypeUnfreeze                           // 12 implicit event
+    OpTypeInvoice                            // 13 implicit event
+    OpTypeAirdrop                            // 14 implicit event
+    OpTypeSeedSlash                          // 15 implicit event
+    OpTypeMigration                          // 16 implicit event
+    OpTypeSubsidy                            // 17 v010 liquidity baking
+    OpTypeRegisterConstant                   // 18 v011
+    OpTypePreendorsement                     // 19 v012
+    OpTypeDoublePreendorsement               // 20 v012
+    OpTypeDepositsLimit                      // 21 v012
+    OpTypeDeposit                            // 22 v012 implicit event (baker deposit)
+    OpTypeBonus                              // 23 v012 implicit event (baker extra bonus)
+    OpTypeReward                             // 24 v012 implicit event (endorsement reward pay/burn)
+    OpTypeBatch                = 254         // API output only
+    OpTypeInvalid              = 255
 )
 
 var (
     opTypeStrings = map[OpType]string{
-        OpTypeBake:                         "bake",
-        OpTypeEndorsement:                  "endorsement",
-        OpTypeTransaction:                  "transaction",
-        OpTypeReveal:                       "reveal",
-        OpTypeDelegation:                   "delegation",
-        OpTypeOrigination:                  "origination",
-        OpTypeSeedNonceRevelation:          "seed_nonce_revelation",
-        OpTypeActivateAccount:              "activate_account",
-        OpTypeBallot:                       "ballot",
-        OpTypeProposals:                    "proposals",
-        OpTypeDoubleBakingEvidence:         "double_baking_evidence",
-        OpTypeDoubleEndorsementEvidence:    "double_endorsement_evidence",
-        OpTypeUnfreeze:                     "unfreeze",
-        OpTypeInvoice:                      "invoice",
-        OpTypeAirdrop:                      "airdrop",
-        OpTypeSeedSlash:                    "seed_slash",
-        OpTypeMigration:                    "migration",
-        OpTypeRegisterConstant:             "register_global_constant",
-        OpTypePreendorsement:               "preendorsement",
-        OpTypeDoublePreendorsementEvidence: "double_preendorsement_evidence",
-        OpTypeSetDepositsLimit:             "set_deposits_limit",
-        OpTypeDeposit:                      "deposit",
-        OpTypeBonus:                        "bonus",
-        OpTypeReward:                       "reward",
-        OpTypeBatch:                        "batch",
-        OpTypeInvalid:                      "",
+        OpTypeBake:                 "bake",
+        OpTypeEndorsement:          "endorsement",
+        OpTypeTransaction:          "transaction",
+        OpTypeReveal:               "reveal",
+        OpTypeDelegation:           "delegation",
+        OpTypeOrigination:          "origination",
+        OpTypeNonceRevelation:      "nonce_revelation",
+        OpTypeActivation:           "activation",
+        OpTypeBallot:               "ballot",
+        OpTypeProposal:             "proposal",
+        OpTypeDoubleBaking:         "double_baking",
+        OpTypeDoubleEndorsement:    "double_endorsement",
+        OpTypeUnfreeze:             "unfreeze",
+        OpTypeInvoice:              "invoice",
+        OpTypeAirdrop:              "airdrop",
+        OpTypeSeedSlash:            "seed_slash",
+        OpTypeMigration:            "migration",
+        OpTypeSubsidy:              "subsidy",
+        OpTypeRegisterConstant:     "register_constant",
+        OpTypePreendorsement:       "preendorsement",
+        OpTypeDoublePreendorsement: "double_preendorsement",
+        OpTypeDepositsLimit:        "deposits_limit",
+        OpTypeDeposit:              "deposit",
+        OpTypeReward:               "reward",
+        OpTypeBonus:                "bonus",
+        OpTypeBatch:                "batch",
+        OpTypeInvalid:              "",
     }
     opTypeReverseStrings = make(map[string]OpType)
 )
