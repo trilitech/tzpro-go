@@ -18,6 +18,7 @@ import (
 )
 
 type Op struct {
+	Id            uint64              `json:"id"`
 	RowId         uint64              `json:"row_id"`
 	Hash          tezos.OpHash        `json:"hash"`
 	Type          OpType              `json:"type"`
@@ -117,7 +118,8 @@ func (o *Op) Cursor() uint64 {
 	if l := len(op.Internal); l > 0 {
 		op = op.Internal[l-1]
 	}
-	return op.RowId
+	// either or is set
+	return op.Id + op.RowId
 }
 
 func (o *Op) WithColumns(cols ...string) *Op {
@@ -173,6 +175,7 @@ func (l OpList) Cursor() uint64 {
 	if len(l.Rows) == 0 {
 		return 0
 	}
+	// on table API only row_id is set
 	return l.Rows[len(l.Rows)-1].RowId
 }
 
@@ -564,6 +567,11 @@ func (p OpParams) WithRights() OpParams {
 
 func (p OpParams) WithCollapse() OpParams {
 	p.Query.Set("collapse", "1")
+	return p
+}
+
+func (p OpParams) WithStorage() OpParams {
+	p.Query.Set("storage", "1")
 	return p
 }
 

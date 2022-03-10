@@ -370,6 +370,11 @@ func (p ContractParams) WithCollapse() ContractParams {
 	return p
 }
 
+func (p ContractParams) WithStorage() ContractParams {
+	p.Query.Set("storage", "1")
+	return p
+}
+
 type ContractQuery struct {
 	tableQuery
 }
