@@ -22,10 +22,10 @@ type Chain struct {
 	TotalContractOps   int64  `json:"total_contract_ops"`
 	TotalContractCalls int64  `json:"total_contract_calls"`
 	TotalActivations   int64  `json:"total_activations"`
-	TotalSeedNonces    int64  `json:"total_seed_nonce_revelations"`
+	TotalNonces        int64  `json:"total_nonce_revelations"`
 	TotalEndorsements  int64  `json:"total_endorsements"`
-	TotalDoubleBake    int64  `json:"total_double_baking_evidences"`
-	TotalDoubleEndorse int64  `json:"total_double_endorsement_evidences"`
+	TotalDoubleBake    int64  `json:"total_double_bakings"`
+	TotalDoubleEndorse int64  `json:"total_double_endorsements"`
 	TotalDelegations   int64  `json:"total_delegations"`
 	TotalReveals       int64  `json:"total_reveals"`
 	TotalOriginations  int64  `json:"total_originations"`
@@ -145,13 +145,13 @@ func (c *Chain) UnmarshalJSONBrief(data []byte) error {
 			cc.TotalContractCalls, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_activations":
 			cc.TotalActivations, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "total_seed_nonce_revelations":
-			cc.TotalSeedNonces, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+		case "total_nonce_revelations":
+			cc.TotalNonces, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_endorsements":
 			cc.TotalEndorsements, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "total_double_baking_evidences":
+		case "total_double_bakings":
 			cc.TotalDoubleBake, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "total_double_endorsement_evidences":
+		case "total_double_endorsements":
 			cc.TotalDoubleEndorse, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_delegations":
 			cc.TotalDelegations, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)

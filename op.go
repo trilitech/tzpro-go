@@ -67,6 +67,7 @@ type Op struct {
 	Limit         *float64            `json:"limit,omitempty"`        // set deposits limit
 	Confirmations int64               `json:"confirmations,notable"`
 	BatchVolume   float64             `json:"batch_volume,omitempty,notable"`
+	Entrypoint    string              `json:"entrypoint,omitempty,notable"`
 	NOps          int                 `json:"n_ops,omitempty,notable"`
 	Batch         []*Op               `json:"batch,omitempty,notable"`
 	Internal      []*Op               `json:"internal,omitempty,notable"`
@@ -330,6 +331,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 				op.Parameters = &ContractParameters{}
 			}
 			op.Parameters.Entrypoint = f.(string)
+			op.Entrypoint = f.(string)
 		case "parameters":
 			var buf []byte
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
