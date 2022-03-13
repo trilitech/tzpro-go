@@ -193,7 +193,7 @@ func getContractCall(ctx context.Context, c *tzpro.Client, hash tezos.OpHash) er
 	if err != nil {
 		return err
 	}
-	for _, op := range ops {
+	for i, op := range ops {
 		if op.Type != tzpro.OpTypeTransaction {
 			continue
 		}
@@ -208,8 +208,8 @@ func getContractCall(ctx context.Context, c *tzpro.Client, hash tezos.OpHash) er
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Call Parameters for %d/%d", op.OpC, op.OpI)
-		print(micheline.NewValue(eps[op.Parameters.Call].Type(), *op.Parameters.Prim), 2)
+		fmt.Printf("Call Parameters for %d/%d/%d\n", op.OpN, op.OpP, i)
+		print(micheline.NewValue(eps[op.Parameters.Entrypoint].Type(), *op.Parameters.Prim), 2)
 		if withPrim {
 			fmt.Println("Michelson:")
 			print(op.Parameters.Prim, 0)

@@ -118,31 +118,21 @@ func watchContract(ctx context.Context, c *tzpro.Client, addr tezos.Address) err
 				}
 				plog.Log(1, fmt.Sprintf("%d %s", block.Height, block.Timestamp))
 				// skip blocks without relevant transactions
-				if block.NTx+block.NOrigination == 0 {
+				if block.NContractCalls+block.NewContracts == 0 {
 					continue
 				}
 				log.Debugf("Processing block %d %s...", block.Height, block.Hash)
 				ops, err := fetchAllBlockOps(ctx, c, block.Hash)
 				if err == nil {
 					block.Ops = ops
-					// reverse order
-					if block.IsOrphan {
-						for i := len(block.Ops)/2 - 1; i >= 0; i-- {
-							j := len(block.Ops) - 1 - i
-							block.Ops[i], block.Ops[j] = block.Ops[j], block.Ops[i]
-						}
-					}
-
 					// forward to providers
 					for _, p := range provider.Providers() {
 						if !p.Enabled() {
 							continue
 						}
-						if block.IsOrphan {
-							err = p.DisconnectBlock(sctx, block)
-						} else {
-							err = p.ConnectBlock(sctx, block)
-						}
+						// reorg-safe with tendermint
+						// err = p.DisconnectBlock(sctx, block)
+						err = p.ConnectBlock(sctx, block)
 						if err != nil {
 							break
 						}
