@@ -410,7 +410,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 								mk := MultiKey{}
 								_ = mk.UnmarshalJSON(keybuf)
 								op.BigmapDiff[i].BigmapValue.Key = mk
-								op.BigmapDiff[i].BigmapValue.KeyHash = v.KeyHash
+								op.BigmapDiff[i].BigmapValue.Hash = v.KeyHash
 							}
 							if o.withMeta {
 								op.BigmapDiff[i].BigmapValue.Meta = &BigmapMeta{

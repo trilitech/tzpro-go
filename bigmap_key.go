@@ -18,7 +18,7 @@ import (
 
 type BigmapKey struct {
 	Key     MultiKey        `json:"key"`
-	KeyHash tezos.ExprHash  `json:"key_hash"`
+	KeyHash tezos.ExprHash  `json:"hash"`
 	Meta    *BigmapMeta     `json:"meta"`
 	Prim    *micheline.Prim `json:"prim"`
 }

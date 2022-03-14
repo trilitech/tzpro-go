@@ -20,7 +20,7 @@ import (
 
 type BigmapValue struct {
 	Key       MultiKey        `json:"key"`
-	KeyHash   tezos.ExprHash  `json:"key_hash"`
+	Hash      tezos.ExprHash  `json:"hash"`
 	Meta      *BigmapMeta     `json:"meta,omitempty"`
 	Value     interface{}     `json:"value,omitempty"`
 	Height    int64           `json:"height"`
@@ -87,7 +87,7 @@ type BigmapValueRow struct {
 	Height   int64          `json:"height"`
 	Time     time.Time      `json:"time"`
 	KeyId    uint64         `json:"key_id"`
-	KeyHash  tezos.ExprHash `json:"key_hash,omitempty"`
+	Hash     tezos.ExprHash `json:"hash,omitempty"`
 	Key      string         `json:"key,omitempty"`
 	Value    string         `json:"value,omitempty"`
 
@@ -194,7 +194,7 @@ func (b *BigmapValueRow) UnmarshalJSONBrief(data []byte) error {
 		case "key_id":
 			br.KeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
 		case "key_hash":
-			br.KeyHash, err = tezos.ParseExprHash(f.(string))
+			br.Hash, err = tezos.ParseExprHash(f.(string))
 		case "key":
 			br.Key = f.(string)
 		case "value":
