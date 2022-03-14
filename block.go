@@ -52,7 +52,6 @@ type Block struct {
 	GasLimit         int64                  `json:"gas_limit"`
 	GasUsed          int64                  `json:"gas_used"`
 	StoragePaid      int64                  `json:"storage_paid"`
-	TDD              float64                `json:"days_destroyed"`
 	PctAccountReuse  float64                `json:"pct_account_reuse"`
 	LbEscapeVote     bool                   `json:"lb_esc_vote"`
 	LbEscapeEma      int64                  `json:"lb_esc_ema"`
@@ -299,8 +298,6 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 			block.GasUsed, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "storage_paid":
 			block.StoragePaid, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "days_destroyed":
-			block.TDD, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "pct_account_reuse":
 			block.PctAccountReuse, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "lb_esc_vote":
