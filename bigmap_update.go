@@ -34,7 +34,7 @@ type BigmapUpdateRow struct {
 	BigmapId int64                `json:"bigmap_id"`
 	Action   micheline.DiffAction `json:"action"`
 	KeyId    uint64               `json:"key_id"`
-	KeyHash  tezos.ExprHash       `json:"key_hash,omitempty"`
+	Hash     tezos.ExprHash       `json:"hash,omitempty"`
 	Key      string               `json:"key,omitempty"`
 	Value    string               `json:"value,omitempty"`
 	OpId     uint64               `json:"op_id"`
@@ -195,8 +195,8 @@ func (b *BigmapUpdateRow) UnmarshalJSONBrief(data []byte) error {
 			br.Action, err = micheline.ParseDiffAction(f.(string))
 		case "key_id":
 			br.KeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "key_hash":
-			br.KeyHash, err = tezos.ParseExprHash(f.(string))
+		case "hash":
+			br.Hash, err = tezos.ParseExprHash(f.(string))
 		case "key":
 			br.Key = f.(string)
 		case "value":
