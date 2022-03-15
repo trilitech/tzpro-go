@@ -19,7 +19,6 @@ import (
 
 type Op struct {
 	Id            uint64              `json:"id"`
-	RowId         uint64              `json:"row_id"`
 	Hash          tezos.OpHash        `json:"hash"`
 	Type          OpType              `json:"type"`
 	Block         tezos.BlockHash     `json:"block"`
@@ -119,8 +118,7 @@ func (o *Op) Cursor() uint64 {
 	if l := len(op.Internal); l > 0 {
 		op = op.Internal[l-1]
 	}
-	// either or is set
-	return op.Id + op.RowId
+	return op.Id
 }
 
 func (o *Op) WithColumns(cols ...string) *Op {
@@ -177,7 +175,7 @@ func (l OpList) Cursor() uint64 {
 		return 0
 	}
 	// on table API only row_id is set
-	return l.Rows[len(l.Rows)-1].RowId
+	return l.Rows[len(l.Rows)-1].Id
 }
 
 func (l *OpList) UnmarshalJSON(data []byte) error {
@@ -250,8 +248,8 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			continue
 		}
 		switch v {
-		case "row_id":
-			op.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+		case "id":
+			op.Id, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
 		case "hash":
 			op.Hash, err = tezos.ParseOpHash(f.(string))
 		case "type":
