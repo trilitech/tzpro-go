@@ -365,8 +365,8 @@ func (p ContractParams) WithMeta() ContractParams {
 	return p
 }
 
-func (p ContractParams) WithCollapse() ContractParams {
-	p.Query.Set("collapse", "1")
+func (p ContractParams) WithMerge() ContractParams {
+	p.Query.Set("merge", "1")
 	return p
 }
 

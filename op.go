@@ -565,8 +565,8 @@ func (p OpParams) WithRights() OpParams {
 	return p
 }
 
-func (p OpParams) WithCollapse() OpParams {
-	p.Query.Set("collapse", "1")
+func (p OpParams) WithMerge() OpParams {
+	p.Query.Set("merge", "1")
 	return p
 }
 
