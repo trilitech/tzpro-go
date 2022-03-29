@@ -35,7 +35,7 @@ type Block struct {
 	NSlotsEndorsed   int                    `json:"n_endorsed_slots"`
 	NOpsApplied      int                    `json:"n_ops_applied"`
 	NOpsFailed       int                    `json:"n_ops_failed"`
-	NContractCalls   int                    `json:"n_contract_calls"`
+	NContractCalls   int                    `json:"n_calls"`
 	NEvents          int                    `json:"n_events"`
 	Volume           float64                `json:"volume"`
 	Fee              float64                `json:"fee"`

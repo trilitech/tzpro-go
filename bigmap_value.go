@@ -30,14 +30,13 @@ type BigmapValue struct {
 }
 
 type BigmapMeta struct {
-	Contract     tezos.Address   `json:"contract"`
-	BigmapId     int64           `json:"bigmap_id"`
-	UpdateTime   time.Time       `json:"time"`
-	UpdateHeight int64           `json:"height"`
-	UpdateBlock  tezos.BlockHash `json:"block"`
-	UpdateOp     tezos.OpHash    `json:"op"`
-	Sender       tezos.Address   `json:"sender"`
-	Source       tezos.Address   `json:"source"`
+	Contract     tezos.Address `json:"contract"`
+	BigmapId     int64         `json:"bigmap_id"`
+	UpdateTime   time.Time     `json:"time"`
+	UpdateHeight int64         `json:"height"`
+	UpdateOp     tezos.OpHash  `json:"op"`
+	Sender       tezos.Address `json:"sender"`
+	Source       tezos.Address `json:"source"`
 }
 
 func (v BigmapValue) GetString(path string) (string, bool) {
@@ -268,7 +267,7 @@ func (c *Client) GetBigmapValue(ctx context.Context, id int64, key string, param
 	return v, nil
 }
 
-func (c *Client) GetBigmapValues(ctx context.Context, id int64, params ContractParams) ([]BigmapValue, error) {
+func (c *Client) ListBigmapValues(ctx context.Context, id int64, params ContractParams) ([]BigmapValue, error) {
 	vals := make([]BigmapValue, 0)
 	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/values", id))
 	if err := c.get(ctx, u, nil, &vals); err != nil {

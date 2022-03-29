@@ -141,12 +141,3 @@ func (c *Client) ListBallots(ctx context.Context, id int, stage int) ([]Ballot, 
 	}
 	return ballots, nil
 }
-
-func (c *Client) ListVoterBallots(ctx context.Context, addr tezos.Address) ([]Ballot, error) {
-	ballots := make([]Ballot, 0)
-	u := fmt.Sprintf("/explorer/account/%s/ballots?limit=5000", addr)
-	if err := c.get(ctx, u, nil, &ballots); err != nil {
-		return nil, err
-	}
-	return ballots, nil
-}

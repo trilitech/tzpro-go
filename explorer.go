@@ -19,11 +19,11 @@ type Tip struct {
 	Symbol             string             `json:"symbol"`
 	ChainId            tezos.ChainIdHash  `json:"chain_id"`
 	GenesisTime        time.Time          `json:"genesis_time"`
-	BestHash           tezos.BlockHash    `json:"block_hash"`
-	Timestamp          time.Time          `json:"timestamp"`
-	Protocol           tezos.ProtocolHash `json:"protocol"`
+	Hash               tezos.BlockHash    `json:"block_hash"`
 	Height             int64              `json:"height"`
 	Cycle              int64              `json:"cycle"`
+	Timestamp          time.Time          `json:"timestamp"`
+	Protocol           tezos.ProtocolHash `json:"protocol"`
 	TotalAccounts      int64              `json:"total_accounts"`
 	FundedAccounts     int64              `json:"funded_accounts"`
 	DustAccounts       int64              `json:"dust_accounts"`

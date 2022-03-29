@@ -143,7 +143,7 @@ func (k MultiKey) Unmarshal(val interface{}) error {
 	return json.Unmarshal(buf, val)
 }
 
-func (c *Client) GetBigmapKeys(ctx context.Context, id int64, params ContractParams) ([]BigmapKey, error) {
+func (c *Client) ListBigmapKeys(ctx context.Context, id int64, params ContractParams) ([]BigmapKey, error) {
 	keys := make([]BigmapKey, 0)
 	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/keys", id))
 	if err := c.get(ctx, u, nil, &keys); err != nil {

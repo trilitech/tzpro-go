@@ -12,45 +12,46 @@ import (
 )
 
 type Chain struct {
-	RowId              uint64 `json:"row_id"`
-	Height             int64  `json:"height"`
-	Cycle              int64  `json:"cycle"`
-	Timestamp          int64  `json:"time"`
-	TotalAccounts      int64  `json:"total_accounts"`
-	TotalContracts     int64  `json:"total_contracts"`
-	TotalOps           int64  `json:"total_ops"`
-	TotalContractOps   int64  `json:"total_contract_ops"`
-	TotalContractCalls int64  `json:"total_contract_calls"`
-	TotalActivations   int64  `json:"total_activations"`
-	TotalNonces        int64  `json:"total_nonce_revelations"`
-	TotalEndorsements  int64  `json:"total_endorsements"`
-	TotalDoubleBake    int64  `json:"total_double_bakings"`
-	TotalDoubleEndorse int64  `json:"total_double_endorsements"`
-	TotalDelegations   int64  `json:"total_delegations"`
-	TotalReveals       int64  `json:"total_reveals"`
-	TotalOriginations  int64  `json:"total_originations"`
-	TotalTransactions  int64  `json:"total_transactions"`
-	TotalProposals     int64  `json:"total_proposals"`
-	TotalBallots       int64  `json:"total_ballots"`
-	TotalConstants     int64  `json:"total_constants"`
-	TotalSetLimits     int64  `json:"total_set_limits"`
-	TotalStorageBytes  int64  `json:"total_storage_bytes"`
-	FundedAccounts     int64  `json:"funded_accounts"`
-	DustAccounts       int64  `json:"dust_accounts"`
-	UnclaimedAccounts  int64  `json:"unclaimed_accounts"`
-	TotalDelegators    int64  `json:"total_delegators"`
-	ActiveDelegators   int64  `json:"active_delegators"`
-	InactiveDelegators int64  `json:"inactive_delegators"`
-	DustDelegators     int64  `json:"dust_delegators"`
-	TotalBakers        int64  `json:"total_bakers"`
-	ActiveBakers       int64  `json:"active_bakers"`
-	InactiveBakers     int64  `json:"inactive_bakers"`
-	ZeroBakers         int64  `json:"zero_bakers"`
-	SelfBakers         int64  `json:"self_bakers"`
-	SingleBakers       int64  `json:"single_bakers"`
-	MultiBakers        int64  `json:"multi_bakers"`
-	Rolls              int64  `json:"rolls"`
-	RollOwners         int64  `json:"roll_owners"`
+	RowId                uint64 `json:"row_id"`
+	Height               int64  `json:"height"`
+	Cycle                int64  `json:"cycle"`
+	Timestamp            int64  `json:"time"`
+	TotalAccounts        int64  `json:"total_accounts"`
+	TotalContracts       int64  `json:"total_contracts"`
+	TotalOps             int64  `json:"total_ops"`
+	TotalContractOps     int64  `json:"total_contract_ops"`
+	TotalContractCalls   int64  `json:"total_contract_calls"`
+	TotalActivations     int64  `json:"total_activations"`
+	TotalNonces          int64  `json:"total_nonce_revelations"`
+	TotalEndorsements    int64  `json:"total_endorsements"`
+	TotalPreendorsements int64  `json:"total_preendorsements"`
+	TotalDoubleBake      int64  `json:"total_double_bakings"`
+	TotalDoubleEndorse   int64  `json:"total_double_endorsements"`
+	TotalDelegations     int64  `json:"total_delegations"`
+	TotalReveals         int64  `json:"total_reveals"`
+	TotalOriginations    int64  `json:"total_originations"`
+	TotalTransactions    int64  `json:"total_transactions"`
+	TotalProposals       int64  `json:"total_proposals"`
+	TotalBallots         int64  `json:"total_ballots"`
+	TotalConstants       int64  `json:"total_constants"`
+	TotalSetLimits       int64  `json:"total_set_limits"`
+	TotalStorageBytes    int64  `json:"total_storage_bytes"`
+	FundedAccounts       int64  `json:"funded_accounts"`
+	DustAccounts         int64  `json:"dust_accounts"`
+	UnclaimedAccounts    int64  `json:"unclaimed_accounts"`
+	TotalDelegators      int64  `json:"total_delegators"`
+	ActiveDelegators     int64  `json:"active_delegators"`
+	InactiveDelegators   int64  `json:"inactive_delegators"`
+	DustDelegators       int64  `json:"dust_delegators"`
+	TotalBakers          int64  `json:"total_bakers"`
+	ActiveBakers         int64  `json:"active_bakers"`
+	InactiveBakers       int64  `json:"inactive_bakers"`
+	ZeroBakers           int64  `json:"zero_bakers"`
+	SelfBakers           int64  `json:"self_bakers"`
+	SingleBakers         int64  `json:"single_bakers"`
+	MultiBakers          int64  `json:"multi_bakers"`
+	Rolls                int64  `json:"rolls"`
+	RollOwners           int64  `json:"roll_owners"`
 
 	columns []string `json:"-"`
 }
@@ -119,7 +120,6 @@ func (c *Chain) UnmarshalJSONBrief(data []byte) error {
 		return err
 	}
 	for i, v := range c.columns {
-		// var t int64
 		f := unpacked[i]
 		if f == nil {
 			continue

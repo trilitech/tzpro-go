@@ -100,19 +100,6 @@ func (r CycleRights) RightAt(height int64, typ tezos.RightType) (Right, bool) {
 	return Right{}, false
 }
 
-// func decodeBitVector(s string) []int {
-// 	retval := make([]int, 0)
-// 	buf, _ := hex.DecodeString(s)
-// 	for idx, value := range buf {
-// 		for i := 0; i < 8; i++ {
-// 			if value&(1<<uint(i)) != 0 {
-// 				retval = append(retval, idx*8+i)
-// 			}
-// 		}
-// 	}
-// 	return retval
-// }
-
 type CycleRightsList struct {
 	Rows    []*CycleRights
 	columns []string

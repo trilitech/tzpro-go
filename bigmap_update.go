@@ -37,8 +37,6 @@ type BigmapUpdateRow struct {
 	Hash     tezos.ExprHash       `json:"hash,omitempty"`
 	Key      string               `json:"key,omitempty"`
 	Value    string               `json:"value,omitempty"`
-	OpId     uint64               `json:"op_id"`
-	Op       tezos.OpHash         `json:"op_hash,omitempty"`
 	Height   int64                `json:"height"`
 	Time     time.Time            `json:"time"`
 
@@ -201,10 +199,6 @@ func (b *BigmapUpdateRow) UnmarshalJSONBrief(data []byte) error {
 			br.Key = f.(string)
 		case "value":
 			br.Value = f.(string)
-		case "op_id":
-			br.OpId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "op":
-			br.Op, err = tezos.ParseOpHash(f.(string))
 		case "height":
 			br.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "time":
@@ -265,7 +259,7 @@ func (c *Client) QueryBigmapUpdates(ctx context.Context, filter FilterList, cols
 	return q.Run(ctx)
 }
 
-func (c *Client) GetBigmapUpdates(ctx context.Context, id int64, params ContractParams) ([]BigmapUpdate, error) {
+func (c *Client) ListBigmapUpdates(ctx context.Context, id int64, params ContractParams) ([]BigmapUpdate, error) {
 	upd := make([]BigmapUpdate, 0)
 	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/updates", id))
 	if err := c.get(ctx, u, nil, &upd); err != nil {
@@ -274,7 +268,7 @@ func (c *Client) GetBigmapUpdates(ctx context.Context, id int64, params Contract
 	return upd, nil
 }
 
-func (c *Client) GetBigmapKeyUpdates(ctx context.Context, id int64, key string, params ContractParams) ([]BigmapUpdate, error) {
+func (c *Client) ListBigmapKeyUpdates(ctx context.Context, id int64, key string, params ContractParams) ([]BigmapUpdate, error) {
 	upd := make([]BigmapUpdate, 0)
 	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/%s/updates", id, key))
 	if err := c.get(ctx, u, nil, &upd); err != nil {

@@ -165,7 +165,7 @@ func (c *Client) ListBakers(ctx context.Context, params BakerParams) ([]*Baker, 
     return b, nil
 }
 
-func (c *Client) GetBakerBallot(ctx context.Context, addr tezos.Address, params BakerParams) ([]*Ballot, error) {
+func (c *Client) ListBakerVotes(ctx context.Context, addr tezos.Address, params OpParams) ([]*Ballot, error) {
     cc := make([]*Ballot, 0)
     u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/votes", addr))
     if err := c.get(ctx, u, nil, &cc); err != nil {
@@ -174,7 +174,7 @@ func (c *Client) GetBakerBallot(ctx context.Context, addr tezos.Address, params 
     return cc, nil
 }
 
-func (c *Client) GetBakerEndorsements(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
+func (c *Client) ListBakerEndorsements(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
     ops := make([]*Op, 0)
     u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/endorsements", addr))
     if err := c.get(ctx, u, nil, &ops); err != nil {
@@ -183,7 +183,7 @@ func (c *Client) GetBakerEndorsements(ctx context.Context, addr tezos.Address, p
     return ops, nil
 }
 
-func (c *Client) GetBakerDelegations(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
+func (c *Client) ListBakerDelegations(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
     ops := make([]*Op, 0)
     u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/delegations", addr))
     if err := c.get(ctx, u, nil, &ops); err != nil {
@@ -192,7 +192,7 @@ func (c *Client) GetBakerDelegations(ctx context.Context, addr tezos.Address, pa
     return ops, nil
 }
 
-func (c *Client) GetBakerRights(ctx context.Context, addr tezos.Address, cycle int64, params OpParams) (*CycleRights, error) {
+func (c *Client) ListBakerRights(ctx context.Context, addr tezos.Address, cycle int64, params BakerParams) (*CycleRights, error) {
     var r CycleRights
     u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/rights/%d", addr, cycle))
     if err := c.get(ctx, u, nil, &r); err != nil {
@@ -201,7 +201,7 @@ func (c *Client) GetBakerRights(ctx context.Context, addr tezos.Address, cycle i
     return &r, nil
 }
 
-func (c *Client) GetBakerIncome(ctx context.Context, addr tezos.Address, cycle int64, params OpParams) (*CycleIncome, error) {
+func (c *Client) GetBakerIncome(ctx context.Context, addr tezos.Address, cycle int64, params BakerParams) (*CycleIncome, error) {
     var r CycleIncome
     u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/income/%d", addr, cycle))
     if err := c.get(ctx, u, nil, &r); err != nil {
@@ -210,9 +210,9 @@ func (c *Client) GetBakerIncome(ctx context.Context, addr tezos.Address, cycle i
     return &r, nil
 }
 
-func (c *Client) GetBakerSnapshot(ctx context.Context, addr tezos.Address, cycle int64, params OpParams) (*CycleSnapshot, error) {
+func (c *Client) GetBakerSnapshot(ctx context.Context, addr tezos.Address, cycle int64, params BakerParams) (*CycleSnapshot, error) {
     var r CycleSnapshot
-    u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/delegators/%d", addr, cycle))
+    u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/snapshot/%d", addr, cycle))
     if err := c.get(ctx, u, nil, &r); err != nil {
         return nil, err
     }
