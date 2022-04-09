@@ -31,7 +31,6 @@ type Op struct {
 	Status        tezos.OpStatus      `json:"status"`
 	IsSuccess     bool                `json:"is_success"`
 	IsContract    bool                `json:"is_contract"`
-	IsBatch       bool                `json:"is_batch,omitempty"`
 	IsEvent       bool                `json:"is_event"`
 	IsInternal    bool                `json:"is_internal"`
 	GasLimit      int64               `json:"gas_limit"`
@@ -58,14 +57,13 @@ type Op struct {
 	Accuser       tezos.Address       `json:"accuser,notable"`        // double_x
 	Data          json.RawMessage     `json:"data,omitempty"`
 	Errors        json.RawMessage     `json:"errors,omitempty"`
-	Parameters    *ContractParameters `json:"parameters,omitempty"`   // transaction
-	Storage       *ContractValue      `json:"storage,omitempty"`      // transaction, origination
-	BigmapDiff    []BigmapUpdate      `json:"big_map_diff,omitempty"` // transaction, origination
-	Value         micheline.Prim      `json:"value,omitempty"`        // register_constant
-	Power         int                 `json:"power,omitempty"`        // endorsement
-	Limit         *float64            `json:"limit,omitempty"`        // set deposits limit
+	Parameters    *ContractParameters `json:"parameters,omitempty"`    // transaction
+	Storage       *ContractValue      `json:"storage,omitempty"`       // transaction, origination
+	BigmapDiff    []BigmapUpdate      `json:"big_map_diff,omitempty"`  // transaction, origination
+	Value         micheline.Prim      `json:"value,omitempty,notable"` // register_constant
+	Power         int                 `json:"power,omitempty,notable"` // endorsement
+	Limit         *float64            `json:"limit,omitempty,notable"` // set deposits limit
 	Confirmations int64               `json:"confirmations,notable"`
-	BatchVolume   float64             `json:"batch_volume,omitempty,notable"`
 	Entrypoint    string              `json:"entrypoint,omitempty,notable"`
 	NOps          int                 `json:"n_ops,omitempty,notable"`
 	Batch         []*Op               `json:"batch,omitempty,notable"`
@@ -95,7 +93,7 @@ func (o *Op) Content() []*Op {
 	if len(o.Batch) == 0 && len(o.Internal) == 0 {
 		return list
 	}
-	if o.IsBatch {
+	if len(o.Batch) > 0 {
 		list = list[:0]
 		for _, v := range o.Batch {
 			list = append(list, v)
@@ -278,8 +276,6 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			op.IsSuccess, err = strconv.ParseBool(f.(json.Number).String())
 		case "is_contract":
 			op.IsContract, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_batch":
-			op.IsBatch, err = strconv.ParseBool(f.(json.Number).String())
 		case "is_event":
 			op.IsEvent, err = strconv.ParseBool(f.(json.Number).String())
 		case "is_internal":
