@@ -69,40 +69,40 @@ type BakerEvents struct {
 }
 
 type CycleIncome struct {
-    Address          tezos.Address `json:"address"`
-    Cycle            int64         `json:"cycle"`
-    Rolls            int64         `json:"snapshot_rolls"`
-    Balance          float64       `json:"own_balance"`
-    Delegated        float64       `json:"delegated_balance"`
-    Staking          float64       `json:"staking_balance"`
-    NDelegations     int64         `json:"n_delegations"`
-    NBakingRights    int64         `json:"n_baking_rights"`
-    NEndorsingRights int64         `json:"n_endorsing_rights"`
-    Luck             float64       `json:"luck"`
-    LuckPct          int64         `json:"luck_percent"`
-    ContributionPct  int64         `json:"contribution_percent"`
-    PerformancePct   int64         `json:"performance_percent"`
-    NBlocksBaked     int64         `json:"n_blocks_baked"`
-    NBlocksProposed  int64         `json:"n_blocks_proposed"`
-    NSlotsEndorsed   int64         `json:"n_slots_endorsed"`
-    NSeedsRevealed   int64         `json:"n_seeds_revealed"`
-    ExpectedIncome   float64       `json:"expected_income"`
-    TotalIncome      float64       `json:"total_income"`
-    TotalBonds       float64       `json:"total_bonds"`
-    BakingIncome     float64       `json:"baking_income"`
-    EndorsingIncome  float64       `json:"endorsing_income"`
-    AccusationIncome float64       `json:"accusation_income"`
-    SeedIncome       float64       `json:"seed_income"`
-    FeesIncome       float64       `json:"fees_income"`
-    TotalLoss        float64       `json:"total_loss"`
-    AccusationLoss   float64       `json:"accusation_loss"`
-    SeedLoss         float64       `json:"seed_loss"`
-    EndorsingLoss    float64       `json:"endorsing_loss"`
+    Cycle            int64   `json:"cycle"`
+    Rolls            int64   `json:"snapshot_rolls"`
+    Balance          float64 `json:"own_balance"`
+    Delegated        float64 `json:"delegated_balance"`
+    Staking          float64 `json:"staking_balance"`
+    NDelegations     int64   `json:"n_delegations"`
+    NBakingRights    int64   `json:"n_baking_rights"`
+    NEndorsingRights int64   `json:"n_endorsing_rights"`
+    Luck             float64 `json:"luck"`
+    LuckPct          int64   `json:"luck_percent"`
+    ContributionPct  int64   `json:"contribution_percent"`
+    PerformancePct   int64   `json:"performance_percent"`
+    NBlocksBaked     int64   `json:"n_blocks_baked"`
+    NBlocksProposed  int64   `json:"n_blocks_proposed"`
+    NSlotsEndorsed   int64   `json:"n_slots_endorsed"`
+    NSeedsRevealed   int64   `json:"n_seeds_revealed"`
+    ExpectedIncome   float64 `json:"expected_income"`
+    TotalIncome      float64 `json:"total_income"`
+    TotalBonds       float64 `json:"total_bonds"`
+    BakingIncome     float64 `json:"baking_income"`
+    EndorsingIncome  float64 `json:"endorsing_income"`
+    AccusationIncome float64 `json:"accusation_income"`
+    SeedIncome       float64 `json:"seed_income"`
+    FeesIncome       float64 `json:"fees_income"`
+    TotalLoss        float64 `json:"total_loss"`
+    AccusationLoss   float64 `json:"accusation_loss"`
+    SeedLoss         float64 `json:"seed_loss"`
+    EndorsingLoss    float64 `json:"endorsing_loss"`
 }
 
 type Delegator struct {
-    Address tezos.Address `json:"address"`
-    Balance float64       `json:"balance"`
+    Address  tezos.Address `json:"address"`
+    Balance  int64         `json:"balance"`
+    IsFunded bool          `json:"is_funded"`
 }
 
 type CycleSnapshot struct {
@@ -112,10 +112,23 @@ type CycleSnapshot struct {
     Timestamp        time.Time   `json:"snapshot_time"`
     Index            int         `json:"snapshot_index"`
     Rolls            int64       `json:"snapshot_rolls"`
-    StakingBalance   float64     `json:"staking_balance"`
-    OwnBalance       float64     `json:"own_balance"`
-    DelegatedBalance float64     `json:"delegated_balance"`
+    ActiveStake      int64       `json:"active_stake"`
+    StakingBalance   int64       `json:"staking_balance"`
+    OwnBalance       int64       `json:"own_balance"`
+    DelegatedBalance int64       `json:"delegated_balance"`
     NDelegations     int64       `json:"n_delegations"`
+    ExpectedIncome   int64       `json:"expected_income"`
+    TotalIncome      int64       `json:"total_income"`
+    TotalBonds       int64       `json:"total_bonds"`
+    BakingIncome     int64       `json:"baking_income"`
+    EndorsingIncome  int64       `json:"endorsing_income"`
+    AccusationIncome int64       `json:"accusation_income"`
+    SeedIncome       int64       `json:"seed_income"`
+    FeesIncome       int64       `json:"fees_income"`
+    TotalLoss        int64       `json:"total_loss"`
+    AccusationLoss   int64       `json:"accusation_loss"`
+    SeedLoss         int64       `json:"seed_loss"`
+    EndorsingLoss    int64       `json:"endorsing_loss"`
     Delegators       []Delegator `json:"delegators"`
 }
 
