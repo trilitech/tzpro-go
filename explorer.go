@@ -25,6 +25,7 @@ type Tip struct {
 	Timestamp          time.Time          `json:"timestamp"`
 	Protocol           tezos.ProtocolHash `json:"protocol"`
 	TotalAccounts      int64              `json:"total_accounts"`
+	TotalContracts     int64              `json:"total_contracts"`
 	FundedAccounts     int64              `json:"funded_accounts"`
 	DustAccounts       int64              `json:"dust_accounts"`
 	DustDelegators     int64              `json:"dust_delegators"`
