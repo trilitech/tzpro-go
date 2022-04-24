@@ -111,7 +111,15 @@ func (m Metadata) Merge(d Metadata) Metadata {
 }
 
 func (m Metadata) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.Contents)
+	out := make(map[string]interface{})
+	for n, v := range m.Contents {
+		out[n] = v
+	}
+	out["address"] = m.Address
+	if m.AssetId != nil {
+		out["asset_id"] = *m.AssetId
+	}
+	return json.Marshal(out)
 }
 
 func (m *Metadata) UnmarshalJSON(buf []byte) error {
