@@ -30,7 +30,7 @@ var (
 
 func init() {
 	DefaultClient, _ = NewClient("https://api.tzpro.io", nil)
-	IpfsClient, _ = NewClient("https://ipfs.tzstats.io/ipfs/", nil)
+	IpfsClient, _ = NewClient("https://ipfs.tzstats.com", nil)
 }
 
 type Client struct {
