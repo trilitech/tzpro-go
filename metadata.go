@@ -10,11 +10,27 @@ import (
 	"strconv"
 	"time"
 
-	"blockwatch.cc/tzgo/micheline"
+	"blockwatch.cc/tzgo/contract"
 	"blockwatch.cc/tzgo/tezos"
 	"github.com/echa/code/iata"
 	"github.com/echa/code/iso"
 )
+
+var Schemas = map[string]func() interface{}{
+	"alias":    func() interface{} { return new(AliasMetadata) },
+	"baker":    func() interface{} { return new(BakerMetadata) },
+	"payout":   func() interface{} { return new(PayoutMetadata) },
+	"asset":    func() interface{} { return new(AssetMetadata) },
+	"dex":      func() interface{} { return new(DexMetadata) },
+	"location": func() interface{} { return new(LocationMetadata) },
+	"domain":   func() interface{} { return new(DomainMetadata) },
+	"media":    func() interface{} { return new(MediaMetadata) },
+	"rights":   func() interface{} { return new(RightsMetadata) },
+	"social":   func() interface{} { return new(SocialMetadata) },
+	"tz16":     func() interface{} { return new(contract.Tz16) },
+	"tz21":     func() interface{} { return new(Tz21Metadata) },
+	"updated":  func() interface{} { return new(UpdatedMetadata) },
+}
 
 type MetadataDescriptor struct {
 	Title       string `json:"title"`
@@ -24,25 +40,9 @@ type MetadataDescriptor struct {
 
 type Metadata struct {
 	// address + id together are used as unique identifier
-	Address tezos.Address `json:"address"`
-	AssetId *int64        `json:"asset_id,omitempty"`
-
-	// public extensions
-	Alias    *AliasMetadata    `json:"alias,omitempty"`
-	Baker    *BakerMetadata    `json:"baker,omitempty"`
-	Payout   *PayoutMetadata   `json:"payout,omitempty"`
-	Asset    *AssetMetadata    `json:"asset,omitempty"`
-	Location *LocationMetadata `json:"location,omitempty"`
-	Domain   *DomainMetadata   `json:"domain,omitempty"`
-	Media    *MediaMetadata    `json:"media,omitempty"`
-	Rights   *RightsMetadata   `json:"rights,omitempty"`
-	Social   *SocialMetadata   `json:"social,omitempty"`
-	Tz16     *Tz16Metadata     `json:"tz16,omitempty"`
-	Tz21     *Tz21Metadata     `json:"tz21,omitempty"`
-	Updated  *UpdatedMetadata  `json:"updated,omitempty"`
-
-	// private extensions
-	Extra map[string]interface{} `json:"-"`
+	Address  tezos.Address          `json:"address"`
+	AssetId  *int64                 `json:"asset_id,omitempty"`
+	Contents map[string]interface{} `json:"-"`
 }
 
 func (m Metadata) ID() string {
@@ -53,20 +53,43 @@ func (m Metadata) ID() string {
 	return id
 }
 
+func (m Metadata) Has(name string) bool {
+	if m.Contents == nil {
+		return false
+	}
+	v, ok := m.Contents[name]
+	return ok && v != nil
+}
+
+func (m Metadata) Get(name string) interface{} {
+	if m.Contents != nil {
+		v, ok := m.Contents[name]
+		if ok {
+			return v
+		}
+	}
+	s, ok := Schemas[name]
+	if ok {
+		return s()
+	}
+	return make(map[string]interface{})
+}
+
+func (m *Metadata) Set(name string, data interface{}) {
+	if m.Contents == nil {
+		m.Contents = make(map[string]interface{})
+	}
+	m.Contents[name] = data
+}
+
+func (m *Metadata) Delete(name string) {
+	if m.Contents != nil {
+		delete(m.Contents, name)
+	}
+}
+
 func (m Metadata) IsEmpty() bool {
-	return m.Alias == nil &&
-		m.Baker == nil &&
-		m.Payout == nil &&
-		m.Asset == nil &&
-		m.Location == nil &&
-		m.Domain == nil &&
-		m.Media == nil &&
-		m.Rights == nil &&
-		m.Social == nil &&
-		m.Tz16 == nil &&
-		m.Tz21 == nil &&
-		m.Updated == nil &&
-		len(m.Extra) == 0
+	return len(m.Contents) == 0
 }
 
 func (m Metadata) Clone() Metadata {
@@ -78,96 +101,180 @@ func (m Metadata) Clone() Metadata {
 
 func (m Metadata) Merge(d Metadata) Metadata {
 	md := m
-	if d.Alias != nil {
-		md.Alias = d.Alias
-	}
-	if d.Baker != nil {
-		md.Baker = d.Baker
-	}
-	if d.Payout != nil {
-		md.Payout = d.Payout
-	}
-	if d.Asset != nil {
-		md.Asset = d.Asset
-	}
-	if d.Location != nil {
-		md.Location = d.Location
-	}
-	if d.Domain != nil {
-		md.Domain = d.Domain
-	}
-	if d.Media != nil {
-		md.Media = d.Media
-	}
-	if d.Rights != nil {
-		md.Rights = d.Rights
-	}
-	if d.Social != nil {
-		md.Social = d.Social
-	}
-	if d.Tz16 != nil {
-		md.Tz16 = d.Tz16
-	}
-	if d.Tz21 != nil {
-		md.Tz21 = d.Tz21
-	}
-	if d.Updated != nil {
-		md.Updated = d.Updated
+	for n, v := range d.Contents {
+		if v == nil {
+			continue
+		}
+		md.Contents[n] = v
 	}
 	return md
 }
 
 func (m Metadata) MarshalJSON() ([]byte, error) {
-	type xMetadata Metadata
-	buf, err := json.Marshal(xMetadata(m))
-	if err != nil {
-		return nil, err
-	}
-	if len(m.Extra) == 0 {
-		return buf, nil
-	}
-	rev := make(map[string]interface{})
-	json.Unmarshal(buf, &rev)
-	for n, v := range m.Extra {
-		rev[n] = v
-	}
-	return json.Marshal(rev)
+	return json.Marshal(m.Contents)
 }
 
 func (m *Metadata) UnmarshalJSON(buf []byte) error {
-	type xMetadata Metadata
+	type xMetadata map[string]json.RawMessage
 	xm := xMetadata{}
 	if err := json.Unmarshal(buf, &xm); err != nil {
 		return err
 	}
-	*m = Metadata(xm)
-	rev := make(map[string]interface{})
-	_ = json.Unmarshal(buf, &rev)
-	for n, v := range rev {
+	for n, v := range xm {
+		var err error
 		switch n {
-		case "address",
-			"asset_id",
-			"alias",
-			"baker",
-			"payout",
-			"asset",
-			"location",
-			"domain",
-			"media",
-			"rights",
-			"social",
-			"tz16",
-			"tz21",
-			"updated":
-			continue
+		case "address":
+			err = json.Unmarshal(v, &m.Address)
+		case "asset_id":
+			err = json.Unmarshal(v, &m.AssetId)
 		default:
-			if m.Extra == nil {
-				m.Extra = make(map[string]interface{})
+			var data interface{}
+			schema, ok := Schemas[n]
+			if ok {
+				data = schema()
+			} else {
+				data = make(map[string]interface{})
 			}
-			m.Extra[n] = v
+			err = json.Unmarshal(v, &data)
+			if err == nil {
+				m.Set(n, data)
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("Reading %q: %v", n, err)
 		}
 	}
 	return nil
+}
+
+func (m *Metadata) Alias() *AliasMetadata {
+	name := "alias"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*AliasMetadata)
+}
+
+func (m *Metadata) Baker() *BakerMetadata {
+	name := "baker"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*BakerMetadata)
+}
+
+func (m *Metadata) Payout() *PayoutMetadata {
+	name := "payout"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*PayoutMetadata)
+}
+
+func (m *Metadata) Asset() *AssetMetadata {
+	name := "asset"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*AssetMetadata)
+}
+
+func (m *Metadata) Dex() *DexMetadata {
+	name := "dex"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*DexMetadata)
+}
+
+func (m *Metadata) Location() *LocationMetadata {
+	name := "location"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*LocationMetadata)
+}
+
+func (m *Metadata) Domain() *DomainMetadata {
+	name := "domain"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*DomainMetadata)
+}
+
+func (m *Metadata) Media() *MediaMetadata {
+	name := "media"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*MediaMetadata)
+}
+
+func (m *Metadata) Rights() *RightsMetadata {
+	name := "rights"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*RightsMetadata)
+}
+
+func (m *Metadata) Social() *SocialMetadata {
+	name := "social"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*SocialMetadata)
+}
+
+func (m *Metadata) Tz16() *contract.Tz16 {
+	name := "tz16"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*contract.Tz16)
+}
+
+func (m *Metadata) Tz21() *Tz21Metadata {
+	name := "tz21"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*Tz21Metadata)
+}
+
+func (m *Metadata) Updated() *UpdatedMetadata {
+	name := "updated"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*UpdatedMetadata)
 }
 
 type AliasMetadata struct {
@@ -247,43 +354,6 @@ type SocialMetadata struct {
 	Github    string `json:"github,omitempty"`
 }
 
-type Tz16Metadata struct {
-	Name        string       `json:"name"`
-	Description string       `json:"description,omitempty"`
-	Version     string       `json:"version,omitempty"`
-	License     *Tz16License `json:"license,omitempty"`
-	Authors     []string     `json:"authors,omitempty"`
-	Homepage    string       `json:"homepage,omitempty"`
-	Source      *Tz16Source  `json:"source,omitempty"`
-	Interfaces  []string     `json:"interfaces,omitempty"`
-	Errors      []Tz16Error  `json:"errors,omitempty"`
-	Views       []Tz16View   `json:"views,omitempty"`
-}
-
-type Tz16License struct {
-	Name    string `json:"name"`
-	Details string `json:"details,omitempty"`
-}
-
-type Tz16Source struct {
-	Tools    []string `json:"tools"`
-	Location string   `json:"location,omitempty"`
-}
-
-type Tz16Error struct {
-	Error     *micheline.Prim `json:"error,omitempty"`
-	Expansion *micheline.Prim `json:"expansion,omitempty"`
-	Languages []string        `json:"languages,omitempty"`
-	View      string          `json:"view,omitempty"`
-}
-
-type Tz16View struct {
-	Name            string        `json:"name"`
-	Description     string        `json:"description,omitempty"`
-	Pure            bool          `json:"pure,omitempty"`
-	Implementations []interface{} `json:"implementations,omitempty"`
-}
-
 type Tz21Metadata struct {
 	Description        string          `json:"description"`
 	Minter             tezos.Address   `json:"minter"`
@@ -342,6 +412,29 @@ type UpdatedMetadata struct {
 	Hash   tezos.BlockHash `json:"hash"`
 	Height int64           `json:"height"`
 	Time   time.Time       `json:"time"`
+}
+
+// AMM and other decentralized exchanges
+type DexMetadata struct {
+	Kind       string    `json:"kind"`                  // quipu_v1, quipu_token, quipu_v2, vortex, ..
+	TradingFee float64   `json:"trading_fee,omitempty"` // trading fee
+	ExitFee    float64   `json:"exit_fee,omitempty"`    // remove liquidity fee
+	Url        string    `json:"url,omitempty"`         // homepage
+	Tags       []string  `json:"tags,omitempty"`        // optional array of tags
+	Pairs      []DexPair `json:"pairs"`                 // trading pairs
+}
+
+type DexPair struct {
+	PairId *int64   `json:"pair_id,omitempty"` // 0 when single pool dex
+	TokenA DexToken `json:"token_a"`
+	TokenB DexToken `json:"token_b"`
+	Url    string   `json:"url,omitempty"` // deep link
+}
+
+type DexToken struct {
+	Type    string `json:"type"`               // tez, fa12, fa2
+	Address string `json:"address,omitempty"`  // token ledger, only used for FA*
+	TokenId *int64 `json:"token_id,omitempty"` // only used for FA2
 }
 
 func (c *Client) ListMetadata(ctx context.Context) ([]Metadata, error) {
@@ -404,4 +497,28 @@ func (c *Client) Describe(ctx context.Context, ident string) (MetadataDescriptor
 		return resp, err
 	}
 	return resp, nil
+}
+
+func (c *Client) GetMetadataSchema(ctx context.Context, name string) (json.RawMessage, error) {
+	var msg json.RawMessage
+	if err := c.get(ctx, "/metadata/schemas/"+name, nil, &msg); err != nil {
+		return nil, err
+	}
+	return msg, nil
+}
+
+func (c *Client) GetAllMetadataSchemas(ctx context.Context) (map[string]json.RawMessage, error) {
+	schemas := make(map[string]json.RawMessage)
+	names := make([]string, 0)
+	if err := c.get(ctx, "/metadata/schemas", nil, &names); err != nil {
+		return nil, err
+	}
+	for _, name := range names {
+		s, err := c.GetMetadataSchema(ctx, name)
+		if err != nil {
+			return nil, err
+		}
+		schemas[name] = s
+	}
+	return schemas, nil
 }
