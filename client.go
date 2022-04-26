@@ -6,6 +6,7 @@ package tzpro
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -77,6 +78,11 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 
 func (c *Client) DefaultHeaders() http.Header {
 	return c.headers
+}
+
+func (c *Client) WithTLS(tc *tls.Config) *Client {
+	c.httpClient.Transport.(*http.Transport).TLSClientConfig = tc
+	return c
 }
 
 func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
@@ -176,6 +182,10 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 
 	// add all passed in headers
 	for n, v := range headers {
+		if strings.ToLower(n) == "host" {
+			req.Host = v[0]
+			continue
+		}
 		for _, vv := range v {
 			req.Header.Add(n, vv)
 		}
