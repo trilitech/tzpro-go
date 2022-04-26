@@ -13,6 +13,7 @@ import (
 
 	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go"
+	"github.com/echa/log"
 )
 
 const (
@@ -34,7 +35,7 @@ func init() {
 	flags.BoolVar(&verbose, "v", false, "be verbose")
 	flags.BoolVar(&nofail, "nofail", false, "no fail on IPFS error")
 	flags.StringVar(&index, "index", "https://api.tzpro.io", "TzStats API URL")
-	flags.StringVar(&ipfs, "ipfs", "https://ipfs.tzstats.com/ipfs", "IPFS gateway URL")
+	flags.StringVar(&ipfs, "ipfs", "https://ipfs.tzstats.com", "IPFS gateway URL")
 	flags.IntVar(&offset, "offset", 0, "NFT List offset")
 	flags.StringVar(&store, "store", "nfts/", "path where we store metadata downloaded frm IPFS")
 }
@@ -101,6 +102,11 @@ func run() error {
 		return err
 	}
 
+	if verbose {
+		log.SetLevel(log.LevelDebug)
+		tzpro.UseLogger(log.Log)
+	}
+
 	// use a placeholder calling context
 	ctx := context.Background()
 
@@ -140,7 +146,7 @@ func findExploits(ctx context.Context, c, ipfsc *tzpro.Client) error {
 		WithLimit(500).
 		WithOffset(uint(offset))
 	for {
-		nfts, err := c.GetBigmapValues(ctx, HIC_NFT_BIGMAP, params)
+		nfts, err := c.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
 		if err != nil {
 			return err
 		}
@@ -206,7 +212,7 @@ func fetch(ctx context.Context, c, ipfsc *tzpro.Client) error {
 		WithLimit(500).
 		WithOffset(uint(offset))
 	for {
-		nfts, err := c.GetBigmapValues(ctx, HIC_NFT_BIGMAP, params)
+		nfts, err := c.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
 		if err != nil {
 			return err
 		}
@@ -258,7 +264,7 @@ func list(ctx context.Context, c *tzpro.Client) error {
 		WithLimit(500).
 		WithOffset(uint(offset))
 	for {
-		nfts, err := c.GetBigmapValues(ctx, HIC_NFT_BIGMAP, params)
+		nfts, err := c.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
 		if err != nil {
 			return err
 		}

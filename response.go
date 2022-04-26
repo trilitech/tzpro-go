@@ -138,7 +138,7 @@ func receiveFuture(ctx context.Context, f chan *response) (*response, error) {
 
 func mergeHeaders(merged, header, trailer http.Header) http.Header {
 	if merged == nil {
-		return merged
+		merged = make(http.Header)
 	}
 	for n, _ := range merged {
 		merged.Del(n)

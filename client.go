@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ClientVersion    = "0.11.3"
+	ClientVersion    = "0.12.0"
 	DefaultLimit     = 50000
 	DefaultCacheSize = 2048
 	userAgent        = "tzpro-go/v" + ClientVersion
@@ -37,6 +37,7 @@ type Client struct {
 	httpClient *http.Client
 	params     Params
 	cache      *lru.TwoQueueCache
+	headers    http.Header
 	UserAgent  string
 }
 
@@ -46,7 +47,19 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 		return nil, err
 	}
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				Proxy:                 http.ProxyFromEnvironment,
+				ForceAttemptHTTP2:     true,
+				MaxIdleConns:          10,
+				MaxConnsPerHost:       10,
+				IdleConnTimeout:       30 * time.Second,
+				DisableCompression:    false,
+				TLSHandshakeTimeout:   5 * time.Second,
+				ResponseHeaderTimeout: 60 * time.Second,
+			},
+			Timeout: 75 * time.Second,
+		}
 	}
 	sz := DefaultCacheSize
 	if sz < 2 {
@@ -57,8 +70,13 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 		httpClient: httpClient,
 		params:     params,
 		cache:      cache,
+		headers:    make(http.Header),
 		UserAgent:  userAgent,
 	}, nil
+}
+
+func (c *Client) DefaultHeaders() http.Header {
+	return c.headers
 }
 
 func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
@@ -90,10 +108,6 @@ func (c *Client) call(ctx context.Context, method, path string, headers http.Hea
 }
 
 func (c *Client) callAsync(ctx context.Context, method, path string, headers http.Header, data, result interface{}) FutureResult {
-	if headers == nil {
-		headers = make(http.Header)
-	}
-	headers.Set("User-Agent", c.UserAgent)
 	if !strings.HasPrefix(path, "http") {
 		path = c.params.Url(path)
 	}
@@ -118,6 +132,14 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 	// prepare headers
 	if headers == nil {
 		headers = make(http.Header)
+	}
+	headers.Set("User-Agent", c.UserAgent)
+
+	// copy default headers
+	for n, v := range c.headers {
+		for _, vv := range v {
+			headers.Add(n, vv)
+		}
 	}
 
 	// prepare POST/PUT/PATCH payload
