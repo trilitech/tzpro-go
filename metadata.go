@@ -286,20 +286,20 @@ func (m *Metadata) Updated() *UpdatedMetadata {
 }
 
 type AliasMetadata struct {
-	Name        string `json:"name"`
-	Kind        string `json:"kind"`
-	Description string `json:"description,omitempty"`
-	Category    string `json:"category,omitempty"`
-	Logo        string `json:"logo,omitempty"`
+	Name        string   `json:"name"`
+	Kind        string   `json:"kind"`
+	Description string   `json:"description,omitempty"`
+	Category    string   `json:"category,omitempty"`
+	Logo        string   `json:"logo,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
 }
 
 type AssetMetadata struct {
-	Standard string   `json:"standard,omitempty"`
-	Symbol   string   `json:"symbol,omitempty"`
-	Decimals int      `json:"decimals,omitempty"`
-	Version  string   `json:"version,omitempty"`
-	Homepage string   `json:"homepage,omitempty"`
-	Tags     []string `json:"tags,omitempty"`
+	Standard string `json:"standard,omitempty"`
+	Symbol   string `json:"symbol,omitempty"`
+	Decimals int    `json:"decimals,omitempty"`
+	Version  string `json:"version,omitempty"`
+	Homepage string `json:"homepage,omitempty"`
 }
 
 type BakerMetadata struct {
@@ -428,7 +428,6 @@ type DexMetadata struct {
 	TradingFee float64   `json:"trading_fee,omitempty"` // trading fee
 	ExitFee    float64   `json:"exit_fee,omitempty"`    // remove liquidity fee
 	Url        string    `json:"url,omitempty"`         // homepage
-	Tags       []string  `json:"tags,omitempty"`        // optional array of tags
 	Pairs      []DexPair `json:"pairs"`                 // trading pairs
 }
 
