@@ -134,7 +134,7 @@ var ZmqRawBlockColumns = []string{
 }
 
 var ZmqRawOpColumns = []string{
-	"row_id",
+	"id",
 	"type",
 	"hash",
 	"block",

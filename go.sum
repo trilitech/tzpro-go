@@ -1,5 +1,5 @@
-blockwatch.cc/tzgo v1.12.3-0.20220424062827-eaf42483f53c h1:RYMhsEflo/b7HxRv5furVum4SeNVSNXMXtQZZGchj6c=
-blockwatch.cc/tzgo v1.12.3-0.20220424062827-eaf42483f53c/go.mod h1:3ZLUqaM6WUDPeo0stojSWrJOR/9pQqJVcLoghpLfpMg=
+blockwatch.cc/tzgo v1.12.4-0.20220506161255-44a4483eef62 h1:z+BnYV0cQezDosn4ufsateDAjhbtc3PQoFOEaGsmSL0=
+blockwatch.cc/tzgo v1.12.4-0.20220506161255-44a4483eef62/go.mod h1:DBtZIXOPnzoa3qNA6CRpKifLkoauPff/5fBq4jALeww=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/daviddengcn/go-colortext v1.0.0 h1:ANqDyC0ys6qCSvuEK7l3g5RaehL/Xck9EX8ATG8oKsE=
@@ -12,6 +12,8 @@ github.com/decred/dcrd/dcrec/secp256k1 v1.0.3 h1:u4XpHqlscRolxPxt2YHrFBDVZYY1AK+
 github.com/decred/dcrd/dcrec/secp256k1 v1.0.3/go.mod h1:eCL8H4MYYjRvsw2TuANvEOcVMFbmi9rt/6hJUWU5wlU=
 github.com/decred/dcrd/dcrec/secp256k1/v2 v2.0.0 h1:3GIJYXQDAKpLEFriGFN8SbSffak10UXHGdIcFaMPykY=
 github.com/decred/dcrd/dcrec/secp256k1/v2 v2.0.0/go.mod h1:3s92l0paYkZoIHuj4X93Teg/HB7eGM9x/zokGw+u4mY=
+github.com/echa/bson v0.0.0-20220430141917-c0fbdf7f8b79 h1:J+/tX7s5mN1aoeQi2ySzix7+zyEhnymkudOxn7VMze4=
+github.com/echa/bson v0.0.0-20220430141917-c0fbdf7f8b79/go.mod h1:Ih8Pfj34Z/kOmaLua+KtFWFK3AviGsH5siipj6Gmoa8=
 github.com/echa/code v0.0.0-20201118130056-1878364e4ad4 h1:WYlhoQDiPM/AZVcIyskmvhfaqdhuK43yB2NuY+lx1Xk=
 github.com/echa/code v0.0.0-20201118130056-1878364e4ad4/go.mod h1:ZDcNR/KxbS2CCjtolHhGP5dl+9Ux7terHosEJNChm+U=
 github.com/echa/config v1.0.5 h1:1XngXM78EqC3meAZf5Rzn8RHtOoPcjNUN0JHAj8F3+o=
@@ -19,8 +21,6 @@ github.com/echa/config v1.0.5/go.mod h1:h3cZdL8TqIKrYMO/R+aJp/Usc3/8rZsfzN1rWDuy
 github.com/echa/log v1.1.0/go.mod h1:V8lWE4YGcwDdg0IPBqDQ9eWp2MdsMHfvHpSjaIp4+VQ=
 github.com/echa/log v1.1.1 h1:NAEbSA7K0lehmSuWG7j5coPyT0cjuMKLaoVl5T7K8J0=
 github.com/echa/log v1.1.1/go.mod h1:V8lWE4YGcwDdg0IPBqDQ9eWp2MdsMHfvHpSjaIp4+VQ=
-github.com/go-bson/bson v0.0.0-20171017145622-6d291e839eca h1:jPdPq2xinuUF8i7qSJgGFGXYwLLrEun8Gkz2hnKl0AM=
-github.com/go-bson/bson v0.0.0-20171017145622-6d291e839eca/go.mod h1:6wiyFSKWkT/Lb+bV2RNbeGdC4ctqsZ/Bv46cDGj9JBE=
 github.com/go-zeromq/goczmq/v4 v4.2.2 h1:HAJN+i+3NW55ijMJJhk7oWxHKXgAuSBkoFfvr8bYj4U=
 github.com/go-zeromq/goczmq/v4 v4.2.2/go.mod h1:Sm/lxrfxP/Oxqs0tnHD6WAhwkWrx+S+1MRrKzcxoaYE=
 github.com/go-zeromq/zmq4 v0.13.0 h1:XUWXLyeRsPsv4KlKMXnv/cEm//Vew2RLuNmDFQnZQXU=
