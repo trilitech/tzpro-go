@@ -18,9 +18,12 @@ type Chain struct {
 	Timestamp            int64  `json:"time"`
 	TotalAccounts        int64  `json:"total_accounts"`
 	TotalContracts       int64  `json:"total_contracts"`
+	TotalRollups         int64  `json:"total_rollups"`
 	TotalOps             int64  `json:"total_ops"`
+	TotalOpsFailed       int64  `json:"total_ops_failed"`
 	TotalContractOps     int64  `json:"total_contract_ops"`
 	TotalContractCalls   int64  `json:"total_contract_calls"`
+	TotalRollupCalls     int64  `json:"total_rollup_calls"`
 	TotalActivations     int64  `json:"total_activations"`
 	TotalNonces          int64  `json:"total_nonce_revelations"`
 	TotalEndorsements    int64  `json:"total_endorsements"`
@@ -137,12 +140,18 @@ func (c *Chain) UnmarshalJSONBrief(data []byte) error {
 			cc.TotalAccounts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_contracts":
 			cc.TotalContracts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+		case "total_rollups":
+			cc.TotalRollups, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_ops":
 			cc.TotalOps, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+		case "total_ops_failed":
+			cc.TotalOpsFailed, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_contract_ops":
 			cc.TotalContractOps, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_contract_calls":
 			cc.TotalContractCalls, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+		case "total_rollup_calls":
+			cc.TotalRollupCalls, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_activations":
 			cc.TotalActivations, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_nonce_revelations":

@@ -44,6 +44,8 @@ type Account struct {
 	TotalFeesPaid      float64             `json:"total_fees_paid"`
 	UnclaimedBalance   float64             `json:"unclaimed_balance,omitempty"`
 	SpendableBalance   float64             `json:"spendable_balance"`
+	FrozenBond         float64             `json:"frozen_bond"`
+	LostBond           float64             `json:"lost_bond"`
 	IsFunded           bool                `json:"is_funded"`
 	IsActivated        bool                `json:"is_activated"`
 	IsDelegated        bool                `json:"is_delegated"`
@@ -185,6 +187,10 @@ func (a *Account) UnmarshalJSONBrief(data []byte) error {
 			acc.UnclaimedBalance, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "spendable_balance":
 			acc.SpendableBalance, err = strconv.ParseFloat(f.(json.Number).String(), 64)
+		case "frozen_bond":
+			acc.FrozenBond, err = strconv.ParseFloat(f.(json.Number).String(), 64)
+		case "lost_bond":
+			acc.LostBond, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "is_funded":
 			acc.IsFunded, err = strconv.ParseBool(f.(json.Number).String())
 		case "is_activated":

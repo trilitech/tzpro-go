@@ -210,8 +210,11 @@ type ContractMeta struct {
 }
 
 type ContractParameters struct {
-	ContractValue
-	Entrypoint string `json:"entrypoint"`
+	ContractValue                 // contract
+	Entrypoint    string          `json:"entrypoint"`           // contract
+	L2Address     *tezos.Address  `json:"l2_address,omitempty"` // rollup
+	Method        string          `json:"method,omitempty"`     // rollup
+	Arguments     json.RawMessage `json:"arguments,omitempty"`  // rollup
 }
 
 type ContractScript struct {

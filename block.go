@@ -36,6 +36,7 @@ type Block struct {
 	NOpsApplied      int                    `json:"n_ops_applied"`
 	NOpsFailed       int                    `json:"n_ops_failed"`
 	NContractCalls   int                    `json:"n_calls"`
+	NRollupCalls     int                    `json:"n_rollup_calls"`
 	NEvents          int                    `json:"n_events"`
 	Volume           float64                `json:"volume"`
 	Fee              float64                `json:"fee"`
@@ -264,8 +265,10 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 			block.NOpsApplied, err = strconv.Atoi(f.(json.Number).String())
 		case "n_ops_failed":
 			block.NOpsFailed, err = strconv.Atoi(f.(json.Number).String())
-		case "n_contract_calls":
+		case "n_calls":
 			block.NContractCalls, err = strconv.Atoi(f.(json.Number).String())
+		case "n_rollup_calls":
+			block.NRollupCalls, err = strconv.Atoi(f.(json.Number).String())
 		case "n_events":
 			block.NEvents, err = strconv.Atoi(f.(json.Number).String())
 		case "volume":

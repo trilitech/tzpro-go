@@ -32,6 +32,7 @@ type Op struct {
 	IsContract   bool                `json:"is_contract"`
 	IsInternal   bool                `json:"is_internal"`
 	IsEvent      bool                `json:"is_event"`
+	IsRollup     bool                `json:"is_rollup"`
 	Counter      int64               `json:"counter"`
 	GasLimit     int64               `json:"gas_limit"`
 	GasUsed      int64               `json:"gas_used"`
@@ -284,6 +285,8 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			op.IsEvent, err = strconv.ParseBool(f.(json.Number).String())
 		case "is_internal":
 			op.IsInternal, err = strconv.ParseBool(f.(json.Number).String())
+		case "is_rollup":
+			op.IsRollup, err = strconv.ParseBool(f.(json.Number).String())
 		case "gas_limit":
 			op.GasLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "gas_used":
@@ -331,8 +334,9 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			op.Parameters.Entrypoint = f.(string)
 			op.Entrypoint = f.(string)
 		case "parameters":
+			// FIXME: support rollup params here
 			var buf []byte
-			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
+			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 && !op.IsRollup {
 				params := &micheline.Parameters{}
 				err = params.UnmarshalBinary(buf)
 				if err == nil {
@@ -355,6 +359,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			buf, err = hex.DecodeString(f.(string))
 			op.StorageHash = binary.BigEndian.Uint64(buf[:8])
 		case "storage":
+			// ZMQ only
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
 				prim := micheline.Prim{}
 				err = prim.UnmarshalBinary(buf)
@@ -374,6 +379,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 				}
 			}
 		case "big_map_diff":
+			// ZMQ only
 			var buf []byte
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
 				bmd := make(micheline.BigmapEvents, 0)

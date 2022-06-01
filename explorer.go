@@ -26,6 +26,7 @@ type Tip struct {
 	Protocol           tezos.ProtocolHash `json:"protocol"`
 	TotalAccounts      int64              `json:"total_accounts"`
 	TotalContracts     int64              `json:"total_contracts"`
+	TotalRollups       int64              `json:"total_rollups"`
 	FundedAccounts     int64              `json:"funded_accounts"`
 	DustAccounts       int64              `json:"dust_accounts"`
 	DustDelegators     int64              `json:"dust_delegators"`
@@ -241,6 +242,7 @@ type Supply struct {
 	Delegated           float64   `json:"delegated"`
 	Staking             float64   `json:"staking"`
 	Shielded            float64   `json:"shielded"`
+	ActiveStake         float64   `json:"active_stake"`
 	ActiveDelegated     float64   `json:"active_delegated"`
 	ActiveStaking       float64   `json:"active_staking"`
 	InactiveDelegated   float64   `json:"inactive_delegated"`
@@ -260,8 +262,10 @@ type Supply struct {
 	BurnedExplicit      float64   `json:"burned_explicit"`
 	BurnedSeedMiss      float64   `json:"burned_seed_miss"`
 	BurnedAbsence       float64   `json:"burned_absence"`
+	BurnedRollup        float64   `json:"burned_rollup"`
 	Frozen              float64   `json:"frozen"`
 	FrozenDeposits      float64   `json:"frozen_deposits"`
 	FrozenRewards       float64   `json:"frozen_rewards"`
 	FrozenFees          float64   `json:"frozen_fees"`
+	FrozenBonds         float64   `json:"frozen_bonds"`
 }
