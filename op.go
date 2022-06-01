@@ -244,7 +244,6 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 		return err
 	}
 	for i, v := range o.columns {
-		fmt.Printf("Field %d = %v\n", i, v)
 		var buf []byte
 		f := unpacked[i]
 		if f == nil {
