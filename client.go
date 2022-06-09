@@ -16,7 +16,6 @@ import (
 	"strings"
 	"time"
 
-	"blockwatch.cc/tzgo/tezos"
 	lru "github.com/hashicorp/golang-lru"
 )
 
@@ -290,7 +289,7 @@ func (c *Client) handleRequest(req *request) {
 			}
 			return
 		}
-		err = fmt.Errorf("unmarshalling reply: %w", err)
+		err = fmt.Errorf("unmarshaling reply: %w", err)
 	}
 	req.responseChan <- &response{
 		status:  resp.StatusCode,
@@ -299,21 +298,4 @@ func (c *Client) handleRequest(req *request) {
 		result:  respBytes,
 		err:     err,
 	}
-}
-
-func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Address) (*ContractScript, error) {
-	if c.cache != nil {
-		if script, ok := c.cache.Get(addr.String()); ok {
-			return script.(*ContractScript), nil
-		}
-	}
-	log.Tracef("Loading contract %s", addr)
-	script, err := c.GetContractScript(ctx, addr, NewContractParams().WithPrim())
-	if err != nil {
-		return nil, err
-	}
-	if c.cache != nil {
-		c.cache.Add(addr.String(), script)
-	}
-	return script, nil
 }

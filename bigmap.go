@@ -43,10 +43,11 @@ func (b Bigmap) MakeValueType() micheline.Type {
 }
 
 type BigmapRow struct {
-	RowId        uint64          `json:"row_id"`
-	Contract     tezos.Address   `json:"contract"`
-	AccountId    uint64          `json:"account_id"`
-	BigmapId     int64           `json:"bigmap_id"`
+	RowId     uint64        `json:"row_id"`
+	Contract  tezos.Address `json:"contract"`
+	AccountId uint64        `json:"account_id"`
+	BigmapId  int64         `json:"bigmap_id"`
+	// Name         string          `json:"name"`
 	NUpdates     int64           `json:"n_updates"`
 	NKeys        int64           `json:"n_keys"`
 	AllocHeight  int64           `json:"alloc_height"`

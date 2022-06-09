@@ -2,6 +2,8 @@ module blockwatch.cc/tzpro-go
 
 go 1.16
 
+replace blockwatch.cc/tzgo => /Users/echa/GIT/blockwatch/go/src/blockwatch.cc/tzgo
+
 require (
 	blockwatch.cc/tzgo v1.12.4-0.20220602172037-655fae896707
 	github.com/daviddengcn/go-colortext v1.0.0

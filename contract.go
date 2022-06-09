@@ -218,27 +218,20 @@ type ContractParameters struct {
 }
 
 type ContractScript struct {
-	Script      *micheline.Script     `json:"script,omitempty"`
-	StorageType micheline.Typedef     `json:"storage_type"`
-	Entrypoints micheline.Entrypoints `json:"entrypoints"`
-	Views       micheline.Views       `json:"views,omitempty"`
-	Bigmaps     map[string]int64      `json:"bigmaps,omitempty"`
+	Script          *micheline.Script         `json:"script,omitempty"`
+	StorageType     micheline.Typedef         `json:"storage_type"`
+	Entrypoints     micheline.Entrypoints     `json:"entrypoints"`
+	Views           micheline.Views           `json:"views,omitempty"`
+	BigmapNames     map[string]int64          `json:"bigmaps,omitempty"`
+	BigmapTypes     map[string]micheline.Type `json:"bigmap_types,omitempty"`
+	BigmapTypesById map[int64]micheline.Type  `json:"-"`
 }
 
 func (s ContractScript) Types() (param, store micheline.Type, eps micheline.Entrypoints, bigmaps map[int64]micheline.Type) {
 	param = s.Script.ParamType()
 	store = s.Script.StorageType()
 	eps, _ = s.Script.Entrypoints(true)
-	bigmaps = make(map[int64]micheline.Type)
-	if named := s.Script.BigmapTypesByName(); len(named) > 0 {
-		for name, id := range s.Bigmaps {
-			typ, ok := named[name]
-			if !ok {
-				continue
-			}
-			bigmaps[id] = typ
-		}
-	}
+	bigmaps = s.BigmapTypesById
 	return
 }
 
@@ -272,6 +265,10 @@ func (v ContractValue) AsPrim() (micheline.Prim, bool) {
 	}
 
 	return micheline.InvalidPrim, false
+}
+
+func (v ContractValue) Has(path string) bool {
+	return hasPath(v.Value, path)
 }
 
 func (v ContractValue) GetString(path string) (string, bool) {
@@ -448,11 +445,33 @@ func (c *Client) GetContractStorage(ctx context.Context, addr tezos.Address, par
 	return cc, nil
 }
 
-func (c *Client) GetContractCalls(ctx context.Context, addr tezos.Address, params ContractParams) ([]*Op, error) {
+func (c *Client) ListContractCalls(ctx context.Context, addr tezos.Address, params ContractParams) ([]*Op, error) {
 	calls := make([]*Op, 0)
 	u := params.AppendQuery(fmt.Sprintf("/explorer/contract/%s/calls", addr))
 	if err := c.get(ctx, u, nil, &calls); err != nil {
 		return nil, err
 	}
 	return calls, nil
+}
+
+func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Address) (*ContractScript, error) {
+	if c.cache != nil {
+		if script, ok := c.cache.Get(addr.String()); ok {
+			return script.(*ContractScript), nil
+		}
+	}
+	log.Tracef("Loading contract %s", addr)
+	script, err := c.GetContractScript(ctx, addr, NewContractParams().WithPrim())
+	if err != nil {
+		return nil, err
+	}
+	script.BigmapTypesById = make(map[int64]micheline.Type)
+	for n, v := range script.BigmapTypes {
+		id := script.BigmapNames[n]
+		script.BigmapTypesById[id] = v
+	}
+	if c.cache != nil {
+		c.cache.Add(addr.String(), script)
+	}
+	return script, nil
 }
