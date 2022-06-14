@@ -39,6 +39,10 @@ type BigmapMeta struct {
 	Source       tezos.Address `json:"source"`
 }
 
+func (v BigmapValue) Has(path string) bool {
+	return hasPath(v.Value, path)
+}
+
 func (v BigmapValue) GetString(path string) (string, bool) {
 	return getPathString(v.Value, path)
 }

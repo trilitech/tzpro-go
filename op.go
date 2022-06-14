@@ -6,6 +6,7 @@ package tzpro
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -17,54 +18,80 @@ import (
 	"blockwatch.cc/tzgo/tezos"
 )
 
+type Costs struct {
+	Fee            float64 // the total fee paid
+	Burn           float64 // total amount burned (not included in fee)
+	GasUsed        int64   // gas used
+	StorageUsed    int64   // new storage bytes allocated
+	StorageBurn    float64 // burned for allocating new storage (not included in fee)
+	AllocationBurn float64 // burned for allocating a new account (not included in fee)
+}
+
+func (x Costs) Add(y Costs) Costs {
+	x.Fee += y.Fee
+	x.Burn += y.Burn
+	x.GasUsed += y.GasUsed
+	x.StorageUsed += y.StorageUsed
+	x.StorageBurn += y.StorageBurn
+	x.AllocationBurn += y.AllocationBurn
+	return x
+}
+
+func (x Costs) Sum() float64 {
+	return x.Fee + x.Burn
+}
+
 type Op struct {
-	Id            uint64              `json:"id"`
-	Hash          tezos.OpHash        `json:"hash"`
-	Type          OpType              `json:"type"`
-	Block         tezos.BlockHash     `json:"block"`
-	Timestamp     time.Time           `json:"time"`
-	Height        int64               `json:"height"`
-	Cycle         int64               `json:"cycle"`
-	Counter       int64               `json:"counter"`
-	OpN           int                 `json:"op_n"`
-	OpP           int                 `json:"op_p"`
-	Status        tezos.OpStatus      `json:"status"`
-	IsSuccess     bool                `json:"is_success"`
-	IsContract    bool                `json:"is_contract"`
-	IsEvent       bool                `json:"is_event"`
-	IsInternal    bool                `json:"is_internal"`
-	GasLimit      int64               `json:"gas_limit"`
-	GasUsed       int64               `json:"gas_used"`
-	StorageLimit  int64               `json:"storage_limit"`
-	StoragePaid   int64               `json:"storage_paid"`
-	Volume        float64             `json:"volume"`
-	Fee           float64             `json:"fee"`
-	Reward        float64             `json:"reward"`
-	Deposit       float64             `json:"deposit"`
-	Burned        float64             `json:"burned"`
-	TDD           float64             `json:"days_destroyed"`
-	SenderId      uint64              `json:"sender_id"`
-	ReceiverId    uint64              `json:"receiver_id"`
-	CreatorId     uint64              `json:"creator_id"`
-	BakerId       uint64              `json:"baker_id"`
-	Sender        tezos.Address       `json:"sender"`
-	Receiver      tezos.Address       `json:"receiver"`
-	Creator       tezos.Address       `json:"creator"`                // origination
-	Baker         tezos.Address       `json:"baker"`                  // delegation, origination
-	PrevBaker     tezos.Address       `json:"previous_baker,notable"` // delegation
-	Source        tezos.Address       `json:"source,notable"`         // internal operations
-	Offender      tezos.Address       `json:"offender,notable"`       // double_x
-	Accuser       tezos.Address       `json:"accuser,notable"`        // double_x
-	Data          json.RawMessage     `json:"data,omitempty"`
-	Errors        json.RawMessage     `json:"errors,omitempty"`
-	Parameters    *ContractParameters `json:"parameters,omitempty"`    // transaction
-	Storage       *ContractValue      `json:"storage,omitempty"`       // transaction, origination
-	BigmapDiff    []BigmapUpdate      `json:"big_map_diff,omitempty"`  // transaction, origination
-	Value         micheline.Prim      `json:"value,omitempty,notable"` // register_constant
-	Power         int                 `json:"power,omitempty,notable"` // endorsement
-	Limit         *float64            `json:"limit,omitempty,notable"` // set deposits limit
+	Id           uint64              `json:"id"`
+	Type         OpType              `json:"type"`
+	Hash         tezos.OpHash        `json:"hash"`
+	Height       int64               `json:"height"`
+	Cycle        int64               `json:"cycle"`
+	Timestamp    time.Time           `json:"time"`
+	OpN          int                 `json:"op_n"`
+	OpP          int                 `json:"op_p"`
+	Status       tezos.OpStatus      `json:"status"`
+	IsSuccess    bool                `json:"is_success"`
+	IsContract   bool                `json:"is_contract"`
+	IsInternal   bool                `json:"is_internal"`
+	IsEvent      bool                `json:"is_event"`
+	IsRollup     bool                `json:"is_rollup"`
+	Counter      int64               `json:"counter"`
+	GasLimit     int64               `json:"gas_limit"`
+	GasUsed      int64               `json:"gas_used"`
+	StorageLimit int64               `json:"storage_limit"`
+	StoragePaid  int64               `json:"storage_paid"`
+	Volume       float64             `json:"volume"`
+	Fee          float64             `json:"fee"`
+	Reward       float64             `json:"reward"`
+	Deposit      float64             `json:"deposit"`
+	Burned       float64             `json:"burned"`
+	SenderId     uint64              `json:"sender_id"`
+	ReceiverId   uint64              `json:"receiver_id"`
+	CreatorId    uint64              `json:"creator_id"`
+	BakerId      uint64              `json:"baker_id"`
+	Data         json.RawMessage     `json:"data,omitempty"`
+	Parameters   *ContractParameters `json:"parameters,omitempty"` // transaction
+	StorageHash  uint64              `json:"storage_hash,omitempty"`
+	Errors       json.RawMessage     `json:"errors,omitempty"`
+	TDD          float64             `json:"days_destroyed"`
+	Sender       tezos.Address       `json:"sender"`
+	Receiver     tezos.Address       `json:"receiver"`
+	Creator      tezos.Address       `json:"creator"` // origination
+	Baker        tezos.Address       `json:"baker"`   // delegation, origination
+	Block        tezos.BlockHash     `json:"block"`
+	Entrypoint   string              `json:"entrypoint,omitempty"`
+	BigmapDiff   []BigmapUpdate      `json:"big_map_diff,omitempty"` // transaction, origination
+
+	// explorer or ZMP APIs only
+	PrevBaker     tezos.Address       `json:"previous_baker,notable"`    // delegation
+	Source        tezos.Address       `json:"source,notable"`            // internal operations
+	Offender      tezos.Address       `json:"offender,notable"`          // double_x
+	Accuser       tezos.Address       `json:"accuser,notable"`           // double_x
+	Storage       *ContractValue      `json:"storage,omitempty,notable"` // transaction, origination
+	Power         int                 `json:"power,omitempty,notable"`   // endorsement
+	Limit         *float64            `json:"limit,omitempty,notable"`   // set deposits limit
 	Confirmations int64               `json:"confirmations,notable"`
-	Entrypoint    string              `json:"entrypoint,omitempty,notable"`
 	NOps          int                 `json:"n_ops,omitempty,notable"`
 	Batch         []*Op               `json:"batch,omitempty,notable"`
 	Internal      []*Op               `json:"internal,omitempty,notable"`
@@ -156,6 +183,28 @@ func (o *Op) OnError(action int) *Op {
 	return o
 }
 
+func (o Op) Costs() Costs {
+	storageBurn := float64(o.StoragePaid) * 0.000250
+	return Costs{
+		Fee:            o.Fee,
+		Burn:           o.Burned,
+		GasUsed:        o.GasUsed,
+		StorageUsed:    o.StoragePaid,
+		StorageBurn:    storageBurn,
+		AllocationBurn: o.Burned - storageBurn,
+	}
+}
+
+type OpGroup []*Op
+
+func (og OpGroup) Costs() Costs {
+	var c Costs
+	for _, v := range og {
+		c = c.Add(v.Costs())
+	}
+	return c
+}
+
 type OpList struct {
 	Rows     []*Op
 	withPrim bool
@@ -241,6 +290,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 		return err
 	}
 	for i, v := range o.columns {
+		var buf []byte
 		f := unpacked[i]
 		if f == nil {
 			continue
@@ -248,10 +298,12 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 		switch v {
 		case "id":
 			op.Id, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "hash":
-			op.Hash, err = tezos.ParseOpHash(f.(string))
 		case "type":
 			op.Type = ParseOpType(f.(string))
+		case "hash":
+			op.Hash, err = tezos.ParseOpHash(f.(string))
+		case "height":
+			op.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "block":
 			op.Block, err = tezos.ParseBlockHash(f.(string))
 		case "time":
@@ -260,8 +312,6 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			if err == nil {
 				op.Timestamp = time.Unix(0, ts*1000000).UTC()
 			}
-		case "height":
-			op.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "cycle":
 			op.Cycle, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "counter":
@@ -280,6 +330,8 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			op.IsEvent, err = strconv.ParseBool(f.(json.Number).String())
 		case "is_internal":
 			op.IsInternal, err = strconv.ParseBool(f.(json.Number).String())
+		case "is_rollup":
+			op.IsRollup, err = strconv.ParseBool(f.(json.Number).String())
 		case "gas_limit":
 			op.GasLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "gas_used":
@@ -327,8 +379,9 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			op.Parameters.Entrypoint = f.(string)
 			op.Entrypoint = f.(string)
 		case "parameters":
+			// FIXME: support rollup params here
 			var buf []byte
-			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
+			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 && !op.IsRollup {
 				params := &micheline.Parameters{}
 				err = params.UnmarshalBinary(buf)
 				if err == nil {
@@ -339,16 +392,22 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 					if o.withPrim {
 						op.Parameters.ContractValue.Prim = &prim
 					}
-					val := micheline.NewValue(ep.Type(), prim)
+					// strip entrypoint name annot
+					typ := ep.Type()
+					typ.Prim.Anno = nil
+					val := micheline.NewValue(typ, prim)
 					val.Render = o.onError
 					op.Parameters.ContractValue.Value, err = val.Map()
 					if err != nil {
-						err = fmt.Errorf("decoding params %s: %w", f.(string), err)
+						err = fmt.Errorf("op %s (%d) decoding params %s: %v", op.Hash, op.Id, f.(string), err)
 					}
 				}
 			}
+		case "storage_hash":
+			buf, err = hex.DecodeString(f.(string))
+			op.StorageHash = binary.BigEndian.Uint64(buf[:8])
 		case "storage":
-			var buf []byte
+			// ZMQ only
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
 				prim := micheline.Prim{}
 				err = prim.UnmarshalBinary(buf)
@@ -362,16 +421,18 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 						val.Render = o.onError
 						op.Storage.Value, err = val.Map()
 						if err != nil {
-							err = fmt.Errorf("decoding storage %s: %w", f.(string), err)
+							err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
 						}
 					}
 				}
 			}
 		case "big_map_diff":
+			// ZMQ only
 			var buf []byte
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
-				bmd := make(micheline.BigmapDiff, 0)
+				bmd := make(micheline.BigmapEvents, 0)
 				err = bmd.UnmarshalBinary(buf)
+				log.Debugf("Bigmaps %s", o.bigmaps[55678].Dump())
 				if err == nil {
 					op.BigmapDiff = make([]BigmapUpdate, len(bmd))
 					for i, v := range bmd {
@@ -428,7 +489,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 									val.Render = o.onError
 									op.BigmapDiff[i].BigmapValue.Value, err = val.Map()
 									if err != nil {
-										err = fmt.Errorf("decoding bigmap %d/%s: %w", v.Id, v.KeyHash, err)
+										err = fmt.Errorf("op %s (%d) decoding bigmap %d/%s: %v", op.Hash, op.Id, v.Id, v.KeyHash, err)
 									}
 								}
 							}
@@ -571,8 +632,8 @@ func (p OpParams) WithStorage() OpParams {
 	return p
 }
 
-func (c *Client) GetOp(ctx context.Context, hash tezos.OpHash, params OpParams) ([]*Op, error) {
-	o := make([]*Op, 0)
+func (c *Client) GetOp(ctx context.Context, hash tezos.OpHash, params OpParams) (OpGroup, error) {
+	o := make(OpGroup, 0)
 	u := params.AppendQuery(fmt.Sprintf("/explorer/op/%s", hash))
 	if err := c.get(ctx, u, nil, &o); err != nil {
 		return nil, err

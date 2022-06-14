@@ -119,6 +119,33 @@ func walkValueMap(name string, val interface{}, fn ValueWalkerFunc) error {
 	return nil
 }
 
+func hasPath(val interface{}, path string) bool {
+	if val == nil {
+		return false
+	}
+	frag := strings.Split(path, ".")
+	next := val
+	for i, v := range frag {
+		switch t := next.(type) {
+		case map[string]interface{}:
+			var ok bool
+			next, ok = t[v]
+			if !ok {
+				return false
+			}
+		case []interface{}:
+			idx, err := strconv.Atoi(v)
+			if err != nil || len(t) < idx {
+				return false
+			}
+			next = t[idx]
+		default:
+			return i == len(frag)-1
+		}
+	}
+	return true
+}
+
 // Access nested map or array contents
 func getPathString(val interface{}, path string) (string, bool) {
 	if val == nil {

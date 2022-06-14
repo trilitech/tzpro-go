@@ -111,7 +111,8 @@ var ZmqRawBlockColumns = []string{
 	"proposer",
 	"n_ops_applied",
 	"n_ops_failed",
-	"n_contract_calls",
+	"n_calls",
+	"n_rollup_calls",
 	"n_events",
 	"volume",
 	"fee",
@@ -134,7 +135,7 @@ var ZmqRawBlockColumns = []string{
 }
 
 var ZmqRawOpColumns = []string{
-	"row_id",
+	"id",
 	"type",
 	"hash",
 	"block",
@@ -150,6 +151,7 @@ var ZmqRawOpColumns = []string{
 	"is_contract",
 	"is_internal",
 	"is_event",
+	"is_rollup",
 	"counter",
 	"gas_limit",
 	"gas_used",

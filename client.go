@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Blockwatch Data Inc.
+// Copyright (c) 2020-2022 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package tzpro
@@ -16,12 +16,11 @@ import (
 	"strings"
 	"time"
 
-	"blockwatch.cc/tzgo/tezos"
 	lru "github.com/hashicorp/golang-lru"
 )
 
 var (
-	ClientVersion    = "0.12.0"
+	ClientVersion    = "0.13.0"
 	DefaultLimit     = 50000
 	DefaultCacheSize = 2048
 	userAgent        = "tzpro-go/v" + ClientVersion
@@ -32,6 +31,7 @@ var (
 func init() {
 	DefaultClient, _ = NewClient("https://api.tzpro.io", nil)
 	IpfsClient, _ = NewClient("https://ipfs.tzstats.com", nil)
+	IpfsClient.SetTimeout(60 * time.Second)
 }
 
 type Client struct {
@@ -57,9 +57,9 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 				IdleConnTimeout:       30 * time.Second,
 				DisableCompression:    false,
 				TLSHandshakeTimeout:   5 * time.Second,
-				ResponseHeaderTimeout: 60 * time.Second,
+				ResponseHeaderTimeout: 10 * time.Second,
 			},
-			Timeout: 75 * time.Second,
+			Timeout: 60 * time.Second,
 		}
 	}
 	sz := DefaultCacheSize
@@ -87,6 +87,12 @@ func (c *Client) WithTLS(tc *tls.Config) *Client {
 
 func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
 	c.cache = cache
+}
+
+func (c *Client) SetTimeout(d time.Duration) *Client {
+	c.httpClient.Transport.(*http.Transport).ResponseHeaderTimeout = d
+	c.httpClient.Timeout = d
+	return c
 }
 
 func (c *Client) get(ctx context.Context, path string, headers http.Header, result interface{}) error {
@@ -290,7 +296,7 @@ func (c *Client) handleRequest(req *request) {
 			}
 			return
 		}
-		err = fmt.Errorf("unmarshalling reply: %w", err)
+		err = fmt.Errorf("unmarshaling reply: %w", err)
 	}
 	req.responseChan <- &response{
 		status:  resp.StatusCode,
@@ -299,21 +305,4 @@ func (c *Client) handleRequest(req *request) {
 		result:  respBytes,
 		err:     err,
 	}
-}
-
-func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Address) (*ContractScript, error) {
-	if c.cache != nil {
-		if script, ok := c.cache.Get(addr.String()); ok {
-			return script.(*ContractScript), nil
-		}
-	}
-	log.Tracef("Loading contract %s", addr)
-	script, err := c.GetContractScript(ctx, addr, NewContractParams().WithPrim())
-	if err != nil {
-		return nil, err
-	}
-	if c.cache != nil {
-		c.cache.Add(addr.String(), script)
-	}
-	return script, nil
 }
