@@ -18,20 +18,23 @@ import (
 )
 
 type Bigmap struct {
-	Contract        tezos.Address     `json:"contract"`
-	BigmapId        int64             `json:"bigmap_id"`
-	NUpdates        int64             `json:"n_updates"`
-	NKeys           int64             `json:"n_keys"`
-	AllocatedHeight int64             `json:"alloc_height"`
-	AllocatedBlock  tezos.BlockHash   `json:"alloc_block"`
-	AllocatedTime   time.Time         `json:"alloc_time"`
-	UpdatedHeight   int64             `json:"update_height"`
-	UpdatedBlock    tezos.BlockHash   `json:"update_block"`
-	UpdatedTime     time.Time         `json:"update_time"`
-	KeyType         micheline.Typedef `json:"key_type"`
-	ValueType       micheline.Typedef `json:"value_type"`
-	KeyTypePrim     micheline.Prim    `json:"key_type_prim"`
-	ValueTypePrim   micheline.Prim    `json:"value_type_prim"`
+	Contract       tezos.Address     `json:"contract"`
+	BigmapId       int64             `json:"bigmap_id"`
+	NUpdates       int64             `json:"n_updates"`
+	NKeys          int64             `json:"n_keys"`
+	AllocateHeight int64             `json:"alloc_height"`
+	AllocateBlock  tezos.BlockHash   `json:"alloc_block"`
+	AllocateTime   time.Time         `json:"alloc_time"`
+	UpdateHeight   int64             `json:"update_height"`
+	UpdateBlock    tezos.BlockHash   `json:"update_block"`
+	UpdateTime     time.Time         `json:"update_time"`
+	DeleteHeight   int64             `json:"delete_height"`
+	DeleteBlock    tezos.BlockHash   `json:"delete_block"`
+	DeleteTime     time.Time         `json:"delete_time"`
+	KeyType        micheline.Typedef `json:"key_type"`
+	ValueType      micheline.Typedef `json:"value_type"`
+	KeyTypePrim    micheline.Prim    `json:"key_type_prim"`
+	ValueTypePrim  micheline.Prim    `json:"value_type_prim"`
 }
 
 func (b Bigmap) MakeKeyType() micheline.Type {
@@ -55,6 +58,9 @@ type BigmapRow struct {
 	UpdateHeight int64           `json:"update_height"`
 	UpdateTime   time.Time       `json:"update_time"`
 	UpdateBlock  tezos.BlockHash `json:"update_block"`
+	DeleteHeight int64           `json:"delete_height"`
+	DeleteBlock  tezos.BlockHash `json:"delete_block"`
+	DeleteTime   time.Time       `json:"delete_time"`
 	KeyType      string          `json:"key_type"`
 	ValueType    string          `json:"value_type"`
 
@@ -188,6 +194,16 @@ func (b *BigmapRow) UnmarshalJSONBrief(data []byte) error {
 			}
 		case "update_block":
 			br.UpdateBlock, err = tezos.ParseBlockHash(f.(string))
+		case "delete_height":
+			br.DeleteHeight, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+		case "delete_time":
+			var ts int64
+			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+			if err == nil {
+				br.DeleteTime = time.Unix(0, ts*1000000).UTC()
+			}
+		case "delete_block":
+			br.DeleteBlock, err = tezos.ParseBlockHash(f.(string))
 		case "key_type":
 			br.KeyType = f.(string)
 		case "value_type":
