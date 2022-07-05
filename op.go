@@ -385,21 +385,22 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 				params := &micheline.Parameters{}
 				err = params.UnmarshalBinary(buf)
 				if err == nil {
-					op.Parameters = &ContractParameters{
-						Entrypoint: params.Entrypoint,
-					}
 					ep, prim, _ := params.MapEntrypoint(o.param)
+					op.Parameters = &ContractParameters{
+						Entrypoint: ep.Name,
+					}
 					if o.withPrim {
 						op.Parameters.ContractValue.Prim = &prim
-					}
-					// strip entrypoint name annot
-					typ := ep.Type()
-					typ.Prim.Anno = nil
-					val := micheline.NewValue(typ, prim)
-					val.Render = o.onError
-					op.Parameters.ContractValue.Value, err = val.Map()
-					if err != nil {
-						err = fmt.Errorf("op %s (%d) decoding params %s: %v", op.Hash, op.Id, f.(string), err)
+					} else {
+						// strip entrypoint name annot
+						typ := ep.Type()
+						typ.Prim.Anno = nil
+						val := micheline.NewValue(typ, prim)
+						val.Render = o.onError
+						op.Parameters.ContractValue.Value, err = val.Map()
+						if err != nil {
+							err = fmt.Errorf("op %s (%d) decoding params %s: %v", op.Hash, op.Id, f.(string), err)
+						}
 					}
 				}
 			}
@@ -415,87 +416,100 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 					op.Storage = &ContractValue{}
 					if o.withPrim {
 						op.Storage.Prim = &prim
-					}
-					if o.store.IsValid() {
-						val := micheline.NewValue(o.store, prim)
-						val.Render = o.onError
-						op.Storage.Value, err = val.Map()
-						if err != nil {
-							err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
+					} else {
+						if o.store.IsValid() {
+							val := micheline.NewValue(o.store, prim)
+							val.Render = o.onError
+							op.Storage.Value, err = val.Map()
+							if err != nil {
+								err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
+							}
 						}
 					}
 				}
 			}
 		case "big_map_diff":
-			// ZMQ only
+			// ZMQ and table
 			var buf []byte
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
 				bmd := make(micheline.BigmapEvents, 0)
 				err = bmd.UnmarshalBinary(buf)
-				log.Debugf("Bigmaps %s", o.bigmaps[55678].Dump())
 				if err == nil {
-					op.BigmapDiff = make([]BigmapUpdate, len(bmd))
-					for i, v := range bmd {
-						var ktyp, vtyp micheline.Type
-						if typ, ok := o.bigmaps[v.Id]; ok {
-							ktyp, vtyp = typ.Left(), typ.Right()
-						} else {
-							ktyp = v.Key.BuildType()
+					op.BigmapDiff = make([]BigmapUpdate, 0, len(bmd))
+					if o.withPrim {
+						// decode prim only
+						for _, v := range bmd {
+							upd := BigmapUpdate{
+								Action:   v.Action,
+								BigmapId: v.Id,
+							}
+							switch v.Action {
+							case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+								kt, vt := v.KeyType.Clone(), v.ValueType.Clone()
+								upd.KeyTypePrim = &kt
+								upd.ValueTypePrim = &vt
+							case micheline.DiffActionUpdate:
+								key, val := v.Key.Clone(), v.Value.Clone()
+								upd.KeyPrim, upd.ValuePrim = &key, &val
+							case micheline.DiffActionRemove:
+								key := v.Key.Clone()
+								upd.KeyPrim = &key
+							}
+							op.BigmapDiff = append(op.BigmapDiff, upd)
 						}
-						op.BigmapDiff[i] = BigmapUpdate{
-							Action:   v.Action,
-							BigmapId: v.Id,
-						}
-						switch v.Action {
-						case micheline.DiffActionAlloc, micheline.DiffActionCopy:
-							// alloc/copy only
-							op.BigmapDiff[i].KeyType = micheline.Type{Prim: v.KeyType}.TypedefPtr("@key")
-							op.BigmapDiff[i].ValueType = micheline.Type{Prim: v.ValueType}.TypedefPtr("@value")
-							op.BigmapDiff[i].SourceId = v.SourceId
-							op.BigmapDiff[i].DestId = v.DestId
-							if op.withPrim {
-								op.BigmapDiff[i].KeyTypePrim = &v.KeyType
-								op.BigmapDiff[i].ValueTypePrim = &v.ValueType
+					} else {
+						// full key/value unpack, requires script type
+						for _, v := range bmd {
+							var ktyp, vtyp micheline.Type
+							if typ, ok := o.bigmaps[v.Id]; ok {
+								ktyp, vtyp = typ.Left(), typ.Right()
+							} else {
+								ktyp = v.Key.BuildType()
 							}
-						default:
-							// update/remove only
-							op.BigmapDiff[i].BigmapValue = BigmapValue{}
-							if !v.Key.IsEmptyBigmap() {
-								keybuf, _ := v.GetKey(ktyp).MarshalJSON()
-								mk := MultiKey{}
-								_ = mk.UnmarshalJSON(keybuf)
-								op.BigmapDiff[i].BigmapValue.Key = mk
-								op.BigmapDiff[i].BigmapValue.Hash = v.KeyHash
+							upd := BigmapUpdate{
+								Action:   v.Action,
+								BigmapId: v.Id,
 							}
-							if o.withMeta {
-								op.BigmapDiff[i].BigmapValue.Meta = &BigmapMeta{
-									Contract:     op.Receiver,
-									BigmapId:     v.Id,
-									UpdateTime:   op.Timestamp,
-									UpdateHeight: op.Height,
+							switch v.Action {
+							case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+								// alloc/copy only
+								upd.KeyType = micheline.Type{Prim: v.KeyType}.TypedefPtr("@key")
+								upd.ValueType = micheline.Type{Prim: v.ValueType}.TypedefPtr("@value")
+								upd.SourceId = v.SourceId
+								upd.DestId = v.DestId
+							default:
+								// update/remove only
+								if !v.Key.IsEmptyBigmap() {
+									keybuf, _ := v.GetKey(ktyp).MarshalJSON()
+									mk := MultiKey{}
+									_ = mk.UnmarshalJSON(keybuf)
+									upd.Key = mk
+									upd.Hash = v.KeyHash
 								}
-							}
-							if o.withPrim {
-								op.BigmapDiff[i].BigmapValue.KeyPrim = &v.Key
-							}
-							if v.Action == micheline.DiffActionUpdate {
-								// update only
-								if o.withPrim {
-									op.BigmapDiff[i].BigmapValue.ValuePrim = &v.Value
+								if o.withMeta {
+									upd.Meta = &BigmapMeta{
+										Contract:     op.Receiver,
+										BigmapId:     v.Id,
+										UpdateTime:   op.Timestamp,
+										UpdateHeight: op.Height,
+									}
 								}
-								// unpack value if type is known
-								if vtyp.IsValid() {
-									val := micheline.NewValue(vtyp, v.Value)
-									val.Render = o.onError
-									op.BigmapDiff[i].BigmapValue.Value, err = val.Map()
-									if err != nil {
-										err = fmt.Errorf("op %s (%d) decoding bigmap %d/%s: %v", op.Hash, op.Id, v.Id, v.KeyHash, err)
+								if v.Action == micheline.DiffActionUpdate {
+									// unpack value if type is known
+									if vtyp.IsValid() {
+										val := micheline.NewValue(vtyp, v.Value)
+										val.Render = o.onError
+										upd.Value, err = val.Map()
+										if err != nil {
+											err = fmt.Errorf("op %s (%d) decoding bigmap %d/%s: %v", op.Hash, op.Id, v.Id, v.KeyHash, err)
+										}
 									}
 								}
 							}
-						}
-						if err != nil {
-							break
+							if err != nil {
+								break
+							}
+							op.BigmapDiff = append(op.BigmapDiff, upd)
 						}
 					}
 				}
