@@ -240,7 +240,7 @@ func (c *Client) StreamTable(ctx context.Context, q TableQuery, w io.Writer) (St
 
 func getTableColumn(data []byte, columns []string, name string) (string, bool) {
 	idx := colIndex(columns, name)
-	if idx < 0 {
+	if idx < 0 || len(data) < 2 {
 		return "", false
 	}
 
@@ -279,7 +279,7 @@ func getTableColumn(data []byte, columns []string, name string) (string, bool) {
 			}
 		}
 	}
-	return strings.Trim(string(res), "\""), true
+	return strings.Trim(strings.Trim(string(res), `]`), `"`), true
 }
 
 func colIndex(columns []string, name string) int {
