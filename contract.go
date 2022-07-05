@@ -49,6 +49,11 @@ type Contract struct {
 	columns []string `json:"-"`
 }
 
+func (c Contract) Meta() *Metadata {
+	m := c.Metadata[c.Address.String()]
+	return &m
+}
+
 type ContractList struct {
 	Rows    []*Contract
 	columns []string
@@ -474,4 +479,26 @@ func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Addres
 		c.cache.Add(addr.String(), script)
 	}
 	return script, nil
+}
+
+func (c *Client) AddCachedScript(addr tezos.Address, script *micheline.Script) {
+	if !addr.IsValid() || script == nil || c.cache == nil {
+		return
+	}
+	eps, _ := script.Entrypoints(true)
+	views, _ := script.Views(true, false)
+	s := &ContractScript{
+		Script:          script,
+		StorageType:     script.StorageType().Typedef(""),
+		Entrypoints:     eps,
+		Views:           views,
+		BigmapNames:     script.BigmapsByName(),
+		BigmapTypes:     script.BigmapTypesByName(),
+		BigmapTypesById: make(map[int64]micheline.Type),
+	}
+	for n, v := range s.BigmapTypes {
+		id := s.BigmapNames[n]
+		s.BigmapTypesById[id] = v
+	}
+	c.cache.Add(addr.String(), s)
 }
