@@ -47,7 +47,7 @@ func (k MultiKey) Len() int {
 }
 
 func (k MultiKey) String() string {
-	switch true {
+	switch {
 	case len(k.named) > 0:
 		strs := make([]string, 0)
 		for n, v := range k.named {
@@ -66,7 +66,7 @@ func (k MultiKey) String() string {
 }
 
 func (k MultiKey) MarshalJSON() ([]byte, error) {
-	switch true {
+	switch {
 	case len(k.named) > 0:
 		return json.Marshal(k.named)
 	case len(k.anon) > 0:

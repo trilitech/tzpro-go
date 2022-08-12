@@ -297,7 +297,7 @@ func run() error {
     }
 
     // calls
-    if _, err := c.GetContractCalls(ctx, addr, cp); err != nil {
+    if _, err := c.ListContractCalls(ctx, addr, cp); err != nil {
         return fmt.Errorf("GetContractCalls: %v", err)
     }
 

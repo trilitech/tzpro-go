@@ -18,7 +18,7 @@ type Block struct {
 	RowId            uint64                 `json:"row_id"`
 	Hash             tezos.BlockHash        `json:"hash"`
 	ParentHash       *tezos.BlockHash       `json:"predecessor,omitempty"`
-	FollowerHash     *tezos.BlockHash       `json:"successor,omitempty,notable"`
+	FollowerHash     *tezos.BlockHash       `json:"successor,omitempty"  tzpro:"notable"`
 	Timestamp        time.Time              `json:"time"`
 	Height           int64                  `json:"height"`
 	Cycle            int64                  `json:"cycle"`
@@ -57,9 +57,9 @@ type Block struct {
 	LbEscapeVote     bool                   `json:"lb_esc_vote"`
 	LbEscapeEma      int64                  `json:"lb_esc_ema"`
 	Protocol         tezos.ProtocolHash     `json:"protocol"`
-	Metadata         map[string]Metadata    `json:"metadata,omitempty,notable"`
-	Rights           []Right                `json:"rights,omitempty,notable"`
-	Ops              []*Op                  `json:"ops,omitempty,notable"`
+	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"notable"`
+	Rights           []Right                `json:"rights,omitempty"    tzpro:"notable"`
+	Ops              []*Op                  `json:"ops,omitempty"       tzpro:"notable"`
 	columns          []string               `json:"-"`
 }
 
@@ -167,7 +167,7 @@ func (l BlockList) Cursor() uint64 {
 }
 
 func (l *BlockList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -191,7 +191,7 @@ func (l *BlockList) UnmarshalJSON(data []byte) error {
 }
 
 func (b *Block) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -272,7 +272,7 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 		case "n_events":
 			block.NEvents, err = strconv.Atoi(f.(json.Number).String())
 		case "volume":
-			block.Volume, err = strconv.ParseFloat(f.(json.Number).String(), 4)
+			block.Volume, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "fee":
 			block.Fee, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "reward":
@@ -323,7 +323,7 @@ type BlockQuery struct {
 }
 
 func (c *Client) NewBlockQuery() BlockQuery {
-	tinfo, err := GetTypeInfo(&Block{}, "")
+	tinfo, err := GetTypeInfo(&Block{})
 	if err != nil {
 		panic(err)
 	}

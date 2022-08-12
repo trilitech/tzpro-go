@@ -16,6 +16,8 @@ import (
 	"blockwatch.cc/tzgo/tezos"
 )
 
+var null = []byte(`null`)
+
 var stringerType = reflect.TypeOf((*fmt.Stringer)(nil)).Elem()
 
 func ToString(t interface{}) string {

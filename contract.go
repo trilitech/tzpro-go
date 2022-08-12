@@ -25,8 +25,8 @@ type Contract struct {
 	Address       tezos.Address       `json:"address"`
 	CreatorId     uint64              `json:"creator_id,omitempty"`
 	Creator       tezos.Address       `json:"creator"`
-	BakerId       uint64              `json:"baker_id,omitempty,notable"`
-	Baker         tezos.Address       `json:"baker,notable"`
+	BakerId       uint64              `json:"baker_id,omitempty" tzpro:"notable"`
+	Baker         tezos.Address       `json:"baker"              tzpro:"notable"`
 	FirstSeen     int64               `json:"first_seen"`
 	LastSeen      int64               `json:"last_seen"`
 	FirstSeenTime time.Time           `json:"first_seen_time"`
@@ -41,10 +41,10 @@ type Contract struct {
 	Features      []string            `json:"features"`
 	Interfaces    []string            `json:"interfaces"`
 	CallStats     map[string]int      `json:"call_stats"`
-	NCallsSuccess int                 `json:"n_calls_success,notable"`
-	NCallsFailed  int                 `json:"n_calls_failed,notable"`
-	Bigmaps       map[string]int64    `json:"bigmaps,omitempty,notable"`
-	Metadata      map[string]Metadata `json:"metadata,omitempty,notable"`
+	NCallsSuccess int                 `json:"n_calls_success"     tzpro:"notable"`
+	NCallsFailed  int                 `json:"n_calls_failed"      tzpro:"notable"`
+	Bigmaps       map[string]int64    `json:"bigmaps,omitempty"   tzpro:"notable"`
+	Metadata      map[string]Metadata `json:"metadata,omitempty"  tzpro:"notable"`
 
 	columns []string `json:"-"`
 }
@@ -71,7 +71,7 @@ func (l ContractList) Cursor() uint64 {
 }
 
 func (l *ContractList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -95,7 +95,7 @@ func (l *ContractList) UnmarshalJSON(data []byte) error {
 }
 
 func (a *Contract) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -385,7 +385,7 @@ type ContractQuery struct {
 }
 
 func (c *Client) NewContractQuery() ContractQuery {
-	tinfo, err := GetTypeInfo(&Contract{}, "")
+	tinfo, err := GetTypeInfo(&Contract{})
 	if err != nil {
 		panic(err)
 	}

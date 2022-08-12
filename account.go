@@ -14,6 +14,7 @@ import (
 	"blockwatch.cc/tzgo/tezos"
 )
 
+//nolint:staticcheck
 type Account struct {
 	RowId              uint64              `json:"row_id"`
 	Address            tezos.Address       `json:"address"`
@@ -62,7 +63,7 @@ type Account struct {
 	TokenGenMax        int64               `json:"token_gen_max"`
 	LifetimeRewards    float64             `json:"lifetime_rewards,omitempty"`
 	PendingRewards     float64             `json:"pending_rewards,omitempty"`
-	Metadata           map[string]Metadata `json:"metadata,omitempty,notable"`
+	Metadata           map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
 	columns            []string            `json:"-"`
 }
 
@@ -83,7 +84,7 @@ func (l AccountList) Cursor() uint64 {
 }
 
 func (l *AccountList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -107,7 +108,7 @@ func (l *AccountList) UnmarshalJSON(data []byte) error {
 }
 
 func (a *Account) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -308,7 +309,7 @@ type AccountQuery struct {
 }
 
 func (c *Client) NewAccountQuery() AccountQuery {
-	tinfo, err := GetTypeInfo(&Account{}, "")
+	tinfo, err := GetTypeInfo(&Account{})
 	if err != nil {
 		panic(err)
 	}

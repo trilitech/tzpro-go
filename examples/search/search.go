@@ -82,7 +82,7 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 		count int
 	)
 	for {
-		calls, err := c.GetContractCalls(ctx, recv, p)
+		calls, err := c.ListContractCalls(ctx, recv, p)
 		if err != nil {
 			return err
 		}
@@ -139,7 +139,7 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 			}
 		}
 		plog.Log(len(calls))
-		p = p.WithCursor(calls[len(calls)-1].RowId)
+		p = p.WithCursor(calls[len(calls)-1].Id)
 	}
 	log.Infof("Processed %d calls", count)
 	return nil

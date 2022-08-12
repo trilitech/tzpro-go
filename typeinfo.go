@@ -4,7 +4,7 @@
 package tzpro
 
 import (
-	"encoding"
+	// "encoding"
 	"fmt"
 	"reflect"
 	"strings"
@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	tagName = "json"
+	tagName  = "json"
+	flagName = "tzpro"
 )
 
 // TypeInfo holds details for the representation of a type.
@@ -75,26 +76,23 @@ func (f FieldInfo) String() string {
 var tinfoMap = make(map[reflect.Type]*TypeInfo)
 var tinfoLock sync.RWMutex
 
-var (
-	textUnmarshalerType   = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
-	textMarshalerType     = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
-	binaryUnmarshalerType = reflect.TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem()
-	binaryMarshalerType   = reflect.TypeOf((*encoding.BinaryMarshaler)(nil)).Elem()
-	byteSliceType         = reflect.TypeOf([]byte(nil))
-)
+// var (
+// textUnmarshalerType = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
+// textMarshalerType   = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
+// binaryUnmarshalerType = reflect.TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem()
+// binaryMarshalerType   = reflect.TypeOf((*encoding.BinaryMarshaler)(nil)).Elem()
+// byteSliceType         = reflect.TypeOf([]byte(nil))
+// )
 
 // GetTypeInfo returns the typeInfo structure with details necessary
 // for marshaling and unmarshaling typ.
-func GetTypeInfo(v interface{}, tagname string) (*TypeInfo, error) {
+func GetTypeInfo(v interface{}) (*TypeInfo, error) {
 	// Load value from interface
 	val := reflect.Indirect(reflect.ValueOf(v))
 	if !val.IsValid() {
 		return nil, fmt.Errorf("invalid value of type %T", v)
 	}
-	if tagname == "" {
-		tagname = tagName
-	}
-	return getReflectTypeInfo(val.Type(), tagname)
+	return getReflectTypeInfo(val.Type(), tagName)
 }
 
 func getReflectTypeInfo(typ reflect.Type, tagname string) (*TypeInfo, error) {
@@ -140,10 +138,7 @@ func getReflectTypeInfo(typ reflect.Type, tagname string) (*TypeInfo, error) {
 			}
 		}
 
-		finfo, err := structFieldInfo(typ, &f, tinfo.TagName)
-		if err != nil {
-			return nil, err
-		}
+		finfo := structFieldInfo(&f, tinfo.TagName)
 
 		// Add the field if it doesn't conflict with other fields.
 		if err := addFieldInfo(typ, tinfo, finfo); err != nil {
@@ -157,7 +152,7 @@ func getReflectTypeInfo(typ reflect.Type, tagname string) (*TypeInfo, error) {
 }
 
 // structFieldInfo builds and returns a fieldInfo for f.
-func structFieldInfo(typ reflect.Type, f *reflect.StructField, tagname string) (*FieldInfo, error) {
+func structFieldInfo(f *reflect.StructField, tagname string) *FieldInfo {
 	finfo := &FieldInfo{Idx: f.Index, Name: f.Name, TypeName: f.Type.String()}
 	switch tags := strings.Split(f.Tag.Get(tagname), ","); len(tags) {
 	case 0:
@@ -166,9 +161,9 @@ func structFieldInfo(typ reflect.Type, f *reflect.StructField, tagname string) (
 		finfo.Alias = tags[0]
 	default:
 		finfo.Alias = tags[0]
-		finfo.Flags = tags[1:]
+		finfo.Flags = strings.Split(f.Tag.Get(flagName), ",")
 	}
-	return finfo, nil
+	return finfo
 }
 
 func addFieldInfo(typ reflect.Type, tinfo *TypeInfo, newf *FieldInfo) error {

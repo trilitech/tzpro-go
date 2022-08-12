@@ -77,7 +77,7 @@ func (l ChainList) Cursor() uint64 {
 }
 
 func (l *ChainList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -101,7 +101,7 @@ func (l *ChainList) UnmarshalJSON(data []byte) error {
 }
 
 func (a *Chain) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -231,7 +231,7 @@ type ChainQuery struct {
 }
 
 func (c *Client) NewChainQuery() ChainQuery {
-	tinfo, err := GetTypeInfo(&Chain{}, "")
+	tinfo, err := GetTypeInfo(&Chain{})
 	if err != nil {
 		panic(err)
 	}

@@ -83,19 +83,19 @@ type Op struct {
 	Entrypoint   string              `json:"entrypoint,omitempty"`
 	BigmapDiff   []BigmapUpdate      `json:"big_map_diff,omitempty"` // transaction, origination
 
-	// explorer or ZMP APIs only
-	PrevBaker     tezos.Address       `json:"previous_baker,notable"`    // delegation
-	Source        tezos.Address       `json:"source,notable"`            // internal operations
-	Offender      tezos.Address       `json:"offender,notable"`          // double_x
-	Accuser       tezos.Address       `json:"accuser,notable"`           // double_x
-	Storage       *ContractValue      `json:"storage,omitempty,notable"` // transaction, origination
-	Power         int                 `json:"power,omitempty,notable"`   // endorsement
-	Limit         *float64            `json:"limit,omitempty,notable"`   // set deposits limit
-	Confirmations int64               `json:"confirmations,notable"`
-	NOps          int                 `json:"n_ops,omitempty,notable"`
-	Batch         []*Op               `json:"batch,omitempty,notable"`
-	Internal      []*Op               `json:"internal,omitempty,notable"`
-	Metadata      map[string]Metadata `json:"metadata,omitempty,notable"`
+	// explorer or ZMQ APIs only
+	PrevBaker     tezos.Address       `json:"previous_baker"     tzpro:"notable"` // delegation
+	Source        tezos.Address       `json:"source"             tzpro:"notable"` // internal operations
+	Offender      tezos.Address       `json:"offender"           tzpro:"notable"` // double_x
+	Accuser       tezos.Address       `json:"accuser"            tzpro:"notable"` // double_x
+	Storage       *ContractValue      `json:"storage,omitempty"  tzpro:"notable"` // transaction, origination
+	Power         int                 `json:"power,omitempty"    tzpro:"notable"` // endorsement
+	Limit         *float64            `json:"limit,omitempty"    tzpro:"notable"` // set deposits limit
+	Confirmations int64               `json:"confirmations"      tzpro:"notable"`
+	NOps          int                 `json:"n_ops,omitempty"    tzpro:"notable"`
+	Batch         []*Op               `json:"batch,omitempty"    tzpro:"notable"`
+	Internal      []*Op               `json:"internal,omitempty" tzpro:"notable"`
+	Metadata      map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
 
 	columns  []string                 // optional, for decoding bulk arrays
 	param    micheline.Type           // optional, may be decoded from script
@@ -226,7 +226,7 @@ func (l OpList) Cursor() uint64 {
 }
 
 func (l *OpList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -267,7 +267,7 @@ func (l *OpList) UnmarshalJSON(data []byte) error {
 }
 
 func (o *Op) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -416,14 +416,12 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 					op.Storage = &ContractValue{}
 					if o.withPrim {
 						op.Storage.Prim = &prim
-					} else {
-						if o.store.IsValid() {
-							val := micheline.NewValue(o.store, prim)
-							val.Render = o.onError
-							op.Storage.Value, err = val.Map()
-							if err != nil {
-								err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
-							}
+					} else if o.store.IsValid() {
+						val := micheline.NewValue(o.store, prim)
+						val.Render = o.onError
+						op.Storage.Value, err = val.Map()
+						if err != nil {
+							err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
 						}
 					}
 				}
@@ -528,7 +526,7 @@ type OpQuery struct {
 }
 
 func (c *Client) NewOpQuery() OpQuery {
-	tinfo, err := GetTypeInfo(&Op{}, "")
+	tinfo, err := GetTypeInfo(&Op{})
 	if err != nil {
 		panic(err)
 	}

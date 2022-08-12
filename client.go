@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -111,7 +110,7 @@ func (c *Client) delete(ctx context.Context, path string, headers http.Header) e
 	return c.call(ctx, http.MethodDelete, path, headers, nil, nil)
 }
 
-func (c *Client) getAsync(ctx context.Context, path string, headers http.Header, result interface{}) FutureResult {
+func (c *Client) Async(ctx context.Context, path string, headers http.Header, result interface{}) FutureResult {
 	return c.callAsync(ctx, http.MethodGet, path, headers, nil, result)
 }
 
@@ -177,7 +176,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 	if err != nil {
 		return nil, err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 
 	// add content-type header to POST, PUT, PATCH
 	switch method {
@@ -248,7 +247,7 @@ func (c *Client) handleRequest(req *request) {
 	// non-stream handling below
 
 	// Read the raw bytes
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		req.responseChan <- &response{
 			status:  resp.StatusCode,

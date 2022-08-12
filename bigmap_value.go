@@ -138,7 +138,7 @@ func (l BigmapValueRowList) Cursor() uint64 {
 }
 
 func (l *BigmapValueRowList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -162,7 +162,7 @@ func (l *BigmapValueRowList) UnmarshalJSON(data []byte) error {
 }
 
 func (b *BigmapValueRow) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -224,7 +224,7 @@ type BigmapValueQuery struct {
 }
 
 func (c *Client) NewBigmapValueQuery() BigmapValueQuery {
-	tinfo, err := GetTypeInfo(&BigmapValueRow{}, "")
+	tinfo, err := GetTypeInfo(&BigmapValueRow{})
 	if err != nil {
 		panic(err)
 	}

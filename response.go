@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	headerRuntime  = "X-Runtime"
+	// headerRuntime  = "X-Runtime"
 	trailerError   = "X-Streaming-Error"
 	trailerCursor  = "X-Streaming-Cursor"
 	trailerCount   = "X-Streaming-Count"
@@ -55,7 +55,6 @@ func NewStreamResponse(header http.Header) (StreamResponse, error) {
 // request holds information about a request that is used to properly
 // detect, interpret, and deliver a reply to it.
 type request struct {
-	id              uint64
 	httpRequest     *http.Request
 	responseVal     interface{}
 	responseHeaders http.Header
@@ -91,10 +90,10 @@ func (r FutureResult) Receive(ctx context.Context) error {
 			return rerr
 		} else if resp != nil {
 			buf := resp.result
-			if resp != nil && buf != nil && resp.status > 299 {
+			if buf != nil && resp.status > 299 {
 				errs := ApiErrors{}
 				if err := json.Unmarshal(buf, &errs); err != nil {
-					buf = bytes.Replace(bytes.TrimRight(resp.result[:min(len(buf), 512)], "\x00"), []byte{'\n'}, []byte{}, -1)
+					buf = bytes.ReplaceAll(bytes.TrimRight(resp.result[:min(len(buf), 512)], "\x00"), []byte{'\n'}, []byte{})
 					errs.Errors = append(errs.Errors, ApiError{
 						Status:  resp.status,
 						Message: string(buf),
@@ -140,7 +139,7 @@ func mergeHeaders(merged, header, trailer http.Header) http.Header {
 	if merged == nil {
 		merged = make(http.Header)
 	}
-	for n, _ := range merged {
+	for n := range merged {
 		merged.Del(n)
 	}
 	for n, v := range header {

@@ -49,10 +49,8 @@ func run() error {
 		return err
 	}
 
-	if md.Alias != nil {
-		fmt.Printf("Account name: %s\n", md.Alias.Name)
-		fmt.Printf("Account kind: %s\n", md.Alias.Kind)
-	}
+	fmt.Printf("Account name: %s\n", md.Alias().Name)
+	fmt.Printf("Account kind: %s\n", md.Alias().Kind)
 
 	return nil
 }

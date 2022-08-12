@@ -99,7 +99,7 @@ func newHttpError(resp *http.Response, buf []byte, req string) error {
 		json.Unmarshal(buf, &val)
 		buf, _ = json.Marshal(val)
 	} else {
-		buf = bytes.Replace(bytes.TrimRight(buf[:min(len(buf), 512)], "\x00"), []byte{'\n'}, []byte{}, -1)
+		buf = bytes.ReplaceAll(bytes.TrimRight(buf[:min(len(buf), 512)], "\x00"), []byte{'\n'}, []byte{})
 	}
 	return HttpError{
 		Status:  resp.StatusCode,
@@ -139,10 +139,8 @@ func newRateLimitError(d time.Duration, resp *http.Response) ErrRateLimited {
 }
 
 func (e ErrRateLimited) timeout(d time.Duration) {
-	select {
-	case <-time.After(d):
-		close(e.done)
-	}
+	<-time.After(d)
+	close(e.done)
 }
 
 func NewErrRateLimited(d time.Duration, isResponse bool) ErrRateLimited {

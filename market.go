@@ -60,7 +60,7 @@ type Candle struct {
 }
 
 func (c *Candle) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -139,7 +139,7 @@ func (l CandleList) Len() int {
 }
 
 func (l *CandleList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] == '{' {
@@ -232,7 +232,7 @@ func (c CandleArgs) Url() string {
 
 func (c *Client) ListCandles(ctx context.Context, args CandleArgs) (*CandleList, error) {
 	if len(args.Columns) == 0 {
-		tinfo, err := GetTypeInfo(&Candle{}, "")
+		tinfo, err := GetTypeInfo(&Candle{})
 		if err != nil {
 			panic(err)
 		}

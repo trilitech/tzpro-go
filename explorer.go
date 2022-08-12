@@ -68,7 +68,7 @@ func (s *Status) WithColumns(cols ...string) *Status {
 }
 
 func (s *Status) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {

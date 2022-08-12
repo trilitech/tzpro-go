@@ -117,7 +117,7 @@ func (l CycleRightsList) Cursor() uint64 {
 }
 
 func (l *CycleRightsList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -142,7 +142,7 @@ func (l *CycleRightsList) UnmarshalJSON(data []byte) error {
 }
 
 func (r *CycleRights) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -206,7 +206,7 @@ type CycleRightsQuery struct {
 }
 
 func (c *Client) NewCycleRightsQuery() CycleRightsQuery {
-	tinfo, err := GetTypeInfo(&CycleRights{}, "")
+	tinfo, err := GetTypeInfo(&CycleRights{})
 	if err != nil {
 		panic(err)
 	}

@@ -89,14 +89,14 @@ type tableQuery struct {
 	// Sort string // asc/desc
 }
 
-func newTableQuery(name string) tableQuery {
-	return tableQuery{
-		Params: NewParams(),
-		Table:  name,
-		Filter: make(FilterList, 0),
-		Order:  OrderAsc,
-	}
-}
+// func newTableQuery(name string) tableQuery {
+// 	return tableQuery{
+// 		Params: NewParams(),
+// 		Table:  name,
+// 		Filter: make(FilterList, 0),
+// 		Order:  OrderAsc,
+// 	}
+// }
 
 func (q *tableQuery) WithFilter(mode FilterMode, col string, val ...interface{}) TableQuery {
 	q.Filter.Add(mode, col, val)

@@ -48,7 +48,7 @@ func (l ConstantList) Cursor() uint64 {
 }
 
 func (l *ConstantList) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if data[0] != '[' {
@@ -72,7 +72,7 @@ func (l *ConstantList) UnmarshalJSON(data []byte) error {
 }
 
 func (a *Constant) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Compare(data, []byte("null")) == 0 {
+	if len(data) == 0 || bytes.Equal(data, null) {
 		return nil
 	}
 	if len(data) == 2 {
@@ -169,7 +169,7 @@ type ConstantQuery struct {
 }
 
 func (c *Client) NewConstantQuery() ConstantQuery {
-	tinfo, err := GetTypeInfo(&Constant{}, "")
+	tinfo, err := GetTypeInfo(&Constant{})
 	if err != nil {
 		panic(err)
 	}
