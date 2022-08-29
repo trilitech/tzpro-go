@@ -42,46 +42,47 @@ func (x Costs) Sum() float64 {
 }
 
 type Op struct {
-	Id           uint64              `json:"id"`
-	Type         OpType              `json:"type"`
-	Hash         tezos.OpHash        `json:"hash"`
-	Height       int64               `json:"height"`
-	Cycle        int64               `json:"cycle"`
-	Timestamp    time.Time           `json:"time"`
-	OpN          int                 `json:"op_n"`
-	OpP          int                 `json:"op_p"`
-	Status       tezos.OpStatus      `json:"status"`
-	IsSuccess    bool                `json:"is_success"`
-	IsContract   bool                `json:"is_contract"`
-	IsInternal   bool                `json:"is_internal"`
-	IsEvent      bool                `json:"is_event"`
-	IsRollup     bool                `json:"is_rollup"`
-	Counter      int64               `json:"counter"`
-	GasLimit     int64               `json:"gas_limit"`
-	GasUsed      int64               `json:"gas_used"`
-	StorageLimit int64               `json:"storage_limit"`
-	StoragePaid  int64               `json:"storage_paid"`
-	Volume       float64             `json:"volume"`
-	Fee          float64             `json:"fee"`
-	Reward       float64             `json:"reward"`
-	Deposit      float64             `json:"deposit"`
-	Burned       float64             `json:"burned"`
-	SenderId     uint64              `json:"sender_id"`
-	ReceiverId   uint64              `json:"receiver_id"`
-	CreatorId    uint64              `json:"creator_id"`
-	BakerId      uint64              `json:"baker_id"`
-	Data         json.RawMessage     `json:"data,omitempty"`
-	Parameters   *ContractParameters `json:"parameters,omitempty"` // transaction
-	StorageHash  uint64              `json:"storage_hash,omitempty"`
-	Errors       json.RawMessage     `json:"errors,omitempty"`
-	TDD          float64             `json:"days_destroyed"`
-	Sender       tezos.Address       `json:"sender"`
-	Receiver     tezos.Address       `json:"receiver"`
-	Creator      tezos.Address       `json:"creator"` // origination
-	Baker        tezos.Address       `json:"baker"`   // delegation, origination
-	Block        tezos.BlockHash     `json:"block"`
-	Entrypoint   string              `json:"entrypoint,omitempty"`
-	BigmapDiff   []BigmapUpdate      `json:"big_map_diff,omitempty"` // transaction, origination
+	Id           uint64                 `json:"id"`
+	Type         OpType                 `json:"type"`
+	Hash         tezos.OpHash           `json:"hash"`
+	Height       int64                  `json:"height"`
+	Cycle        int64                  `json:"cycle"`
+	Timestamp    time.Time              `json:"time"`
+	OpN          int                    `json:"op_n"`
+	OpP          int                    `json:"op_p"`
+	Status       tezos.OpStatus         `json:"status"`
+	IsSuccess    bool                   `json:"is_success"`
+	IsContract   bool                   `json:"is_contract"`
+	IsInternal   bool                   `json:"is_internal"`
+	IsEvent      bool                   `json:"is_event"`
+	IsRollup     bool                   `json:"is_rollup"`
+	Counter      int64                  `json:"counter"`
+	GasLimit     int64                  `json:"gas_limit"`
+	GasUsed      int64                  `json:"gas_used"`
+	StorageLimit int64                  `json:"storage_limit"`
+	StoragePaid  int64                  `json:"storage_paid"`
+	Volume       float64                `json:"volume"`
+	Fee          float64                `json:"fee"`
+	Reward       float64                `json:"reward"`
+	Deposit      float64                `json:"deposit"`
+	Burned       float64                `json:"burned"`
+	SenderId     uint64                 `json:"sender_id"`
+	ReceiverId   uint64                 `json:"receiver_id"`
+	CreatorId    uint64                 `json:"creator_id"`
+	BakerId      uint64                 `json:"baker_id"`
+	Data         json.RawMessage        `json:"data,omitempty"`
+	Parameters   *ContractParameters    `json:"parameters,omitempty"` // transaction
+	StorageHash  uint64                 `json:"storage_hash,omitempty"`
+	Errors       json.RawMessage        `json:"errors,omitempty"`
+	TDD          float64                `json:"days_destroyed"`
+	Sender       tezos.Address          `json:"sender"`
+	Receiver     tezos.Address          `json:"receiver"`
+	Creator      tezos.Address          `json:"creator"` // origination
+	Baker        tezos.Address          `json:"baker"`   // delegation, origination
+	Block        tezos.BlockHash        `json:"block"`
+	Entrypoint   string                 `json:"entrypoint,omitempty"`
+	BigmapDiff   []BigmapUpdate         `json:"big_map_diff,omitempty"` // transaction, origination
+	BigmapEvents micheline.BigmapEvents `json:"-"`                      // raw, transaction, origination
 
 	// explorer or ZMQ APIs only
 	PrevBaker     tezos.Address       `json:"previous_baker"     tzpro:"notable"` // delegation
@@ -430,13 +431,13 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			// ZMQ and table
 			var buf []byte
 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
-				bmd := make(micheline.BigmapEvents, 0)
-				err = bmd.UnmarshalBinary(buf)
+				op.BigmapEvents = make(micheline.BigmapEvents, 0)
+				err = op.BigmapEvents.UnmarshalBinary(buf)
 				if err == nil {
-					op.BigmapDiff = make([]BigmapUpdate, 0, len(bmd))
+					op.BigmapDiff = make([]BigmapUpdate, 0, len(op.BigmapEvents))
 					if o.withPrim {
 						// decode prim only
-						for _, v := range bmd {
+						for _, v := range op.BigmapEvents {
 							upd := BigmapUpdate{
 								Action:   v.Action,
 								BigmapId: v.Id,
@@ -457,7 +458,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 						}
 					} else {
 						// full key/value unpack, requires script type
-						for _, v := range bmd {
+						for _, v := range op.BigmapEvents {
 							var ktyp, vtyp micheline.Type
 							if typ, ok := o.bigmaps[v.Id]; ok {
 								ktyp, vtyp = typ.Left(), typ.Right()
