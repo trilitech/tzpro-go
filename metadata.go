@@ -360,6 +360,7 @@ type SocialMetadata struct {
 	Instagram string `json:"instagram,omitempty"`
 	Reddit    string `json:"reddit,omitempty"`
 	Github    string `json:"github,omitempty"`
+	Website   string `json:"website,omitempty"`
 }
 
 type Tz21Metadata struct {
