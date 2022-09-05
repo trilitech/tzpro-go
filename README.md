@@ -1,4 +1,4 @@
-## tzpro-go – Official Go SDK for the TzPro API
+## TzPro-Go – Official Go SDK for the TzPro API
 
 The official Blockwatch Go client library for TzPro. This SDK is free to use under a permissive license and works with the most recent version of the TzPro API v012-2022-02-22. API documentation can be found [here](https://docs.tzpro.io/api).
 
