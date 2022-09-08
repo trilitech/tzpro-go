@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 )
 
 func main() {

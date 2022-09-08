@@ -17,7 +17,7 @@ import (
 
 	"blockwatch.cc/tzgo/micheline"
 	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 	"github.com/daviddengcn/go-colortext"
 	"github.com/echa/log"
 )

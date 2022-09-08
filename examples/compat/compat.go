@@ -1,7 +1,7 @@
 package main
 
 import (
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 	"context"
 	"fmt"
 

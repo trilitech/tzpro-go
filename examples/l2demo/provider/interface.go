@@ -5,7 +5,7 @@ package provider
 
 import (
 	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 	"context"
 )
 

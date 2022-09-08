@@ -4,7 +4,7 @@
 package provider
 
 import (
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 )
 
 func Providers() []Provider {

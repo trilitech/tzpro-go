@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 )
 
 func main() {

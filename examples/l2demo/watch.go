@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go"
 	"blockwatch.cc/tzpro-go/examples/l2demo/provider"
+	"blockwatch.cc/tzpro-go/tzpro"
 	"github.com/echa/config"
 	"github.com/echa/log"
 )

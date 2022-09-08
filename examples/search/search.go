@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go"
+	"blockwatch.cc/tzpro-go/tzpro"
 	"github.com/echa/log"
 )
 
