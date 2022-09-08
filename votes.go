@@ -109,7 +109,7 @@ type Voter struct {
 	RowId     uint64               `json:"row_id"`
 	Address   tezos.Address        `json:"address"`
 	Rolls     int64                `json:"rolls"`
-	Stake     int64                `json:"stake"`
+	Stake     float64              `json:"stake"`
 	Ballot    tezos.BallotVote     `json:"ballot"`
 	HasVoted  bool                 `json:"has_voted"`
 	Proposals []tezos.ProtocolHash `json:"proposals"`

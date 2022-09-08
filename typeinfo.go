@@ -157,12 +157,10 @@ func structFieldInfo(f *reflect.StructField, tagname string) *FieldInfo {
 	switch tags := strings.Split(f.Tag.Get(tagname), ","); len(tags) {
 	case 0:
 		finfo.Alias = finfo.Name
-	case 1:
-		finfo.Alias = tags[0]
 	default:
 		finfo.Alias = tags[0]
-		finfo.Flags = strings.Split(f.Tag.Get(flagName), ",")
 	}
+	finfo.Flags = strings.Split(f.Tag.Get(flagName), ",")
 	return finfo
 }
 

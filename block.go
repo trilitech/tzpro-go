@@ -54,7 +54,7 @@ type Block struct {
 	GasUsed          int64                  `json:"gas_used"`
 	StoragePaid      int64                  `json:"storage_paid"`
 	PctAccountReuse  float64                `json:"pct_account_reuse"`
-	LbEscapeVote     bool                   `json:"lb_esc_vote"`
+	LbEscapeVote     string                 `json:"lb_esc_vote"`
 	LbEscapeEma      int64                  `json:"lb_esc_ema"`
 	Protocol         tezos.ProtocolHash     `json:"protocol"`
 	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"notable"`
@@ -304,7 +304,7 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 		case "pct_account_reuse":
 			block.PctAccountReuse, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "lb_esc_vote":
-			block.LbEscapeVote, err = strconv.ParseBool(f.(json.Number).String())
+			block.LbEscapeVote = f.(string)
 		case "lb_esc_ema":
 			block.LbEscapeEma, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "protocol":

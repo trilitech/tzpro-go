@@ -19,7 +19,7 @@ func run() error {
     ctx := context.Background()
 
     // create a new SDK client
-    c, err := tzpro.NewClient("http://localhost:8000", nil)
+    c, err := tzpro.NewClient("https://api.staging.tzstats.com", nil)
     if err != nil {
         return err
     }
@@ -105,8 +105,8 @@ func run() error {
     // -----------------------------------------------------------------
     // Account
     //
-    // addr := tezos.MustParseAddress("tz1TquYe9nh721QprjeESzQa9iXnb84rCWRo") // Main
-    addr := tezos.MustParseAddress("tz29WDVtnm7nQNS2GW45i3jPvKwa6Wkx7qos") // Ithaca
+    addr := tezos.MustParseAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // Main
+    // addr := tezos.MustParseAddress("tz29WDVtnm7nQNS2GW45i3jPvKwa6Wkx7qos") // Ithaca
 
     // account
     if _, err := c.GetAccount(ctx, addr, ap); err != nil {
@@ -134,8 +134,8 @@ func run() error {
     // -----------------------------------------------------------------
     // Baker
     //
-    // addr = tezos.MustParseAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // main
-    addr = tezos.MustParseAddress("tz1edUYGqBtteStneTGDBrQWTFmq9cnEELiW") // ithaca
+    addr = tezos.MustParseAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // main
+    // addr = tezos.MustParseAddress("tz1edUYGqBtteStneTGDBrQWTFmq9cnEELiW") // ithaca
 
     // baker
     if _, err := c.GetBaker(ctx, addr, bkp); err != nil {
@@ -163,17 +163,17 @@ func run() error {
     }
 
     // rights
-    if _, err := c.ListBakerRights(ctx, addr, 20, bkp); err != nil {
+    if _, err := c.ListBakerRights(ctx, addr, 400, bkp); err != nil {
         return fmt.Errorf("ListBakerRights: %v", err)
     }
 
     // income
-    if _, err := c.GetBakerIncome(ctx, addr, 20, bkp); err != nil {
+    if _, err := c.GetBakerIncome(ctx, addr, 400, bkp); err != nil {
         return fmt.Errorf("GetBakerIncome: %v", err)
     }
 
     // snapshot
-    if _, err := c.GetBakerSnapshot(ctx, addr, 20, bkp); err != nil {
+    if _, err := c.GetBakerSnapshot(ctx, addr, 400, bkp); err != nil {
         return fmt.Errorf("GetBakerSnapshot: %v", err)
     }
 
@@ -278,10 +278,10 @@ func run() error {
     // -----------------------------------------------------------------
     // Contract
     //
-    // addr = tezos.MustParseAddress("KT1EVPNZtekBirJhvALU5gNJS2F3ibWZXnpd") // main
-    addr = tezos.MustParseAddress("KT1UcwQtaztLSq8oufdXAtWpRTfFySCj7gFM") // ithaca
+    addr = tezos.MustParseAddress("KT1EVPNZtekBirJhvALU5gNJS2F3ibWZXnpd") // main
+    // addr = tezos.MustParseAddress("KT1UcwQtaztLSq8oufdXAtWpRTfFySCj7gFM") // ithaca
 
-    // contracr
+    // contract
     if _, err := c.GetContract(ctx, addr, cp); err != nil {
         return fmt.Errorf("GetContract: %v", err)
     }
