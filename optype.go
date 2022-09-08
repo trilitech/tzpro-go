@@ -39,6 +39,8 @@ const (
 	OpTypeReward                             // 24 v012 implicit event (endorsement reward pay/burn)
 	OpTypeRollupOrigination                  // 25 v013 rollup
 	OpTypeRollupTransaction                  // 26 v013 rollup
+	OpTypeVdfRevelation                      // 27 v014
+	OpTypeIncreasePaidStorage                // 28 v014
 	OpTypeBatch                = 254         // API output only
 	OpTypeInvalid              = 255
 )
@@ -73,6 +75,8 @@ var (
 		OpTypeBatch:                "batch",
 		OpTypeRollupOrigination:    "rollup_origination",
 		OpTypeRollupTransaction:    "rollup_transaction",
+		OpTypeVdfRevelation:        "vdf_revelation",
+		OpTypeIncreasePaidStorage:  "increase_paid_storage",
 		OpTypeInvalid:              "",
 	}
 	opTypeReverseStrings = make(map[string]OpType)

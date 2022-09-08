@@ -42,6 +42,7 @@ type Chain struct {
 	TotalStorageBytes    int64     `json:"total_storage_bytes"`
 	FundedAccounts       int64     `json:"funded_accounts"`
 	DustAccounts         int64     `json:"dust_accounts"`
+	GhostAccounts        int64     `json:"ghost_accounts"`
 	UnclaimedAccounts    int64     `json:"unclaimed_accounts"`
 	TotalDelegators      int64     `json:"total_delegators"`
 	ActiveDelegators     int64     `json:"active_delegators"`
@@ -189,6 +190,8 @@ func (c *Chain) UnmarshalJSONBrief(data []byte) error {
 			cc.FundedAccounts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "dust_accounts":
 			cc.DustAccounts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+		case "ghost_accounts":
+			cc.GhostAccounts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "unclaimed_accounts":
 			cc.UnclaimedAccounts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "total_delegators":

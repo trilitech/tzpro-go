@@ -97,6 +97,7 @@ type Op struct {
 	Batch         []*Op               `json:"batch,omitempty"    tzpro:"notable"`
 	Internal      []*Op               `json:"internal,omitempty" tzpro:"notable"`
 	Metadata      map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
+	Events        []Event             `json:"events,omitempty"   tzpro:"notable"`
 
 	columns  []string                 // optional, for decoding bulk arrays
 	param    micheline.Type           // optional, may be decoded from script
