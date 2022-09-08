@@ -138,79 +138,65 @@ func (c *Client) ListProtocols(ctx context.Context) ([]Deployment, error) {
 }
 
 type BlockchainConfig struct {
-	Name                        string `json:"name"`
-	Network                     string `json:"network"`
-	Symbol                      string `json:"symbol"`
-	ChainId                     string `json:"chain_id"`
-	Version                     int    `json:"version"`
-	Deployment                  int    `json:"deployment"`
-	Protocol                    string `json:"protocol"`
-	StartHeight                 int64  `json:"start_height"`
-	EndHeight                   int64  `json:"end_height"`
-	NoRewardCycles              int64  `json:"no_reward_cycles"`
-	SecurityDepositRampUpCycles int64  `json:"security_deposit_ramp_up_cycles"`
-	Decimals                    int    `json:"decimals"`
-	Token                       int64  `json:"units"`
+	Name        string `json:"name"`
+	Network     string `json:"network"`
+	Symbol      string `json:"symbol"`
+	ChainId     string `json:"chain_id"`
+	Version     int    `json:"version"`
+	Deployment  int    `json:"deployment"`
+	Protocol    string `json:"protocol"`
+	StartHeight int64  `json:"start_height"`
+	EndHeight   int64  `json:"end_height"`
+	Decimals    int    `json:"decimals"`
+	Token       int64  `json:"units"`
 
-	NumVotingPeriods int   `json:"num_voting_periods"`
-	MaxOperationsTTL int64 `json:"max_operations_ttl"`
+	// blocks
+	TokensPerRoll       float64 `json:"tokens_per_roll"`
+	PreservedCycles     int64   `json:"preserved_cycles"`
+	BlocksPerCommitment int64   `json:"blocks_per_commitment"`
+	BlocksPerCycle      int64   `json:"blocks_per_cycle"`
+	BlocksPerSnapshot   int64   `json:"blocks_per_snapshot,omitempty"`
 
-	BlockReward                       float64    `json:"block_rewards"`
-	BlockSecurityDeposit              float64    `json:"block_security_deposit"`
-	BlocksPerCommitment               int64      `json:"blocks_per_commitment"`
-	BlocksPerCycle                    int64      `json:"blocks_per_cycle"`
-	BlocksPerRollSnapshot             int64      `json:"blocks_per_roll_snapshot"`
-	BlocksPerVotingPeriod             int64      `json:"blocks_per_voting_period"`
-	CostPerByte                       int64      `json:"cost_per_byte"`
-	EndorsementReward                 float64    `json:"endorsement_reward"`
-	EndorsementSecurityDeposit        float64    `json:"endorsement_security_deposit"`
-	EndorsersPerBlock                 int        `json:"endorsers_per_block"`
-	HardGasLimitPerBlock              int64      `json:"hard_gas_limit_per_block"`
-	HardGasLimitPerOperation          int64      `json:"hard_gas_limit_per_operation"`
-	HardStorageLimitPerOperation      int64      `json:"hard_storage_limit_per_operation"`
-	MaxOperationDataLength            int        `json:"max_operation_data_length"`
-	MaxProposalsPerDelegate           int        `json:"max_proposals_per_delegate"`
-	MaxRevelationsPerBlock            int        `json:"max_revelations_per_block"`
-	MichelsonMaximumTypeSize          int        `json:"michelson_maximum_type_size"`
-	NonceLength                       int        `json:"nonce_length"`
-	OriginationBurn                   float64    `json:"origination_burn"`
-	OriginationSize                   int64      `json:"origination_size"`
-	PreservedCycles                   int64      `json:"preserved_cycles"`
-	ProofOfWorkNonceSize              int        `json:"proof_of_work_nonce_size"`
-	ProofOfWorkThreshold              uint64     `json:"proof_of_work_threshold"`
-	SeedNonceRevelationTip            float64    `json:"seed_nonce_revelation_tip"`
-	TimeBetweenBlocks                 [2]int     `json:"time_between_blocks"`
-	TokensPerRoll                     float64    `json:"tokens_per_roll"`
-	TestChainDuration                 int64      `json:"test_chain_duration"`
-	MinProposalQuorum                 int64      `json:"min_proposal_quorum"`
-	QuorumMin                         int64      `json:"quorum_min"`
-	QuorumMax                         int64      `json:"quorum_max"`
-	BlockRewardV6                     [2]float64 `json:"block_rewards_v6"`
-	EndorsementRewardV6               [2]float64 `json:"endorsement_rewards_v6"`
-	MaxAnonOpsPerBlock                int        `json:"max_anon_ops_per_block"`
-	LiquidityBakingEscapeEmaThreshold int64      `json:"liquidity_baking_escape_ema_threshold"`
-	LiquidityBakingSubsidy            int64      `json:"liquidity_baking_subsidy"`
-	LiquidityBakingSunsetLevel        int64      `json:"liquidity_baking_sunset_level"`
-	MinimalBlockDelay                 int        `json:"minimal_block_delay"`
+	// timing
+	TimeBetweenBlocks      *[2]int `json:"time_between_blocks,omitempty"`
+	MinimalBlockDelay      int     `json:"minimal_block_delay"`
+	DelayIncrementPerRound int     `json:"delay_increment_per_round,omitempty"`
 
-	// New in Hangzhou v011
-	MaxMichelineNodeCount          int `json:"max_micheline_node_count,omitempty"`
-	MaxMichelineBytesLimit         int `json:"max_micheline_bytes_limit,omitempty"`
-	MaxAllowedGlobalConstantsDepth int `json:"max_allowed_global_constants_depth,omitempty"`
+	// rewards
+	BlockReward              float64     `json:"block_reward"`
+	EndorsementReward        float64     `json:"endorsement_reward"`
+	BlockRewardV6            *[2]float64 `json:"block_rewards_v6,omitempty"`
+	EndorsementRewardV6      *[2]float64 `json:"endorsement_rewards_v6,omitempty"`
+	SeedNonceRevelationTip   float64     `json:"seed_nonce_revelation_tip"`
+	BakingRewardFixedPortion int64       `json:"baking_reward_fixed_portion,omitempty"`
+	BakingRewardBonusPerSlot int64       `json:"baking_reward_bonus_per_slot,omitempty"`
+	EndorsingRewardPerSlot   int64       `json:"endorsing_reward_per_slot,omitempty"`
 
-	// New in Ithaca v012
-	BlocksPerStakeSnapshot                           int64        `json:"blocks_per_stake_snapshot,omitempty"`
-	BakingRewardFixedPortion                         int64        `json:"baking_reward_fixed_portion,omitempty"`
-	BakingRewardBonusPerSlot                         int64        `json:"baking_reward_bonus_per_slot,omitempty"`
-	EndorsingRewardPerSlot                           int64        `json:"endorsing_reward_per_slot,omitempty"`
-	DelayIncrementPerRound                           int          `json:"delay_increment_per_round,omitempty"`
-	ConsensusCommitteeSize                           int          `json:"consensus_committee_size,omitempty"`
-	ConsensusThreshold                               int          `json:"consensus_threshold,omitempty"`
-	MinimalParticipationRatio                        *tezos.Ratio `json:"minimal_participation_ratio,omitempty"`
-	MaxSlashingPeriod                                int64        `json:"max_slashing_period,omitempty"`
-	FrozenDepositsPercentage                         int          `json:"frozen_deposits_percentage,omitempty"`
-	DoubleBakingPunishment                           int64        `json:"double_baking_punishment,omitempty"`
-	RatioOfFrozenDepositsSlashedPerDoubleEndorsement *tezos.Ratio `json:"ratio_of_frozen_deposits_slashed_per_double_endorsement,omitempty"`
+	// costs
+	OriginationBurn            float64 `json:"origination_burn,omitempty"`
+	OriginationSize            int64   `json:"origination_size,omitempty"`
+	CostPerByte                int64   `json:"cost_per_byte"`
+	BlockSecurityDeposit       float64 `json:"block_security_deposit,omitempty"`
+	EndorsementSecurityDeposit float64 `json:"endorsement_security_deposit,omitempty"`
+	FrozenDepositsPercentage   int     `json:"frozen_deposits_percentage,omitempty"`
+
+	// limits
+	MichelsonMaximumTypeSize     int   `json:"michelson_maximum_type_size"`
+	EndorsersPerBlock            int   `json:"endorsers_per_block,omitempty"`
+	HardGasLimitPerBlock         int64 `json:"hard_gas_limit_per_block"`
+	HardGasLimitPerOperation     int64 `json:"hard_gas_limit_per_operation"`
+	HardStorageLimitPerOperation int64 `json:"hard_storage_limit_per_operation"`
+	MaxOperationDataLength       int   `json:"max_operation_data_length"`
+	MaxOperationsTTL             int64 `json:"max_operations_ttl"`
+	ConsensusCommitteeSize       int   `json:"consensus_committee_size,omitempty"`
+	ConsensusThreshold           int   `json:"consensus_threshold,omitempty"`
+
+	// voting
+	NumVotingPeriods      int   `json:"num_voting_periods"`
+	BlocksPerVotingPeriod int64 `json:"blocks_per_voting_period"`
+	MinProposalQuorum     int64 `json:"min_proposal_quorum,omitempty"`
+	QuorumMin             int64 `json:"quorum_min,omitempty"`
+	QuorumMax             int64 `json:"quorum_max,omitempty"`
 }
 
 func (c *Client) GetConfig(ctx context.Context) (*BlockchainConfig, error) {
