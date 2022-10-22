@@ -81,7 +81,7 @@ type Op struct {
 	Baker        tezos.Address          `json:"baker"`   // delegation, origination
 	Block        tezos.BlockHash        `json:"block"`
 	Entrypoint   string                 `json:"entrypoint,omitempty"`
-	BigmapDiff   []BigmapUpdate         `json:"big_map_diff,omitempty"` // transaction, origination
+	BigmapDiff   BigmapUpdates          `json:"big_map_diff,omitempty"` // transaction, origination
 	BigmapEvents micheline.BigmapEvents `json:"-"`                      // raw, transaction, origination
 
 	// explorer or ZMQ APIs only
@@ -435,7 +435,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 				op.BigmapEvents = make(micheline.BigmapEvents, 0)
 				err = op.BigmapEvents.UnmarshalBinary(buf)
 				if err == nil {
-					op.BigmapDiff = make([]BigmapUpdate, 0, len(op.BigmapEvents))
+					op.BigmapDiff = make(BigmapUpdates, 0, len(op.BigmapEvents))
 					if o.withPrim {
 						// decode prim only
 						for _, v := range op.BigmapEvents {

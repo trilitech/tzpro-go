@@ -29,6 +29,43 @@ type BigmapUpdate struct {
 	DestId        int64                `json:"destination_big_map,omitempty"`
 }
 
+type BigmapUpdates []BigmapUpdate
+
+func (u BigmapUpdate) Event() (ev micheline.BigmapEvent) {
+	ev.Action = u.Action
+	ev.Id = u.BigmapId
+	ev.SourceId = u.SourceId
+	ev.DestId = u.DestId
+	switch u.Action {
+	case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+		if u.KeyTypePrim != nil {
+			ev.KeyType = *u.KeyTypePrim
+		}
+		if u.ValueTypePrim != nil {
+			ev.ValueType = *u.ValueTypePrim
+		}
+	case micheline.DiffActionUpdate:
+		if u.KeyPrim != nil {
+			ev.Key = *u.KeyPrim
+		}
+		if u.ValuePrim != nil {
+			ev.Value = *u.ValuePrim
+		}
+	case micheline.DiffActionRemove:
+		if u.KeyPrim != nil {
+			ev.Key = *u.KeyPrim
+		}
+	}
+	return
+}
+
+func (l BigmapUpdates) Events() (ev micheline.BigmapEvents) {
+	for _, v := range l {
+		ev = append(ev, v.Event())
+	}
+	return
+}
+
 type BigmapUpdateRow struct {
 	RowId    uint64               `json:"row_id"`
 	BigmapId int64                `json:"bigmap_id"`
