@@ -288,6 +288,10 @@ func (v ContractValue) GetBig(path string) (*big.Int, bool) {
 	return getPathBig(v.Value, path)
 }
 
+func (v ContractValue) GetZ(path string) (tezos.Z, bool) {
+	return getPathZ(v.Value, path)
+}
+
 func (v ContractValue) GetTime(path string) (time.Time, bool) {
 	return getPathTime(v.Value, path)
 }
