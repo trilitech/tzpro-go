@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	ClientVersion    = "0.14.0"
+	ClientVersion    = "0.14.1"
 	DefaultLimit     = 50000
 	DefaultCacheSize = 2048
 	userAgent        = "tzpro-go/v" + ClientVersion
@@ -34,11 +34,11 @@ func init() {
 }
 
 type Client struct {
-	httpClient *http.Client
-	params     Params
-	cache      *lru.TwoQueueCache
-	headers    http.Header
-	UserAgent  string
+	transport Transport
+	params    Params
+	cache     *lru.TwoQueueCache
+	headers   http.Header
+	UserAgent string
 }
 
 func NewClient(url string, httpClient *http.Client) (*Client, error) {
@@ -67,11 +67,11 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 	}
 	cache, _ := lru.New2Q(sz)
 	return &Client{
-		httpClient: httpClient,
-		params:     params,
-		cache:      cache,
-		headers:    make(http.Header),
-		UserAgent:  userAgent,
+		transport: defaultTransport{c: httpClient},
+		params:    params,
+		cache:     cache,
+		headers:   make(http.Header),
+		UserAgent: userAgent,
 	}, nil
 }
 
@@ -79,19 +79,30 @@ func (c *Client) DefaultHeaders() http.Header {
 	return c.headers
 }
 
+func (c *Client) WithTransport(t Transport) *Client {
+	c.transport = t
+	return c
+}
+
 func (c *Client) WithTLS(tc *tls.Config) *Client {
-	c.httpClient.Transport.(*http.Transport).TLSClientConfig = tc
+	hc, ok := c.transport.(*defaultTransport)
+	if ok {
+		hc.c.Transport.(*http.Transport).TLSClientConfig = tc
+	}
+	return c
+}
+
+func (c *Client) SetTimeout(d time.Duration) *Client {
+	hc, ok := c.transport.(*defaultTransport)
+	if ok {
+		hc.c.Transport.(*http.Transport).ResponseHeaderTimeout = d
+		hc.c.Timeout = d
+	}
 	return c
 }
 
 func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
 	c.cache = cache
-}
-
-func (c *Client) SetTimeout(d time.Duration) *Client {
-	c.httpClient.Transport.(*http.Transport).ResponseHeaderTimeout = d
-	c.httpClient.Timeout = d
-	return c
 }
 
 func (c *Client) get(ctx context.Context, path string, headers http.Header, result interface{}) error {
@@ -209,7 +220,7 @@ func (c *Client) handleRequest(req *request) {
 		return string(r)
 	}))
 
-	resp, err := c.httpClient.Do(req.httpRequest)
+	resp, err := c.transport.Do(req.httpRequest)
 	if err != nil {
 		req.responseChan <- &response{err: err, request: req.String()}
 		return
