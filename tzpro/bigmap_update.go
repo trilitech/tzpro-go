@@ -80,6 +80,35 @@ type BigmapUpdateRow struct {
 	columns []string `json:"-"`
 }
 
+func (r BigmapUpdateRow) Event() (ev micheline.BigmapEvent) {
+	ev.Action = r.Action
+	ev.Id = r.BigmapId
+	switch r.Action {
+	case micheline.DiffActionCopy:
+		ev.SourceId = int64(r.KeyId)
+		ev.DestId = r.BigmapId
+	case micheline.DiffActionAlloc:
+		if buf, err := hex.DecodeString(r.Key); err == nil {
+			_ = ev.KeyType.UnmarshalBinary(buf)
+		}
+		if buf, err := hex.DecodeString(r.Value); err == nil {
+			_ = ev.ValueType.UnmarshalBinary(buf)
+		}
+	case micheline.DiffActionUpdate:
+		if buf, err := hex.DecodeString(r.Key); err == nil {
+			_ = ev.Key.UnmarshalBinary(buf)
+		}
+		if buf, err := hex.DecodeString(r.Value); err == nil {
+			_ = ev.Value.UnmarshalBinary(buf)
+		}
+	case micheline.DiffActionRemove:
+		if buf, err := hex.DecodeString(r.Key); err == nil {
+			_ = ev.Key.UnmarshalBinary(buf)
+		}
+	}
+	return
+}
+
 // Alloc/Copy only
 func (r BigmapUpdateRow) DecodeKeyType() (micheline.Type, error) {
 	switch r.Action {
@@ -167,6 +196,14 @@ func (l BigmapUpdateRowList) Cursor() uint64 {
 		return 0
 	}
 	return l.Rows[len(l.Rows)-1].RowId
+}
+
+func (l BigmapUpdateRowList) Events() []micheline.BigmapEvent {
+	ev := make([]micheline.BigmapEvent, len(l.Rows))
+	for i, v := range l.Rows {
+		ev[i] = v.Event()
+	}
+	return ev
 }
 
 func (l *BigmapUpdateRowList) UnmarshalJSON(data []byte) error {
