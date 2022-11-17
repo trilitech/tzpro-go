@@ -59,7 +59,6 @@ func (l *SnapshotList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("SnapshotList: expected JSON array")
 	}
-	// log.Debugf("decode rights list from %d bytes", len(data))
 	array := make([]json.RawMessage, 0)
 	if err := json.Unmarshal(data, &array); err != nil {
 		return err
