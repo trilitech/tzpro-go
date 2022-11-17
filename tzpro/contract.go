@@ -476,7 +476,7 @@ func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Addres
 			return script.(*ContractScript), nil
 		}
 	}
-	log.Tracef("Loading contract %s", addr)
+	c.log.Tracef("Loading contract %s", addr)
 	script, err := c.GetContractScript(ctx, addr, NewContractParams().WithPrim())
 	if err != nil {
 		return nil, err

@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/echa/log"
 	lru "github.com/hashicorp/golang-lru"
 )
 
@@ -30,15 +31,18 @@ var (
 func init() {
 	DefaultClient, _ = NewClient("https://api.tzpro.io", nil)
 	IpfsClient, _ = NewClient("https://ipfs.tzstats.com", nil)
-	IpfsClient.SetTimeout(60 * time.Second)
+	IpfsClient.WithTimeout(60 * time.Second)
 }
 
 type Client struct {
-	transport Transport
-	params    Params
-	cache     *lru.TwoQueueCache
-	headers   http.Header
-	UserAgent string
+	transport  Transport
+	log        log.Logger
+	params     Params
+	cache      *lru.TwoQueueCache
+	headers    http.Header
+	userAgent  string
+	numRetries int
+	retryDelay time.Duration
 }
 
 func NewClient(url string, httpClient *http.Client) (*Client, error) {
@@ -67,11 +71,14 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 	}
 	cache, _ := lru.New2Q(sz)
 	return &Client{
-		transport: defaultTransport{c: httpClient},
-		params:    params,
-		cache:     cache,
-		headers:   make(http.Header),
-		UserAgent: userAgent,
+		transport:  defaultTransport{c: httpClient},
+		log:        defaultLog,
+		params:     params,
+		cache:      cache,
+		headers:    make(http.Header),
+		userAgent:  userAgent,
+		numRetries: 0,
+		retryDelay: 0,
 	}, nil
 }
 
@@ -84,6 +91,11 @@ func (c *Client) WithTransport(t Transport) *Client {
 	return c
 }
 
+func (c *Client) WithUserAgent(s string) *Client {
+	c.userAgent = s
+	return c
+}
+
 func (c *Client) WithTLS(tc *tls.Config) *Client {
 	hc, ok := c.transport.(*defaultTransport)
 	if ok {
@@ -92,12 +104,26 @@ func (c *Client) WithTLS(tc *tls.Config) *Client {
 	return c
 }
 
-func (c *Client) SetTimeout(d time.Duration) *Client {
+func (c *Client) WithTimeout(d time.Duration) *Client {
 	hc, ok := c.transport.(*defaultTransport)
 	if ok {
 		hc.c.Transport.(*http.Transport).ResponseHeaderTimeout = d
 		hc.c.Timeout = d
 	}
+	return c
+}
+
+func (c *Client) WithRetry(num int, delay time.Duration) *Client {
+	c.numRetries = num
+	if num < 0 {
+		c.numRetries = int(^uint(0)>>1) - 1 // max int - 1
+	}
+	c.retryDelay = delay
+	return c
+}
+
+func (c *Client) WithLogger(log log.Logger) *Client {
+	c.log = log
 	return c
 }
 
@@ -155,7 +181,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 	if headers == nil {
 		headers = make(http.Header)
 	}
-	headers.Set("User-Agent", c.UserAgent)
+	headers.Set("User-Agent", c.userAgent)
 
 	// copy default headers
 	for n, v := range c.headers {
@@ -182,7 +208,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 	}
 
 	// create http request
-	log.Debugf("%s %s", method, path)
+	c.log.Debugf("%s %s", method, path)
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
 		return nil, err
@@ -215,19 +241,41 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 // provided response channel.
 func (c *Client) handleRequest(req *request) {
 	// only dump content-type application/json
-	log.Trace(newLogClosure(func() string {
+	c.log.Trace(newLogClosure(func() string {
 		r, _ := httputil.DumpRequestOut(req.httpRequest, req.httpRequest.Header.Get("Content-Type") == "application/json")
 		return string(r)
 	}))
 
-	resp, err := c.transport.Do(req.httpRequest)
+	var (
+		resp *http.Response
+		err  error
+	)
+	for retries := c.numRetries + 1; retries > 0; retries-- {
+		resp, err = c.transport.Do(req.httpRequest)
+		if err == nil {
+			break
+		}
+		if !isNetError(err) {
+			break
+		}
+		select {
+		case <-req.httpRequest.Context().Done():
+			req.responseChan <- &response{
+				err:     req.httpRequest.Context().Err(),
+				request: req.String(),
+			}
+			return
+		case <-time.After(c.retryDelay):
+			// continue
+		}
+	}
 	if err != nil {
 		req.responseChan <- &response{err: err, request: req.String()}
 		return
 	}
 	defer resp.Body.Close()
 
-	log.Tracef("response: %s", newLogClosure(func() string {
+	c.log.Tracef("response: %s", newLogClosure(func() string {
 		s, _ := httputil.DumpResponse(resp, isTextResponse(resp))
 		return string(s)
 	}))
@@ -235,16 +283,16 @@ func (c *Client) handleRequest(req *request) {
 	// process as stream when response interface is an io.Writer
 	if resp.StatusCode == http.StatusOK && req.responseVal != nil {
 		if stream, ok := req.responseVal.(io.Writer); ok {
-			// log.Tracef("start streaming response")
+			// c.log.Tracef("start streaming response")
 			// forward stream
 			_, err := io.Copy(stream, resp.Body)
 			// close consumer if possible
 			if closer, ok := req.responseVal.(io.WriteCloser); ok {
-				// log.Tracef("closing stream after %d bytes", n)
+				// c.log.Tracef("closing stream after %d bytes", n)
 				closer.Close()
 			}
-			// log.Tracef("response headers: %#v", resp.Header)
-			// log.Tracef("response trailer: %#v", resp.Trailer)
+			// c.log.Tracef("response headers: %#v", resp.Header)
+			// c.log.Tracef("response trailer: %#v", resp.Trailer)
 			req.responseChan <- &response{
 				status:  resp.StatusCode,
 				request: req.String(),

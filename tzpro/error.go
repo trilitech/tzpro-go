@@ -7,8 +7,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -196,4 +200,34 @@ func ErrorStatus(err error) int {
 	default:
 		return 0
 	}
+}
+
+func isNetError(err error) bool {
+	if err == nil {
+		return false
+	}
+	// direct type
+	switch err.(type) {
+	case *net.OpError:
+		return true
+	case *os.SyscallError:
+		return true
+	case *url.Error:
+		return true
+	}
+	// wrapped
+	var (
+		neterr *net.OpError
+		oserr  *os.SyscallError
+		urlerr *url.Error
+	)
+	switch {
+	case errors.As(err, &neterr):
+		return true
+	case errors.As(err, &oserr):
+		return true
+	case errors.As(err, &urlerr):
+		return true
+	}
+	return false
 }
