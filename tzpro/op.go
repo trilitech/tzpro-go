@@ -73,6 +73,7 @@ type Op struct {
 	Data         json.RawMessage        `json:"data,omitempty"`
 	Parameters   *ContractParameters    `json:"parameters,omitempty"` // transaction
 	StorageHash  uint64                 `json:"storage_hash,omitempty"`
+	CodeHash     string                 `json:"code_hash,omitempty"`
 	Errors       json.RawMessage        `json:"errors,omitempty"`
 	TDD          float64                `json:"days_destroyed"`
 	Sender       tezos.Address          `json:"sender"`
@@ -90,6 +91,7 @@ type Op struct {
 	Offender      tezos.Address       `json:"offender"           tzpro:"notable"` // double_x
 	Accuser       tezos.Address       `json:"accuser"            tzpro:"notable"` // double_x
 	Storage       *ContractValue      `json:"storage,omitempty"  tzpro:"notable"` // transaction, origination
+	Script        *micheline.Script   `json:"script,omitempty"   tzpro:"notable"` // origination
 	Power         int                 `json:"power,omitempty"    tzpro:"notable"` // endorsement
 	Limit         *float64            `json:"limit,omitempty"    tzpro:"notable"` // set deposits limit
 	Confirmations int64               `json:"confirmations"      tzpro:"notable"`
@@ -514,6 +516,8 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 					}
 				}
 			}
+		case "code_hash":
+			op.CodeHash = f.(string)
 		}
 		if err != nil {
 			return err

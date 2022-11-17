@@ -38,6 +38,7 @@ type Block struct {
 	NContractCalls   int                    `json:"n_calls"`
 	NRollupCalls     int                    `json:"n_rollup_calls"`
 	NEvents          int                    `json:"n_events"`
+	NTx              int                    `json:"n_tx"`
 	Volume           float64                `json:"volume"`
 	Fee              float64                `json:"fee"`
 	Reward           float64                `json:"reward"`
