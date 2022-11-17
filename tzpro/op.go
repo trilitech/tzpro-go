@@ -139,6 +139,27 @@ func (o *Op) Content() []*Op {
 	return list
 }
 
+func (o *Op) Addresses() *tezos.AddressSet {
+	set := tezos.NewAddressSet()
+	for _, op := range o.Content() {
+		for _, v := range []tezos.Address{
+			op.Sender,
+			op.Receiver,
+			op.Creator,
+			op.Baker,
+			op.PrevBaker,
+			op.Source,
+			op.Offender,
+			op.Accuser,
+		} {
+			if v.IsValid() {
+				set.AddUnique(v)
+			}
+		}
+	}
+	return set
+}
+
 func (o *Op) Cursor() uint64 {
 	op := o
 	if l := len(op.Batch); l > 0 {
