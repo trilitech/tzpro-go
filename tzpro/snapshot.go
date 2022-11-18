@@ -169,7 +169,7 @@ func (c *Client) NewSnapshotQuery() SnapshotQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "snapshot",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,

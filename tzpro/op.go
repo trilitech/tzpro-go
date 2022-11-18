@@ -108,6 +108,7 @@ type Op struct {
 	bigmaps  map[int64]micheline.Type // optional, may be decoded from script
 	withPrim bool
 	withMeta bool
+	noFail   bool
 	onError  int
 }
 
@@ -233,6 +234,7 @@ func (og OpGroup) Costs() Costs {
 type OpList struct {
 	Rows     []*Op
 	withPrim bool
+	noFail   bool
 	columns  []string
 	ctx      context.Context
 	client   *Client
@@ -264,6 +266,7 @@ func (l *OpList) UnmarshalJSON(data []byte) error {
 	for _, v := range array {
 		op := &Op{
 			withPrim: l.withPrim,
+			noFail:   l.noFail,
 			columns:  l.columns,
 		}
 		// we may need contract scripts
@@ -540,7 +543,7 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 		case "code_hash":
 			op.CodeHash = f.(string)
 		}
-		if err != nil {
+		if err != nil && !op.noFail {
 			return err
 		}
 	}
@@ -550,6 +553,12 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 
 type OpQuery struct {
 	tableQuery
+	NoFail bool
+}
+
+func (q OpQuery) WithNoFail() OpQuery {
+	q.NoFail = true
+	return q
 }
 
 func (c *Client) NewOpQuery() OpQuery {
@@ -559,7 +568,7 @@ func (c *Client) NewOpQuery() OpQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "op",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,
@@ -567,7 +576,7 @@ func (c *Client) NewOpQuery() OpQuery {
 		Columns: tinfo.FilteredAliases("notable"),
 		Filter:  make(FilterList, 0),
 	}
-	return OpQuery{q}
+	return OpQuery{q, false}
 }
 
 func (q OpQuery) Run(ctx context.Context) (*OpList, error) {
@@ -576,6 +585,7 @@ func (q OpQuery) Run(ctx context.Context) (*OpList, error) {
 		ctx:      ctx,
 		client:   q.client,
 		withPrim: q.Prim,
+		noFail:   q.NoFail,
 	}
 	if err := q.client.QueryTable(ctx, &q.tableQuery, result); err != nil {
 		return nil, err

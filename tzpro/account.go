@@ -315,7 +315,7 @@ func (c *Client) NewAccountQuery() AccountQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "account",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,

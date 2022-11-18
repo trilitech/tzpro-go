@@ -211,7 +211,7 @@ func (c *Client) NewCycleRightsQuery() CycleRightsQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "rights",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,

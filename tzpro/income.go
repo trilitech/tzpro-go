@@ -238,7 +238,7 @@ func (c *Client) NewIncomeQuery() IncomeQuery {
     }
     q := tableQuery{
         client:  c,
-        Params:  c.params.Copy(),
+        Params:  c.base.Copy(),
         Table:   "income",
         Format:  FormatJSON,
         Limit:   DefaultLimit,

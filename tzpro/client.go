@@ -37,7 +37,8 @@ func init() {
 type Client struct {
 	transport  Transport
 	log        log.Logger
-	params     Params
+	base       Params
+	market     Params
 	cache      *lru.TwoQueueCache
 	headers    http.Header
 	userAgent  string
@@ -73,7 +74,8 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 	return &Client{
 		transport:  defaultTransport{c: httpClient},
 		log:        defaultLog,
-		params:     params,
+		base:       params,
+		market:     params,
 		cache:      cache,
 		headers:    make(http.Header),
 		userAgent:  userAgent,
@@ -93,6 +95,13 @@ func (c *Client) WithTransport(t Transport) *Client {
 
 func (c *Client) WithUserAgent(s string) *Client {
 	c.userAgent = s
+	return c
+}
+
+func (c *Client) WithMarketUrl(url string) *Client {
+	if params, err := ParseParams(url); err == nil {
+		c.market = params
+	}
 	return c
 }
 
@@ -127,6 +136,15 @@ func (c *Client) WithLogger(log log.Logger) *Client {
 	return c
 }
 
+func (c *Client) WithCacheSize(sz int) *Client {
+	if sz < 2 {
+		sz = 2
+	}
+	cache, _ := lru.New2Q(sz)
+	c.cache = cache
+	return c
+}
+
 func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
 	c.cache = cache
 }
@@ -157,7 +175,7 @@ func (c *Client) call(ctx context.Context, method, path string, headers http.Hea
 
 func (c *Client) callAsync(ctx context.Context, method, path string, headers http.Header, data, result interface{}) FutureResult {
 	if !strings.HasPrefix(path, "http") {
-		path = c.params.Url(path)
+		path = c.base.Url(path)
 	}
 
 	req, err := c.newRequest(ctx, method, path, headers, data, result)

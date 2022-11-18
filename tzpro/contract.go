@@ -402,7 +402,7 @@ func (c *Client) NewContractQuery() ContractQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "contract",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,
@@ -481,6 +481,12 @@ func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Addres
 	if err != nil {
 		return nil, err
 	}
+	// strip code
+	script.Script.Code.Code = micheline.Prim{}
+	script.Script.Code.View = micheline.Prim{}
+	// fill bigmap type info
+	script.BigmapNames = script.Script.BigmapsByName()
+	script.BigmapTypes = script.Script.BigmapTypesByName()
 	script.BigmapTypesById = make(map[int64]micheline.Type)
 	for n, v := range script.BigmapTypes {
 		id := script.BigmapNames[n]

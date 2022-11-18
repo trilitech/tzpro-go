@@ -301,7 +301,7 @@ func (c *Client) NewBigmapUpdateQuery() BigmapUpdateQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "bigmap_updates",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,

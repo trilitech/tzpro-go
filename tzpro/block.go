@@ -330,7 +330,7 @@ func (c *Client) NewBlockQuery() BlockQuery {
 	}
 	q := tableQuery{
 		client:  c,
-		Params:  c.params.Copy(),
+		Params:  c.base.Copy(),
 		Table:   "block",
 		Format:  FormatJSON,
 		Limit:   DefaultLimit,
