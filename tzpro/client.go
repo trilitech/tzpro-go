@@ -149,6 +149,14 @@ func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
 	c.cache = cache
 }
 
+func (c Client) Retries() int {
+	return c.numRetries
+}
+
+func (c Client) RetryDelay() time.Duration {
+	return c.retryDelay
+}
+
 func (c *Client) get(ctx context.Context, path string, headers http.Header, result interface{}) error {
 	return c.call(ctx, http.MethodGet, path, headers, nil, result)
 }
