@@ -103,7 +103,9 @@ func newHttpError(resp *http.Response, buf []byte, req string) error {
 		json.Unmarshal(buf, &val)
 		buf, _ = json.Marshal(val)
 	} else {
-		buf = bytes.ReplaceAll(bytes.TrimRight(buf[:min(len(buf), 512)], "\x00"), []byte{'\n'}, []byte{})
+		buf = bytes.TrimRight(buf[:min(len(buf), 512)], "\x00")
+		buf = bytes.ReplaceAll(buf, []byte{'\r'}, []byte{})
+		buf = bytes.ReplaceAll(buf, []byte{'\n'}, []byte{})
 	}
 	return HttpError{
 		Status:  resp.StatusCode,
