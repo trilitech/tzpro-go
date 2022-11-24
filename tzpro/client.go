@@ -35,7 +35,7 @@ func init() {
 }
 
 type Client struct {
-	transport  Transport
+	transport  *http.Client
 	log        log.Logger
 	base       Params
 	market     Params
@@ -72,7 +72,7 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 	}
 	cache, _ := lru.New2Q(sz)
 	return &Client{
-		transport:  defaultTransport{c: httpClient},
+		transport:  httpClient,
 		log:        defaultLog,
 		base:       params,
 		market:     params,
@@ -88,8 +88,8 @@ func (c *Client) DefaultHeaders() http.Header {
 	return c.headers
 }
 
-func (c *Client) WithTransport(t Transport) *Client {
-	c.transport = t
+func (c *Client) WithHeader(key, value string) *Client {
+	c.headers.Set(key, value)
 	return c
 }
 
@@ -106,19 +106,13 @@ func (c *Client) WithMarketUrl(url string) *Client {
 }
 
 func (c *Client) WithTLS(tc *tls.Config) *Client {
-	hc, ok := c.transport.(*defaultTransport)
-	if ok {
-		hc.c.Transport.(*http.Transport).TLSClientConfig = tc
-	}
+	c.transport.Transport.(*http.Transport).TLSClientConfig = tc
 	return c
 }
 
 func (c *Client) WithTimeout(d time.Duration) *Client {
-	hc, ok := c.transport.(*defaultTransport)
-	if ok {
-		hc.c.Transport.(*http.Transport).ResponseHeaderTimeout = d
-		hc.c.Timeout = d
-	}
+	c.transport.Transport.(*http.Transport).ResponseHeaderTimeout = d
+	c.transport.Timeout = d
 	return c
 }
 
