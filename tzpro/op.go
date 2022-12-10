@@ -75,7 +75,6 @@ type Op struct {
 	StorageHash  uint64                 `json:"storage_hash,omitempty"`
 	CodeHash     string                 `json:"code_hash,omitempty"`
 	Errors       json.RawMessage        `json:"errors,omitempty"`
-	TDD          float64                `json:"days_destroyed"`
 	Sender       tezos.Address          `json:"sender"`
 	Receiver     tezos.Address          `json:"receiver"`
 	Creator      tezos.Address          `json:"creator"` // origination
@@ -100,6 +99,7 @@ type Op struct {
 	Internal      []*Op               `json:"internal,omitempty" tzpro:"notable"`
 	Metadata      map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
 	Events        []Event             `json:"events,omitempty"   tzpro:"notable"`
+	// TicketUpdates []TicketUpdate      `json:"ticket_updates,omitempty"   tzpro:"notable"`
 
 	columns  []string                 // optional, for decoding bulk arrays
 	param    micheline.Type           // optional, may be decoded from script
@@ -378,8 +378,6 @@ func (o *Op) UnmarshalJSONBrief(data []byte) error {
 			op.Deposit, err = f.(json.Number).Float64()
 		case "burned":
 			op.Burned, err = f.(json.Number).Float64()
-		case "days_destroyed":
-			op.TDD, err = f.(json.Number).Float64()
 		case "sender_id":
 			op.SenderId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
 		case "receiver_id":

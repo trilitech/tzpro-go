@@ -33,6 +33,7 @@ type Contract struct {
 	LastSeenTime  time.Time            `json:"last_seen_time"`
 	StorageSize   int64                `json:"storage_size"`
 	StoragePaid   int64                `json:"storage_paid"`
+	TotalFeesUsed float64              `json:"total_fees_used"    tzpro:"notable"`
 	Script        *micheline.Script    `json:"script,omitempty"`
 	Storage       *micheline.Prim      `json:"storage,omitempty"`
 	InterfaceHash string               `json:"iface_hash"`
@@ -41,7 +42,8 @@ type Contract struct {
 	Features      []string             `json:"features"`
 	Interfaces    []string             `json:"interfaces"`
 	CallStats     map[string]int       `json:"call_stats"`
-	NCallsSuccess int                  `json:"n_calls_success"     tzpro:"notable"`
+	NCallsIn      int                  `json:"n_calls_in"          tzpro:"notable"`
+	NCallsOut     int                  `json:"n_calls_out"         tzpro:"notable"`
 	NCallsFailed  int                  `json:"n_calls_failed"      tzpro:"notable"`
 	Bigmaps       map[string]int64     `json:"bigmaps,omitempty"   tzpro:"notable"`
 	Metadata      map[string]*Metadata `json:"metadata,omitempty"  tzpro:"notable"`
