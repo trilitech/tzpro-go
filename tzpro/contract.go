@@ -487,8 +487,8 @@ func (c *Client) loadCachedContractScript(ctx context.Context, addr tezos.Addres
 	script.Script.Code.Code = micheline.Prim{}
 	script.Script.Code.View = micheline.Prim{}
 	// fill bigmap type info
-	script.BigmapNames = script.Script.BigmapsByName()
-	script.BigmapTypes = script.Script.BigmapTypesByName()
+	script.BigmapNames = script.Script.Bigmaps()
+	script.BigmapTypes = script.Script.BigmapTypes()
 	script.BigmapTypesById = make(map[int64]micheline.Type)
 	for n, v := range script.BigmapTypes {
 		id := script.BigmapNames[n]
@@ -511,8 +511,8 @@ func (c *Client) AddCachedScript(addr tezos.Address, script *micheline.Script) {
 		StorageType:     script.StorageType().Typedef(""),
 		Entrypoints:     eps,
 		Views:           views,
-		BigmapNames:     script.BigmapsByName(),
-		BigmapTypes:     script.BigmapTypesByName(),
+		BigmapNames:     script.Bigmaps(),
+		BigmapTypes:     script.BigmapTypes(),
 		BigmapTypesById: make(map[int64]micheline.Type),
 	}
 	for n, v := range s.BigmapTypes {
