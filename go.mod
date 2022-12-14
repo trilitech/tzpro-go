@@ -3,7 +3,7 @@ module blockwatch.cc/tzpro-go
 go 1.18
 
 require (
-	blockwatch.cc/tzgo v1.15.1-0.20221211173825-39c1b3cc7696
+	blockwatch.cc/tzgo v1.15.1-0.20221214143603-9928b4f5aa64
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/echa/code v0.0.0-20201118130056-1878364e4ad4
 	github.com/echa/config v1.0.5
