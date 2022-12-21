@@ -98,6 +98,15 @@ func (c *Client) WithUserAgent(s string) *Client {
 	return c
 }
 
+func (c *Client) WithApiKey(s string) *Client {
+	if s != "" {
+		c.headers.Set("X-Api-Key", s)
+	} else {
+		c.headers.Del("X-Api-Key")
+	}
+	return c
+}
+
 func (c *Client) WithMarketUrl(url string) *Client {
 	if params, err := ParseParams(url); err == nil {
 		c.market = params
