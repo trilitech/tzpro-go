@@ -270,6 +270,8 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 			block.NContractCalls, err = strconv.Atoi(f.(json.Number).String())
 		case "n_rollup_calls":
 			block.NRollupCalls, err = strconv.Atoi(f.(json.Number).String())
+		case "n_tx":
+			block.NTx, err = strconv.Atoi(f.(json.Number).String())
 		case "n_events":
 			block.NEvents, err = strconv.Atoi(f.(json.Number).String())
 		case "volume":
