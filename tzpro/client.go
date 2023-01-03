@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ClientVersion    = "0.14.1"
+	ClientVersion    = "0.15.1"
 	DefaultLimit     = 50000
 	DefaultCacheSize = 2048
 	userAgent        = "tzpro-go/v" + ClientVersion
@@ -30,7 +30,7 @@ var (
 
 func init() {
 	DefaultClient, _ = NewClient("https://api.tzpro.io", nil)
-	IpfsClient, _ = NewClient("https://ipfs.tzstats.com", nil)
+	IpfsClient, _ = NewClient("https://ipfs.blockwatch.cc", nil)
 	IpfsClient.WithTimeout(60 * time.Second)
 }
 
