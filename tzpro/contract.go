@@ -51,6 +51,12 @@ type Contract struct {
 	columns []string `json:"-"`
 }
 
+func ParseU64(s string) (u uint64) {
+	buf, _ := hex.DecodeString(s)
+	u = binary.BigEndian.Uint64(buf[:8])
+	return
+}
+
 func (c *Contract) Meta() *Metadata {
 	m, ok := c.Metadata[c.Address.String()]
 	if !ok {
