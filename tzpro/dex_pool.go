@@ -15,7 +15,7 @@ import (
 
 //nolint:staticcheck
 type DexPool struct {
-	Id              int64         `json:"id"`
+	Id              uint64        `json:"id"`
 	Contract        tezos.Address `json:"contract"`
 	PairId          int           `json:"pair_id"`
 	Creator         string        `json:"creator"`
@@ -28,12 +28,16 @@ type DexPool struct {
 	TokenLP         *Token        `json:"token_lp"`
 	FirstBlock      int64         `json:"first_block"`
 	FirstTime       time.Time     `json:"first_time"`
-	Tags            string        `json:"tags"`
+	Tags            []string      `json:"tags"`
 	SupplyA         tezos.Z       `json:"supply_a"`
 	SupplyB         tezos.Z       `json:"supply_b"`
 	SupplyLP        tezos.Z       `json:"supply_lp"`
 	LastChangeBlock int64         `json:"last_change_block"`
 	LastChangeTime  time.Time     `json:"last_change_time"`
+	NumTrades       int           `json:"num_trades"`
+	FeesBps         float64       `json:"fees_bps,string"`
+	Price           tezos.Z       `json:"price"`
+	TVL             float64       `json:"tvl"`
 }
 
 type DexPoolParams struct {

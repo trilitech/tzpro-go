@@ -14,7 +14,7 @@ import (
 )
 
 type Token struct {
-	Id             int64         `json:"id"`
+	Id             uint64        `json:"id"`
 	Contract       tezos.Address `json:"contract"`
 	TokenId        tezos.Z       `json:"token_id"`
 	Kind           string        `json:"kind"`
@@ -22,7 +22,7 @@ type Token struct {
 	Name           string        `json:"name"`
 	Symbol         string        `json:"symbol"`
 	Decimals       int           `json:"decimals"`
-	Tags           string        `json:"tags"`
+	Tags           []string      `json:"tags"`
 	Creator        tezos.Address `json:"creator"`
 	FirstBlock     int64         `json:"first_block"`
 	FirstTime      time.Time     `json:"first_time"`

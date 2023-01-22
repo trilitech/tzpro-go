@@ -13,12 +13,13 @@ import (
 )
 
 type DexTrade struct {
-	Id             int64        `json:"id"`
+	Id             uint64       `json:"id"`
 	Contract       string       `json:"contract"`
 	PairId         int64        `json:"pair_id"`
 	Name           string       `json:"name"`
 	Entity         string       `json:"entity"`
 	Pair           string       `json:"pair"`
+	Counter        int64        `json:"counter"`
 	Side           string       `json:"side"`
 	BaseVolume     tezos.Z      `json:"base_volume"`
 	BaseSymbol     string       `json:"base_symbol"`
@@ -64,6 +65,9 @@ type DexTrade struct {
 	TxFeeDecimals  int          `json:"tx_fee_decimals"`
 	Block          int64        `json:"block"`
 	Time           time.Time    `json:"time"`
+	PriceUSD       tezos.Z      `json:"price_usd"`
+	FeesUSD        tezos.Z      `json:"fees_usd"`
+	VolumeUSD      tezos.Z      `json:"volume_usd"`
 }
 
 type DexTradeParams struct {
@@ -106,6 +110,11 @@ func (p DexTradeParams) WithAsc() DexTradeParams {
 
 func (p DexTradeParams) WithSide(s string) DexTradeParams {
 	p.Query.Set("side", s)
+	return p
+}
+
+func (p DexTradeParams) WithCounter(c int64) DexTradeParams {
+	p.Query.Set("counter", strconv.FormatInt(c, 10))
 	return p
 }
 
