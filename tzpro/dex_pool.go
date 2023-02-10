@@ -36,8 +36,9 @@ type DexPool struct {
 	LastChangeTime  time.Time     `json:"last_change_time"`
 	NumTrades       int           `json:"num_trades"`
 	FeesBps         float64       `json:"fees_bps,string"`
-	Price           tezos.Z       `json:"price"`
-	TVL             float64       `json:"tvl"`
+	Price           float64       `json:"price,string"`
+	PriceUSD        float64       `json:"price_usd,string"`
+	LiquidityUSD    float64       `json:"liquidity_usd,string"`
 }
 
 type DexPoolParams struct {

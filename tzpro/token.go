@@ -19,9 +19,11 @@ type Token struct {
 	TokenId        tezos.Z       `json:"token_id"`
 	Kind           string        `json:"kind"`
 	Type           string        `json:"type"`
+	Category       string        `json:"category"`
 	Name           string        `json:"name"`
 	Symbol         string        `json:"symbol"`
 	Decimals       int           `json:"decimals"`
+	Logo           string        `json:"logo"`
 	Tags           []string      `json:"tags"`
 	Creator        tezos.Address `json:"creator"`
 	FirstBlock     int64         `json:"first_block"`
