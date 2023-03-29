@@ -43,6 +43,7 @@ const (
 	OpTypeIncreasePaidStorage                // 28 v014
 	OpTypeDrainDelegate                      // 29 v015
 	OpTypeUpdateConsensusKey                 // 30 v015
+	OpTypeTransferTicket                     // 31 v013
 	OpTypeBatch                = 254         // API output only
 	OpTypeInvalid              = 255
 )
@@ -81,6 +82,7 @@ var (
 		OpTypeIncreasePaidStorage:  "increase_paid_storage",
 		OpTypeDrainDelegate:        "drain_delegate",
 		OpTypeUpdateConsensusKey:   "update_consensus_key",
+		OpTypeTransferTicket:       "transfer_ticket",
 		OpTypeInvalid:              "",
 	}
 	opTypeReverseStrings = make(map[string]OpType)

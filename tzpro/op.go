@@ -89,6 +89,9 @@ type Op struct {
 	Source        tezos.Address       `json:"source"             tzpro:"notable"` // internal operations
 	Offender      tezos.Address       `json:"offender"           tzpro:"notable"` // double_x
 	Accuser       tezos.Address       `json:"accuser"            tzpro:"notable"` // double_x
+	Loser         tezos.Address       `json:"loser"              tzpro:"notable"` // smart rollup refutation game
+	Winner        tezos.Address       `json:"winner"             tzpro:"notable"` // smart rollup refutation game
+	Staker        tezos.Address       `json:"staker"             tzpro:"notable"` // smart rollup refutation game
 	Storage       *ContractValue      `json:"storage,omitempty"  tzpro:"notable"` // transaction, origination
 	Script        *micheline.Script   `json:"script,omitempty"   tzpro:"notable"` // origination
 	Power         int                 `json:"power,omitempty"    tzpro:"notable"` // endorsement
@@ -99,7 +102,7 @@ type Op struct {
 	Internal      []*Op               `json:"internal,omitempty" tzpro:"notable"`
 	Metadata      map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
 	Events        []Event             `json:"events,omitempty"   tzpro:"notable"`
-	// TicketUpdates []TicketUpdate      `json:"ticket_updates,omitempty"   tzpro:"notable"`
+	TicketUpdates []TicketUpdate      `json:"ticket_updates,omitempty"   tzpro:"notable"`
 
 	columns  []string                 // optional, for decoding bulk arrays
 	param    micheline.Type           // optional, may be decoded from script
