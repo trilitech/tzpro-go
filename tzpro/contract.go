@@ -172,14 +172,14 @@ func (c *Contract) UnmarshalJSONBrief(data []byte) error {
 		case "script":
 			var buf []byte
 			buf, err = hex.DecodeString(f.(string))
-			if err == nil {
+			if err == nil && len(buf) > 0 {
 				cc.Script = &micheline.Script{}
 				err = cc.Script.UnmarshalBinary(buf)
 			}
 		case "storage":
 			var buf []byte
 			buf, err = hex.DecodeString(f.(string))
-			if err == nil {
+			if err == nil && len(buf) > 0 {
 				cc.Storage = &micheline.Prim{}
 				err = cc.Storage.UnmarshalBinary(buf)
 			}
@@ -192,7 +192,7 @@ func (c *Contract) UnmarshalJSONBrief(data []byte) error {
 		case "call_stats":
 			var buf []byte
 			buf, err = hex.DecodeString(f.(string))
-			if err == nil {
+			if err == nil && len(buf) > 0 {
 				cc.CallStats = make(map[string]int)
 				if cc.Script != nil {
 					var eps micheline.Entrypoints
