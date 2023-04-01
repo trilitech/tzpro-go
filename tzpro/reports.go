@@ -5,62 +5,15 @@ package tzpro
 
 import (
 	"context"
-	"strconv"
 	"time"
 )
 
-type ReportParams struct {
-	Params
-}
+type ReportParams = Params[AgeReport]
 
 func NewReportParams() ReportParams {
-	return ReportParams{NewParams()}
-}
-
-func (p ReportParams) WithLimit(v uint) ReportParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p ReportParams) WithOffset(v uint) ReportParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p ReportParams) WithCursor(v uint64) ReportParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p ReportParams) WithOrder(v OrderType) ReportParams {
-	p.Query.Set("order", string(v))
-	return p
-}
-
-func (p ReportParams) WithKind(k string) ReportParams {
-	p.Query.Set("kind", k)
-	return p
-}
-
-func (p ReportParams) WithType(t string) ReportParams {
-	p.Query.Set("type", t)
-	return p
-}
-
-func (p ReportParams) WithFrom(t time.Time) ReportParams {
-	p.Query.Set("from", t.Format("2006-01-02"))
-	return p
-}
-
-func (p ReportParams) WithTo(t time.Time) ReportParams {
-	p.Query.Set("to", t.Format("2006-01-02"))
-	return p
-}
-
-func (p ReportParams) WithRange(from, to time.Time) ReportParams {
-	p.Query.Set("from", from.Format("2006-01-02"))
-	p.Query.Set("to", to.Format("2006-01-02"))
-	return p
+	return ReportParams{
+		Query: make(map[string][]string),
+	}
 }
 
 type AgeReport struct {
@@ -74,7 +27,7 @@ type AgeReport struct {
 
 func (c *Client) GetAgeReport(ctx context.Context, params ReportParams) ([]*AgeReport, error) {
 	rep := make([]*AgeReport, 0)
-	u := params.AppendQuery("/explorer/stats/age")
+	u := params.WithPath("/explorer/stats/age").Url()
 	if err := c.get(ctx, u, nil, &rep); err != nil {
 		return nil, err
 	}
@@ -103,7 +56,7 @@ type SupplyReport struct {
 
 func (c *Client) GetSupplyReport(ctx context.Context, params ReportParams) ([]*SupplyReport, error) {
 	rep := make([]*SupplyReport, 0)
-	u := params.AppendQuery("/explorer/stats/supply")
+	u := params.WithPath("/explorer/stats/supply").Url()
 	if err := c.get(ctx, u, nil, &rep); err != nil {
 		return nil, err
 	}
@@ -124,7 +77,7 @@ type SetsReport struct {
 
 func (c *Client) GetSetsReport(ctx context.Context, params ReportParams) ([]*SetsReport, error) {
 	rep := make([]*SetsReport, 0)
-	u := params.AppendQuery("/explorer/stats/sets")
+	u := params.WithPath("/explorer/stats/sets").Url()
 	if err := c.get(ctx, u, nil, &rep); err != nil {
 		return nil, err
 	}
@@ -162,7 +115,7 @@ type ActivityReport struct {
 
 func (c *Client) GetActivityReport(ctx context.Context, params ReportParams) ([]*ActivityReport, error) {
 	rep := make([]*ActivityReport, 0)
-	u := params.AppendQuery("/explorer/stats/activity")
+	u := params.WithPath("/explorer/stats/activity").Url()
 	if err := c.get(ctx, u, nil, &rep); err != nil {
 		return nil, err
 	}
@@ -230,7 +183,7 @@ type BalanceReport struct {
 
 func (c *Client) GetBalanceReport(ctx context.Context, params ReportParams) ([]*BalanceReport, error) {
 	rep := make([]*BalanceReport, 0)
-	u := params.AppendQuery("/explorer/stats/balance")
+	u := params.WithPath("/explorer/stats/balance").Url()
 	if err := c.get(ctx, u, nil, &rep); err != nil {
 		return nil, err
 	}
@@ -254,7 +207,7 @@ type OpReport struct {
 
 func (c *Client) GetOpReport(ctx context.Context, params ReportParams) ([]*OpReport, error) {
 	rep := make([]*OpReport, 0)
-	u := params.AppendQuery("/explorer/stats/op")
+	u := params.WithPath("/explorer/stats/op").Url()
 	if err := c.get(ctx, u, nil, &rep); err != nil {
 		return nil, err
 	}

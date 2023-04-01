@@ -234,21 +234,7 @@ type ChainQuery struct {
 }
 
 func (c *Client) NewChainQuery() ChainQuery {
-	tinfo, err := GetTypeInfo(&Chain{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "chain",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
-	}
-	return ChainQuery{q}
+	return ChainQuery{c.newTableQuery("chain", &Chain{})}
 }
 
 func (q ChainQuery) Run(ctx context.Context) (*ChainList, error) {

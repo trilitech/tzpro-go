@@ -205,21 +205,7 @@ type CycleRightsQuery struct {
 }
 
 func (c *Client) NewCycleRightsQuery() CycleRightsQuery {
-	tinfo, err := GetTypeInfo(&CycleRights{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "rights",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
-	}
-	return CycleRightsQuery{q}
+	return CycleRightsQuery{c.newTableQuery("rights", &CycleRights{})}
 }
 
 func (q CycleRightsQuery) Run(ctx context.Context) (*CycleRightsList, error) {

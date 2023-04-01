@@ -262,37 +262,12 @@ func (a *Account) UnmarshalJSONBrief(data []byte) error {
 	return nil
 }
 
-type AccountParams struct {
-	Params
-}
+type AccountParams = Params[Account]
 
 func NewAccountParams() AccountParams {
-	return AccountParams{NewParams()}
-}
-
-func (p AccountParams) WithLimit(v uint) AccountParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p AccountParams) WithOffset(v uint) AccountParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p AccountParams) WithCursor(v uint64) AccountParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p AccountParams) WithOrder(v OrderType) AccountParams {
-	p.Query.Set("order", string(v))
-	return p
-}
-
-func (p AccountParams) WithMeta() AccountParams {
-	p.Query.Set("meta", "1")
-	return p
+	return AccountParams{
+		Query: make(map[string][]string),
+	}
 }
 
 type AccountQuery struct {
@@ -300,21 +275,7 @@ type AccountQuery struct {
 }
 
 func (c *Client) NewAccountQuery() AccountQuery {
-	tinfo, err := GetTypeInfo(&Account{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "account",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.FilteredAliases("notable"),
-		Filter:  make(FilterList, 0),
-	}
-	return AccountQuery{q}
+	return AccountQuery{c.newTableQuery("account", &Account{})}
 }
 
 func (q AccountQuery) Run(ctx context.Context) (*AccountList, error) {
@@ -340,7 +301,7 @@ func (c *Client) QueryAccounts(ctx context.Context, filter FilterList, cols []st
 
 func (c *Client) GetAccount(ctx context.Context, addr tezos.Address, params AccountParams) (*Account, error) {
 	a := &Account{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/account/%s", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s", addr)).Url()
 	if err := c.get(ctx, u, nil, a); err != nil {
 		return nil, err
 	}
@@ -349,7 +310,7 @@ func (c *Client) GetAccount(ctx context.Context, addr tezos.Address, params Acco
 
 func (c *Client) GetAccountContracts(ctx context.Context, addr tezos.Address, params AccountParams) ([]*Account, error) {
 	cc := make([]*Account, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/account/%s/contracts", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/contracts", addr)).Url()
 	if err := c.get(ctx, u, nil, &cc); err != nil {
 		return nil, err
 	}
@@ -358,7 +319,7 @@ func (c *Client) GetAccountContracts(ctx context.Context, addr tezos.Address, pa
 
 func (c *Client) GetAccountOps(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
 	ops := make([]*Op, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/account/%s/operations", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/operations", addr)).Url()
 	if err := c.get(ctx, u, nil, &ops); err != nil {
 		return nil, err
 	}

@@ -163,21 +163,7 @@ type SnapshotQuery struct {
 }
 
 func (c *Client) NewSnapshotQuery() SnapshotQuery {
-	tinfo, err := GetTypeInfo(&Snapshot{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "snapshot",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Columns: tinfo.Aliases(),
-		Order:   OrderAsc,
-		Filter:  make(FilterList, 0),
-	}
-	return SnapshotQuery{q}
+	return SnapshotQuery{c.newTableQuery("snapshot", &Snapshot{})}
 }
 
 func (q SnapshotQuery) Run(ctx context.Context) (*SnapshotList, error) {

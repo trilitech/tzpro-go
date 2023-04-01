@@ -6,7 +6,6 @@ package tzpro
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
@@ -145,37 +144,17 @@ type CycleSnapshot struct {
 	Delegators             []Delegator `json:"delegators"`
 }
 
-type BakerParams struct {
-	Params
-}
+type BakerParams = Params[Baker]
 
 func NewBakerParams() BakerParams {
-	return BakerParams{NewParams()}
-}
-
-func (p BakerParams) WithLimit(v uint) BakerParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p BakerParams) WithOffset(v uint) BakerParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p BakerParams) WithCursor(v uint) BakerParams {
-	p.Query.Set("cursor", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p BakerParams) WithMeta() BakerParams {
-	p.Query.Set("meta", "1")
-	return p
+	return BakerParams{
+		Query: make(map[string][]string),
+	}
 }
 
 func (c *Client) GetBaker(ctx context.Context, addr tezos.Address, params BakerParams) (*Baker, error) {
 	b := &Baker{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s", addr)).Url()
 	if err := c.get(ctx, u, nil, b); err != nil {
 		return nil, err
 	}
@@ -184,7 +163,7 @@ func (c *Client) GetBaker(ctx context.Context, addr tezos.Address, params BakerP
 
 func (c *Client) ListBakers(ctx context.Context, params BakerParams) ([]*Baker, error) {
 	b := make([]*Baker, 0)
-	u := params.AppendQuery("/explorer/bakers")
+	u := params.WithPath("/explorer/bakers").Url()
 	if err := c.get(ctx, u, nil, &b); err != nil {
 		return nil, err
 	}
@@ -193,7 +172,7 @@ func (c *Client) ListBakers(ctx context.Context, params BakerParams) ([]*Baker, 
 
 func (c *Client) ListBakerVotes(ctx context.Context, addr tezos.Address, params OpParams) ([]*Ballot, error) {
 	cc := make([]*Ballot, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/votes", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/votes", addr)).Url()
 	if err := c.get(ctx, u, nil, &cc); err != nil {
 		return nil, err
 	}
@@ -202,7 +181,7 @@ func (c *Client) ListBakerVotes(ctx context.Context, addr tezos.Address, params 
 
 func (c *Client) ListBakerEndorsements(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
 	ops := make([]*Op, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/endorsements", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/endorsements", addr)).Url()
 	if err := c.get(ctx, u, nil, &ops); err != nil {
 		return nil, err
 	}
@@ -211,7 +190,7 @@ func (c *Client) ListBakerEndorsements(ctx context.Context, addr tezos.Address, 
 
 func (c *Client) ListBakerDelegations(ctx context.Context, addr tezos.Address, params OpParams) ([]*Op, error) {
 	ops := make([]*Op, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/delegations", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/delegations", addr)).Url()
 	if err := c.get(ctx, u, nil, &ops); err != nil {
 		return nil, err
 	}
@@ -220,7 +199,7 @@ func (c *Client) ListBakerDelegations(ctx context.Context, addr tezos.Address, p
 
 func (c *Client) ListBakerRights(ctx context.Context, addr tezos.Address, cycle int64, params BakerParams) (*CycleRights, error) {
 	var r CycleRights
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/rights/%d", addr, cycle))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/rights/%d", addr, cycle)).Url()
 	if err := c.get(ctx, u, nil, &r); err != nil {
 		return nil, err
 	}
@@ -229,7 +208,7 @@ func (c *Client) ListBakerRights(ctx context.Context, addr tezos.Address, cycle 
 
 func (c *Client) GetBakerIncome(ctx context.Context, addr tezos.Address, cycle int64, params BakerParams) (*CycleIncome, error) {
 	var r CycleIncome
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/income/%d", addr, cycle))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/income/%d", addr, cycle)).Url()
 	if err := c.get(ctx, u, nil, &r); err != nil {
 		return nil, err
 	}
@@ -238,7 +217,7 @@ func (c *Client) GetBakerIncome(ctx context.Context, addr tezos.Address, cycle i
 
 func (c *Client) GetBakerSnapshot(ctx context.Context, addr tezos.Address, cycle int64, params BakerParams) (*CycleSnapshot, error) {
 	var r CycleSnapshot
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bakers/%s/snapshot/%d", addr, cycle))
+	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/snapshot/%d", addr, cycle)).Url()
 	if err := c.get(ctx, u, nil, &r); err != nil {
 		return nil, err
 	}

@@ -196,7 +196,7 @@ func (w *BlockWatcher) recvLoop() {
 
 func fetchAllBlockOps(ctx context.Context, c *tzpro.Client, hash tezos.BlockHash) ([]*tzpro.Op, error) {
 	params := tzpro.NewOpParams()
-	params.WithType(tzpro.FilterModeIn, "transaction,origination").
+	params.WithFilter("type", tzpro.FilterModeIn, "transaction,origination").
 		WithMerge().
 		WithLimit(100)
 	ops := make([]*tzpro.Op, 0)

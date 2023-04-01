@@ -136,32 +136,12 @@ func (c *Constant) UnmarshalJSONBrief(data []byte) error {
 	return nil
 }
 
-type ConstantParams struct {
-	Params
-}
+type ConstantParams = Params[Constant]
 
 func NewConstantParams() ConstantParams {
-	return ConstantParams{NewParams()}
-}
-
-func (p ConstantParams) WithLimit(v uint) ConstantParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p ConstantParams) WithOffset(v uint) ConstantParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p ConstantParams) WithCursor(v uint64) ConstantParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p ConstantParams) WithOrder(v OrderType) ConstantParams {
-	p.Query.Set("order", string(v))
-	return p
+	return ConstantParams{
+		Query: make(map[string][]string),
+	}
 }
 
 type ConstantQuery struct {
@@ -169,21 +149,7 @@ type ConstantQuery struct {
 }
 
 func (c *Client) NewConstantQuery() ConstantQuery {
-	tinfo, err := GetTypeInfo(&Constant{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "constant",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
-	}
-	return ConstantQuery{q}
+	return ConstantQuery{c.newTableQuery("constant", &Constant{})}
 }
 
 func (q ConstantQuery) Run(ctx context.Context) (*ConstantList, error) {
@@ -209,7 +175,7 @@ func (c *Client) QueryConstants(ctx context.Context, filter FilterList, cols []s
 
 func (c *Client) GetConstant(ctx context.Context, addr tezos.ExprHash, params ConstantParams) (*Constant, error) {
 	cc := &Constant{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/constant/%s", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/constant/%s", addr)).Url()
 	if err := c.get(ctx, u, nil, cc); err != nil {
 		return nil, err
 	}

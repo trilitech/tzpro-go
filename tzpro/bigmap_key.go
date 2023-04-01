@@ -57,7 +57,7 @@ func (k MultiKey) String() string {
 	case len(k.anon) > 0:
 		strs := make([]string, 0)
 		for _, v := range k.anon {
-			strs = append(strs, ToString(v))
+			strs = append(strs, toString(v))
 		}
 		return strings.Join(strs, ",")
 	default:
@@ -145,7 +145,7 @@ func (k MultiKey) Unmarshal(val interface{}) error {
 
 func (c *Client) ListBigmapKeys(ctx context.Context, id int64, params ContractParams) ([]BigmapKey, error) {
 	keys := make([]BigmapKey, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/keys", id))
+	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/keys", id)).Url()
 	if err := c.get(ctx, u, nil, &keys); err != nil {
 		return nil, err
 	}

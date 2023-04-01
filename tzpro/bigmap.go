@@ -227,14 +227,14 @@ func (c *Client) NewBigmapQuery() BigmapQuery {
 		panic(err)
 	}
 	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "bigmaps",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
+		client:     c,
+		BaseParams: c.base.Clone(),
+		Table:      "bigmaps",
+		Format:     FormatJSON,
+		Limit:      DefaultLimit,
+		Order:      OrderAsc,
+		Columns:    tinfo.Aliases(),
+		Filter:     make(FilterList, 0),
 	}
 	return BigmapQuery{q}
 }
@@ -262,7 +262,7 @@ func (c *Client) QueryBigmaps(ctx context.Context, filter FilterList, cols []str
 
 func (c *Client) GetBigmap(ctx context.Context, id int64, params ContractParams) (*Bigmap, error) {
 	b := &Bigmap{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d", id))
+	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d", id)).Url()
 	if err := c.get(ctx, u, nil, b); err != nil {
 		return nil, err
 	}

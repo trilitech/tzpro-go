@@ -20,7 +20,13 @@ var null = []byte(`null`)
 
 var stringerType = reflect.TypeOf((*fmt.Stringer)(nil)).Elem()
 
-func ToString(t interface{}) string {
+func toString(t any) string {
+	switch t := t.(type) {
+	case string:
+		return t
+	case time.Time:
+		return t.Format(time.RFC3339)
+	}
 	val := reflect.Indirect(reflect.ValueOf(t))
 	if !val.IsValid() {
 		return ""
@@ -28,18 +34,18 @@ func ToString(t interface{}) string {
 	if val.Type().Implements(stringerType) {
 		return t.(fmt.Stringer).String()
 	}
-	if s, err := ToRawString(val.Interface()); err == nil {
+	if s, err := toRawString(val.Interface()); err == nil {
 		return s
 	}
 	return fmt.Sprintf("%v", val.Interface())
 }
 
-func IsBase64(s string) bool {
+func isBase64(s string) bool {
 	_, err := base64.StdEncoding.DecodeString(s)
 	return err == nil
 }
 
-func ToRawString(t interface{}) (string, error) {
+func toRawString(t any) (string, error) {
 	val := reflect.Indirect(reflect.ValueOf(t))
 	if !val.IsValid() {
 		return "", nil
@@ -78,7 +84,7 @@ func ToRawString(t interface{}) (string, error) {
 			// anything else
 			var b strings.Builder
 			for i, l := 0, val.Len(); i < l; i++ {
-				b.WriteString(ToString(val.Index(i).Interface()))
+				b.WriteString(toString(val.Index(i).Interface()))
 				if i < l-1 {
 					b.WriteByte(',')
 				}
@@ -170,10 +176,10 @@ func getPathString(val interface{}, path string) (string, bool) {
 			}
 			next = t[idx]
 		default:
-			return ToString(next), i == len(frag)-1
+			return toString(next), i == len(frag)-1
 		}
 	}
-	return ToString(next), true
+	return toString(next), true
 }
 
 func getPathInt64(val interface{}, path string) (int64, bool) {

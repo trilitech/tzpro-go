@@ -15,16 +15,16 @@ import (
 type Filter struct {
 	Mode   FilterMode
 	Column string
-	Value  interface{}
+	Value  any
 }
 
 type FilterList []Filter
 
-func (l *FilterList) Add(mode FilterMode, col string, val ...interface{}) {
+func (l *FilterList) Add(mode FilterMode, col string, val ...any) {
 	*l = append(*l, Filter{
 		Mode:   mode,
 		Column: col,
-		Value:  ToString(val),
+		Value:  toString(val),
 	})
 }
 
@@ -58,8 +58,8 @@ const (
 )
 
 type TableQuery interface {
-	WithFilter(mode FilterMode, col string, val ...interface{}) TableQuery
-	ReplaceFilter(mode FilterMode, col string, val ...interface{}) TableQuery
+	WithFilter(mode FilterMode, col string, val ...any) TableQuery
+	ReplaceFilter(mode FilterMode, col string, val ...any) TableQuery
 	ResetFilter() TableQuery
 	WithLimit(limit int) TableQuery
 	WithColumns(cols ...string) TableQuery
@@ -74,7 +74,7 @@ type TableQuery interface {
 }
 
 type tableQuery struct {
-	Params
+	BaseParams
 	client  *Client
 	Table   string     // "op", "block", "chain", "flow"
 	Format  FormatType // "json", "csv"
@@ -89,25 +89,33 @@ type tableQuery struct {
 	// Sort string // asc/desc
 }
 
-// func newTableQuery(name string) tableQuery {
-// 	return tableQuery{
-// 		Params: NewParams(),
-// 		Table:  name,
-// 		Filter: make(FilterList, 0),
-// 		Order:  OrderAsc,
-// 	}
-// }
+func (c *Client) newTableQuery(name string, val any) tableQuery {
+	tinfo, err := GetTypeInfo(val)
+	if err != nil {
+		panic(err)
+	}
+	return tableQuery{
+		client:     c,
+		BaseParams: c.base.Clone(),
+		Table:      name,
+		Format:     FormatJSON,
+		Limit:      DefaultLimit,
+		Order:      OrderAsc,
+		Columns:    tinfo.FilteredAliases("notable"),
+		Filter:     make(FilterList, 0),
+	}
+}
 
-func (q *tableQuery) WithFilter(mode FilterMode, col string, val ...interface{}) TableQuery {
+func (q *tableQuery) WithFilter(mode FilterMode, col string, val ...any) TableQuery {
 	q.Filter.Add(mode, col, val)
 	return q
 }
 
-func (q *tableQuery) ReplaceFilter(mode FilterMode, col string, val ...interface{}) TableQuery {
+func (q *tableQuery) ReplaceFilter(mode FilterMode, col string, val ...any) TableQuery {
 	for i, v := range q.Filter {
 		if v.Column == col {
 			q.Filter[i].Mode = mode
-			q.Filter[i].Value = ToString(val)
+			q.Filter[i].Value = toString(val)
 			return q
 		}
 	}
@@ -166,7 +174,7 @@ func (q *tableQuery) WithCursor(c uint64) TableQuery {
 }
 
 func (p tableQuery) Check() error {
-	if err := p.Params.Check(); err != nil {
+	if err := p.BaseParams.Check(); err != nil {
 		return err
 	}
 	if p.Table == "" {
@@ -194,29 +202,29 @@ func (p tableQuery) Check() error {
 
 func (p tableQuery) Url() string {
 	if p.Cursor > 0 {
-		p.Params.Query.Set("cursor", strconv.FormatUint(p.Cursor, 10))
+		p.BaseParams.Query.Set("cursor", strconv.FormatUint(p.Cursor, 10))
 	}
-	if p.Limit > 0 && p.Params.Query.Get("limit") == "" {
-		p.Params.Query.Set("limit", strconv.Itoa(p.Limit))
+	if p.Limit > 0 && p.BaseParams.Query.Get("limit") == "" {
+		p.BaseParams.Query.Set("limit", strconv.Itoa(p.Limit))
 	}
-	if len(p.Columns) > 0 && p.Params.Query.Get("columns") == "" {
-		p.Params.Query.Set("columns", strings.Join(p.Columns, ","))
+	if len(p.Columns) > 0 && p.BaseParams.Query.Get("columns") == "" {
+		p.BaseParams.Query.Set("columns", strings.Join(p.Columns, ","))
 	}
 	if p.Verbose {
-		p.Params.Query.Set("verbose", "true")
+		p.BaseParams.Query.Set("verbose", "true")
 	}
 	for _, v := range p.Filter {
-		p.Params.Query.Set(v.Column+"."+string(v.Mode), ToString(v.Value))
+		p.BaseParams.Query.Set(v.Column+"."+string(v.Mode), toString(v.Value))
 	}
-	p.Params.Query.Set("order", string(p.Order))
+	p.BaseParams.Query.Set("order", string(p.Order))
 	format := p.Format
 	if format == "" {
 		format = FormatJSON
 	}
-	return p.Params.Url("tables/" + p.Table + "." + string(format))
+	return p.BaseParams.WithPath("tables/" + p.Table + "." + string(format)).Url()
 }
 
-func (c *Client) QueryTable(ctx context.Context, q TableQuery, result interface{}) error {
+func (c *Client) QueryTable(ctx context.Context, q TableQuery, result any) error {
 	if err := q.Check(); err != nil {
 		return err
 	}

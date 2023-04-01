@@ -232,21 +232,7 @@ type IncomeQuery struct {
 }
 
 func (c *Client) NewIncomeQuery() IncomeQuery {
-	tinfo, err := GetTypeInfo(&Income{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "income",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Columns: tinfo.Aliases(),
-		Order:   OrderAsc,
-		Filter:  make(FilterList, 0),
-	}
-	return IncomeQuery{q}
+	return IncomeQuery{c.newTableQuery("income", &Income{})}
 }
 
 func (q IncomeQuery) Run(ctx context.Context) (*IncomeList, error) {

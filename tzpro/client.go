@@ -37,8 +37,8 @@ func init() {
 type Client struct {
 	transport  *http.Client
 	log        log.Logger
-	base       Params
-	market     Params
+	base       BaseParams
+	market     BaseParams
 	cache      *lru.TwoQueueCache
 	headers    http.Header
 	userAgent  string
@@ -47,7 +47,7 @@ type Client struct {
 }
 
 func NewClient(url string, httpClient *http.Client) (*Client, error) {
-	params, err := ParseParams(url)
+	params, err := NewBaseParams().Parse(url)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (c *Client) WithApiKey(s string) *Client {
 }
 
 func (c *Client) WithMarketUrl(url string) *Client {
-	if params, err := ParseParams(url); err == nil {
+	if params, err := NewBaseParams().Parse(url); err == nil {
 		c.market = params
 	}
 	return c
@@ -160,15 +160,15 @@ func (c Client) RetryDelay() time.Duration {
 	return c.retryDelay
 }
 
-func (c *Client) get(ctx context.Context, path string, headers http.Header, result interface{}) error {
+func (c *Client) get(ctx context.Context, path string, headers http.Header, result any) error {
 	return c.call(ctx, http.MethodGet, path, headers, nil, result)
 }
 
-func (c *Client) post(ctx context.Context, path string, headers http.Header, data, result interface{}) error {
+func (c *Client) post(ctx context.Context, path string, headers http.Header, data, result any) error {
 	return c.call(ctx, http.MethodPost, path, headers, data, result)
 }
 
-func (c *Client) put(ctx context.Context, path string, headers http.Header, data, result interface{}) error {
+func (c *Client) put(ctx context.Context, path string, headers http.Header, data, result any) error {
 	return c.call(ctx, http.MethodPut, path, headers, data, result)
 }
 
@@ -176,17 +176,17 @@ func (c *Client) delete(ctx context.Context, path string, headers http.Header) e
 	return c.call(ctx, http.MethodDelete, path, headers, nil, nil)
 }
 
-func (c *Client) Async(ctx context.Context, path string, headers http.Header, result interface{}) FutureResult {
+func (c *Client) Async(ctx context.Context, path string, headers http.Header, result any) FutureResult {
 	return c.callAsync(ctx, http.MethodGet, path, headers, nil, result)
 }
 
-func (c *Client) call(ctx context.Context, method, path string, headers http.Header, data, result interface{}) error {
+func (c *Client) call(ctx context.Context, method, path string, headers http.Header, data, result any) error {
 	return c.callAsync(ctx, method, path, headers, data, result).Receive(ctx)
 }
 
-func (c *Client) callAsync(ctx context.Context, method, path string, headers http.Header, data, result interface{}) FutureResult {
+func (c *Client) callAsync(ctx context.Context, method, path string, headers http.Header, data, result any) FutureResult {
 	if !strings.HasPrefix(path, "http") {
-		path = c.base.Url(path)
+		path = c.base.WithPath(path).Url()
 	}
 
 	req, err := c.newRequest(ctx, method, path, headers, data, result)
@@ -205,7 +205,7 @@ func (c *Client) callAsync(ctx context.Context, method, path string, headers htt
 	return responseChan
 }
 
-func (c *Client) newRequest(ctx context.Context, method, path string, headers http.Header, data, result interface{}) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, path string, headers http.Header, data, result any) (*http.Request, error) {
 	// prepare headers
 	if headers == nil {
 		headers = make(http.Header)

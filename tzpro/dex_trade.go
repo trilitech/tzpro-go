@@ -6,7 +6,6 @@ package tzpro
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
@@ -70,92 +69,17 @@ type DexTrade struct {
 	VolumeUSD      tezos.Z      `json:"volume_usd"`
 }
 
-type DexTradeParams struct {
-	Params
-}
+type DexTradeParams = Params[DexTrade]
 
 func NewDexTradeParams() DexTradeParams {
-	return DexTradeParams{NewParams()}
-}
-
-func (p DexTradeParams) WithLimit(v uint) DexTradeParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p DexTradeParams) WithOffset(v uint) DexTradeParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p DexTradeParams) WithCursor(v uint64) DexTradeParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p DexTradeParams) WithOrder(o OrderType) DexTradeParams {
-	p.Query.Set("order", string(o))
-	return p
-}
-
-func (p DexTradeParams) WithDesc() DexTradeParams {
-	p.Query.Set("order", string(OrderDesc))
-	return p
-}
-
-func (p DexTradeParams) WithAsc() DexTradeParams {
-	p.Query.Set("order", string(OrderAsc))
-	return p
-}
-
-func (p DexTradeParams) WithSide(s string) DexTradeParams {
-	p.Query.Set("side", s)
-	return p
-}
-
-func (p DexTradeParams) WithCounter(c int64) DexTradeParams {
-	p.Query.Set("counter", strconv.FormatInt(c, 10))
-	return p
-}
-
-func (p DexTradeParams) WithSigner(c tezos.Address) DexTradeParams {
-	p.Query.Set("signer", c.String())
-	return p
-}
-
-func (p DexTradeParams) WithSender(c tezos.Address) DexTradeParams {
-	p.Query.Set("sender", c.String())
-	return p
-}
-
-func (p DexTradeParams) WithReceiver(c tezos.Address) DexTradeParams {
-	p.Query.Set("receiver", c.String())
-	return p
-}
-
-func (p DexTradeParams) WithTxHash(h tezos.OpHash) DexTradeParams {
-	p.Query.Set("tx_hash", h.String())
-	return p
-}
-
-func (p DexTradeParams) WithWashTrades(b bool) DexTradeParams {
-	p.Query.Set("is_wash_trade", strconv.FormatBool(b))
-	return p
-}
-
-func (p DexTradeParams) WithTimeSince(t time.Time) DexTradeParams {
-	p.Query.Set("time.gt", t.Format(time.RFC3339))
-	return p
-}
-
-func (p DexTradeParams) WithTimeRange(from, to time.Time) DexTradeParams {
-	p.Query.Set("time.rg", from.Format(time.RFC3339)+","+to.Format(time.RFC3339))
-	return p
+	return DexTradeParams{
+		Query: make(map[string][]string),
+	}
 }
 
 func (c *Client) ListDexTrades(ctx context.Context, params DexTradeParams) ([]*DexTrade, error) {
 	list := make([]*DexTrade, 0)
-	u := params.AppendQuery("/v1/dex/trades")
+	u := params.WithPath("/v1/dex/trades").Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}
@@ -164,7 +88,7 @@ func (c *Client) ListDexTrades(ctx context.Context, params DexTradeParams) ([]*D
 
 func (c *Client) ListDexPoolTrades(ctx context.Context, addr tezos.Address, id int, params DexTradeParams) ([]*DexTrade, error) {
 	list := make([]*DexTrade, 0)
-	u := params.AppendQuery(fmt.Sprintf("/v1/dex/pools/%s_%d/trades", addr, id))
+	u := params.WithPath(fmt.Sprintf("/v1/dex/pools/%s_%d/trades", addr, id)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

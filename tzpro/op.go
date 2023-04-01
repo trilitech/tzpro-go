@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"blockwatch.cc/tzgo/micheline"
@@ -563,21 +562,7 @@ func (q OpQuery) WithNoFail() OpQuery {
 }
 
 func (c *Client) NewOpQuery() OpQuery {
-	tinfo, err := GetTypeInfo(&Op{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "op",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.FilteredAliases("notable"),
-		Filter:  make(FilterList, 0),
-	}
-	return OpQuery{q, false}
+	return OpQuery{c.newTableQuery("op", &Op{}), false}
 }
 
 func (q OpQuery) Run(ctx context.Context) (*OpList, error) {
@@ -605,86 +590,17 @@ func (c *Client) QueryOps(ctx context.Context, filter FilterList, cols []string)
 	return q.Run(ctx)
 }
 
-type OpParams struct {
-	Params
-}
+type OpParams = Params[Op]
 
 func NewOpParams() OpParams {
-	return OpParams{NewParams()}
-}
-
-func (p OpParams) WithLimit(v uint) OpParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p OpParams) WithOffset(v uint) OpParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p OpParams) WithCursor(v uint64) OpParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p OpParams) WithOrder(v OrderType) OpParams {
-	p.Query.Set("order", string(v))
-	return p
-}
-
-func (p OpParams) WithType(mode FilterMode, typs ...string) OpParams {
-	if mode != "" {
-		p.Query.Set("type."+string(mode), strings.Join(typs, ","))
-	} else {
-		p.Query.Del("type")
+	return OpParams{
+		Query: make(map[string][]string),
 	}
-	return p
-}
-
-func (p OpParams) WithBlock(v string) OpParams {
-	p.Query.Set("block", v)
-	return p
-}
-
-func (p OpParams) WithSince(v string) OpParams {
-	p.Query.Set("since", v)
-	return p
-}
-
-func (p OpParams) WithUnpack() OpParams {
-	p.Query.Set("unpack", "1")
-	return p
-}
-
-func (p OpParams) WithPrim() OpParams {
-	p.Query.Set("prim", "1")
-	return p
-}
-
-func (p OpParams) WithMeta() OpParams {
-	p.Query.Set("meta", "1")
-	return p
-}
-
-func (p OpParams) WithRights() OpParams {
-	p.Query.Set("rights", "1")
-	return p
-}
-
-func (p OpParams) WithMerge() OpParams {
-	p.Query.Set("merge", "1")
-	return p
-}
-
-func (p OpParams) WithStorage() OpParams {
-	p.Query.Set("storage", "1")
-	return p
 }
 
 func (c *Client) GetOp(ctx context.Context, hash tezos.OpHash, params OpParams) (OpGroup, error) {
 	o := make(OpGroup, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/op/%s", hash))
+	u := params.WithPath(fmt.Sprintf("/explorer/op/%s", hash)).Url()
 	if err := c.get(ctx, u, nil, &o); err != nil {
 		return nil, err
 	}

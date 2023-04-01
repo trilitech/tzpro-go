@@ -300,14 +300,14 @@ func (c *Client) NewBigmapUpdateQuery() BigmapUpdateQuery {
 		panic(err)
 	}
 	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "bigmap_updates",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
+		client:     c,
+		BaseParams: c.base.Clone(),
+		Table:      "bigmap_updates",
+		Format:     FormatJSON,
+		Limit:      DefaultLimit,
+		Order:      OrderAsc,
+		Columns:    tinfo.Aliases(),
+		Filter:     make(FilterList, 0),
 	}
 	return BigmapUpdateQuery{q}
 }
@@ -335,7 +335,7 @@ func (c *Client) QueryBigmapUpdates(ctx context.Context, filter FilterList, cols
 
 func (c *Client) ListBigmapUpdates(ctx context.Context, id int64, params ContractParams) ([]BigmapUpdate, error) {
 	upd := make([]BigmapUpdate, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/updates", id))
+	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/updates", id)).Url()
 	if err := c.get(ctx, u, nil, &upd); err != nil {
 		return nil, err
 	}
@@ -344,7 +344,7 @@ func (c *Client) ListBigmapUpdates(ctx context.Context, id int64, params Contrac
 
 func (c *Client) ListBigmapKeyUpdates(ctx context.Context, id int64, key string, params ContractParams) ([]BigmapUpdate, error) {
 	upd := make([]BigmapUpdate, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/%s/updates", id, key))
+	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/%s/updates", id, key)).Url()
 	if err := c.get(ctx, u, nil, &upd); err != nil {
 		return nil, err
 	}

@@ -256,7 +256,7 @@ func (s ContractScript) Types() (param, store micheline.Type, eps micheline.Entr
 }
 
 type ContractValue struct {
-	Value interface{}     `json:"value,omitempty"`
+	Value any             `json:"value,omitempty"`
 	Prim  *micheline.Prim `json:"prim,omitempty"`
 }
 
@@ -264,7 +264,7 @@ func (v ContractValue) IsPrim() bool {
 	if v.Value == nil {
 		return false
 	}
-	if m, ok := v.Value.(map[string]interface{}); !ok {
+	if m, ok := v.Value.(map[string]any); !ok {
 		return false
 	} else {
 		_, ok := m["prim"]
@@ -336,67 +336,12 @@ func (v ContractValue) Unmarshal(val interface{}) error {
 	return json.Unmarshal(buf, val)
 }
 
-type ContractParams struct {
-	Params
-}
+type ContractParams = Params[Contract]
 
 func NewContractParams() ContractParams {
-	return ContractParams{NewParams()}
-}
-
-func (p ContractParams) WithLimit(v uint) ContractParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p ContractParams) WithOffset(v uint) ContractParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p ContractParams) WithCursor(v uint64) ContractParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p ContractParams) WithOrder(v OrderType) ContractParams {
-	p.Query.Set("order", string(v))
-	return p
-}
-
-func (p ContractParams) WithBlock(v string) ContractParams {
-	p.Query.Set("block", v)
-	return p
-}
-
-func (p ContractParams) WithSince(v string) ContractParams {
-	p.Query.Set("since", v)
-	return p
-}
-
-func (p ContractParams) WithUnpack() ContractParams {
-	p.Query.Set("unpack", "1")
-	return p
-}
-
-func (p ContractParams) WithPrim() ContractParams {
-	p.Query.Set("prim", "1")
-	return p
-}
-
-func (p ContractParams) WithMeta() ContractParams {
-	p.Query.Set("meta", "1")
-	return p
-}
-
-func (p ContractParams) WithMerge() ContractParams {
-	p.Query.Set("merge", "1")
-	return p
-}
-
-func (p ContractParams) WithStorage() ContractParams {
-	p.Query.Set("storage", "1")
-	return p
+	return ContractParams{
+		Query: make(map[string][]string),
+	}
 }
 
 type ContractQuery struct {
@@ -404,21 +349,7 @@ type ContractQuery struct {
 }
 
 func (c *Client) NewContractQuery() ContractQuery {
-	tinfo, err := GetTypeInfo(&Contract{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "contract",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.FilteredAliases("notable"),
-		Filter:  make(FilterList, 0),
-	}
-	return ContractQuery{q}
+	return ContractQuery{c.newTableQuery("contract", &Contract{})}
 }
 
 func (q ContractQuery) Run(ctx context.Context) (*ContractList, error) {
@@ -444,7 +375,7 @@ func (c *Client) QueryContracts(ctx context.Context, filter FilterList, cols []s
 
 func (c *Client) GetContract(ctx context.Context, addr tezos.Address, params ContractParams) (*Contract, error) {
 	cc := &Contract{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/contract/%s", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s", addr)).Url()
 	if err := c.get(ctx, u, nil, cc); err != nil {
 		return nil, err
 	}
@@ -453,7 +384,7 @@ func (c *Client) GetContract(ctx context.Context, addr tezos.Address, params Con
 
 func (c *Client) GetContractScript(ctx context.Context, addr tezos.Address, params ContractParams) (*ContractScript, error) {
 	cc := &ContractScript{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/contract/%s/script", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/script", addr)).Url()
 	if err := c.get(ctx, u, nil, cc); err != nil {
 		return nil, err
 	}
@@ -462,7 +393,7 @@ func (c *Client) GetContractScript(ctx context.Context, addr tezos.Address, para
 
 func (c *Client) GetContractStorage(ctx context.Context, addr tezos.Address, params ContractParams) (*ContractValue, error) {
 	cc := &ContractValue{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/contract/%s/storage", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/storage", addr)).Url()
 	if err := c.get(ctx, u, nil, cc); err != nil {
 		return nil, err
 	}
@@ -471,7 +402,7 @@ func (c *Client) GetContractStorage(ctx context.Context, addr tezos.Address, par
 
 func (c *Client) ListContractCalls(ctx context.Context, addr tezos.Address, params ContractParams) ([]*Op, error) {
 	calls := make([]*Op, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/contract/%s/calls", addr))
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/calls", addr)).Url()
 	if err := c.get(ctx, u, nil, &calls); err != nil {
 		return nil, err
 	}

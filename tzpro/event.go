@@ -139,21 +139,7 @@ type EventQuery struct {
 }
 
 func (c *Client) NewEventQuery() EventQuery {
-	tinfo, err := GetTypeInfo(&Event{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "event",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
-	}
-	return EventQuery{q}
+	return EventQuery{c.newTableQuery("event", &Event{})}
 }
 
 func (q EventQuery) Run(ctx context.Context) (*EventList, error) {

@@ -33,7 +33,8 @@ type Ticker struct {
 
 func (c *Client) GetTickers(ctx context.Context) ([]Ticker, error) {
 	ticks := make([]Ticker, 0)
-	if err := c.get(ctx, c.market.Url("/markets/tickers"), nil, &ticks); err != nil {
+	u := c.market.WithPath("/markets/tickers").Url()
+	if err := c.get(ctx, u, nil, &ticks); err != nil {
 		return nil, err
 	}
 	return ticks, nil
@@ -41,7 +42,7 @@ func (c *Client) GetTickers(ctx context.Context) ([]Ticker, error) {
 
 func (c *Client) GetTicker(ctx context.Context, market, pair string) (*Ticker, error) {
 	var tick Ticker
-	u := c.market.Url(fmt.Sprintf("/markets/%s/%s/ticker", market, pair))
+	u := c.market.WithPath(fmt.Sprintf("/markets/%s/%s/ticker", market, pair)).Url()
 	if err := c.get(ctx, u, nil, &tick); err != nil {
 		return nil, err
 	}
@@ -216,8 +217,7 @@ type CandleArgs struct {
 	Limit    int
 }
 
-func (c CandleArgs) Url() string {
-	p := NewParams()
+func (c CandleArgs) Url(p BaseParams) string {
 	if c.Limit > 0 && p.Query.Get("limit") == "" {
 		p.Query.Set("limit", strconv.Itoa(c.Limit))
 	}
@@ -236,7 +236,7 @@ func (c CandleArgs) Url() string {
 	if !c.To.IsZero() && p.Query.Get("end_date") == "" {
 		p.Query.Set("end_date", c.To.Format(time.RFC3339))
 	}
-	return p.Url("/series/" + c.Market + "/" + c.Pair + "/ohlcv")
+	return p.WithPath("/series/" + c.Market + "/" + c.Pair + "/ohlcv").Url()
 }
 
 func (c *Client) ListCandles(ctx context.Context, args CandleArgs) (*CandleList, error) {
@@ -251,7 +251,7 @@ func (c *Client) ListCandles(ctx context.Context, args CandleArgs) (*CandleList,
 		Rows:    make([]Candle, 0),
 		Columns: args.Columns,
 	}
-	if err := c.get(ctx, c.market.Url(args.Url()), nil, resp); err != nil {
+	if err := c.get(ctx, args.Url(c.market), nil, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

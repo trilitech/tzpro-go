@@ -38,6 +38,7 @@ type Block struct {
 	NContractCalls   int                    `json:"n_calls"`
 	NRollupCalls     int                    `json:"n_rollup_calls"`
 	NEvents          int                    `json:"n_events"`
+	NTickets         int                    `json:"n_tickets"`
 	NTx              int                    `json:"n_tx"`
 	Volume           float64                `json:"volume"`
 	Fee              float64                `json:"fee"`
@@ -274,6 +275,8 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 			block.NTx, err = strconv.Atoi(f.(json.Number).String())
 		case "n_events":
 			block.NEvents, err = strconv.Atoi(f.(json.Number).String())
+		case "n_tickets":
+			block.NTickets, err = strconv.Atoi(f.(json.Number).String())
 		case "volume":
 			block.Volume, err = strconv.ParseFloat(f.(json.Number).String(), 64)
 		case "fee":
@@ -326,21 +329,7 @@ type BlockQuery struct {
 }
 
 func (c *Client) NewBlockQuery() BlockQuery {
-	tinfo, err := GetTypeInfo(&Block{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "block",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Columns: tinfo.FilteredAliases("notable"),
-		Order:   OrderAsc,
-		Filter:  make(FilterList, 0),
-	}
-	return BlockQuery{q}
+	return BlockQuery{c.newTableQuery("block", &Block{})}
 }
 
 func (q BlockQuery) Run(ctx context.Context) (*BlockList, error) {
@@ -364,47 +353,17 @@ func (c *Client) QueryBlocks(ctx context.Context, filter FilterList, cols []stri
 	return q.Run(ctx)
 }
 
-type BlockParams struct {
-	Params
-}
+type BlockParams = Params[Block]
 
 func NewBlockParams() BlockParams {
-	return BlockParams{NewParams()}
-}
-
-func (p BlockParams) WithLimit(v uint) BlockParams {
-	p.Query.Set("limit", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p BlockParams) WithOffset(v uint) BlockParams {
-	p.Query.Set("offset", strconv.Itoa(int(v)))
-	return p
-}
-
-func (p BlockParams) WithCursor(v uint64) BlockParams {
-	p.Query.Set("cursor", strconv.FormatUint(v, 10))
-	return p
-}
-
-func (p BlockParams) WithOrder(v OrderType) BlockParams {
-	p.Query.Set("order", string(v))
-	return p
-}
-
-func (p BlockParams) WithMeta() BlockParams {
-	p.Query.Set("meta", "1")
-	return p
-}
-
-func (p BlockParams) WithRights() BlockParams {
-	p.Query.Set("rights", "1")
-	return p
+	return BlockParams{
+		Query: make(map[string][]string),
+	}
 }
 
 func (c *Client) GetBlock(ctx context.Context, hash tezos.BlockHash, params BlockParams) (*Block, error) {
 	b := &Block{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/block/%s", hash))
+	u := params.WithPath(fmt.Sprintf("/explorer/block/%s", hash)).Url()
 	if err := c.get(ctx, u, nil, b); err != nil {
 		return nil, err
 	}
@@ -413,7 +372,7 @@ func (c *Client) GetBlock(ctx context.Context, hash tezos.BlockHash, params Bloc
 
 func (c *Client) GetHead(ctx context.Context, params BlockParams) (*Block, error) {
 	b := &Block{}
-	u := params.AppendQuery("/explorer/block/head")
+	u := params.WithPath("/explorer/block/head").Url()
 	if err := c.get(ctx, u, nil, b); err != nil {
 		return nil, err
 	}
@@ -422,7 +381,7 @@ func (c *Client) GetHead(ctx context.Context, params BlockParams) (*Block, error
 
 func (c *Client) GetBlockHeight(ctx context.Context, height int64, params BlockParams) (*Block, error) {
 	b := &Block{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/block/%d", height))
+	u := params.WithPath(fmt.Sprintf("/explorer/block/%d", height)).Url()
 	if err := c.get(ctx, u, nil, b); err != nil {
 		return nil, err
 	}
@@ -431,7 +390,7 @@ func (c *Client) GetBlockHeight(ctx context.Context, height int64, params BlockP
 
 func (c *Client) GetBlockWithOps(ctx context.Context, hash tezos.BlockHash, params BlockParams) (*Block, error) {
 	b := &Block{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/block/%s/op", hash))
+	u := params.WithPath(fmt.Sprintf("/explorer/block/%s/op", hash)).Url()
 	if err := c.get(ctx, u, nil, b); err != nil {
 		return nil, err
 	}
@@ -440,7 +399,7 @@ func (c *Client) GetBlockWithOps(ctx context.Context, hash tezos.BlockHash, para
 
 func (c *Client) GetBlockOps(ctx context.Context, hash tezos.BlockHash, params OpParams) ([]*Op, error) {
 	ops := make([]*Op, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/block/%s/operations", hash))
+	u := params.WithPath(fmt.Sprintf("/explorer/block/%s/operations", hash)).Url()
 	if err := c.get(ctx, u, nil, &ops); err != nil {
 		return nil, err
 	}

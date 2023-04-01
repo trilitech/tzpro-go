@@ -10,7 +10,7 @@ import (
 	"blockwatch.cc/tzgo/tezos"
 )
 
-type TokenOwner struct {
+type TokenBalance struct {
 	Id         int64         `json:"id"`
 	Owner      tezos.Address `json:"owner"`
 	Contract   tezos.Address `json:"contract"`
@@ -32,9 +32,18 @@ type TokenOwner struct {
 	VolBurn    tezos.Z       `json:"vol_burn"`
 }
 
-func (c *Client) ListTokenOwners(ctx context.Context, addr tezos.Token, params TokenParams) ([]*TokenOwner, error) {
-	list := make([]*TokenOwner, 0)
-	u := params.AppendQuery(fmt.Sprintf("/v1/tokens/%s/owners", addr))
+func (c *Client) ListTokenOwners(ctx context.Context, addr tezos.Token, params TokenParams) ([]*TokenBalance, error) {
+	list := make([]*TokenBalance, 0)
+	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s/owners", addr)).Url()
+	if err := c.get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *Client) ListWalletBalances(ctx context.Context, addr tezos.Address, params TokenParams) ([]*TokenBalance, error) {
+	list := make([]*TokenBalance, 0)
+	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/token/balances", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

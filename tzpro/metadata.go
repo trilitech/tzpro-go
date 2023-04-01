@@ -16,20 +16,20 @@ import (
 	"github.com/echa/code/iso"
 )
 
-var Schemas = map[string]func() interface{}{
-	"alias":    func() interface{} { return new(AliasMetadata) },
-	"baker":    func() interface{} { return new(BakerMetadata) },
-	"payout":   func() interface{} { return new(PayoutMetadata) },
-	"asset":    func() interface{} { return new(AssetMetadata) },
-	"dex":      func() interface{} { return new(DexMetadata) },
-	"location": func() interface{} { return new(LocationMetadata) },
-	"domain":   func() interface{} { return new(DomainMetadata) },
-	"media":    func() interface{} { return new(MediaMetadata) },
-	"rights":   func() interface{} { return new(RightsMetadata) },
-	"social":   func() interface{} { return new(SocialMetadata) },
-	"tz16":     func() interface{} { return new(contract.Tz16) },
-	"tz21":     func() interface{} { return new(Tz21Metadata) },
-	"updated":  func() interface{} { return new(UpdatedMetadata) },
+var Schemas = map[string]func() any{
+	"alias":    func() any { return new(AliasMetadata) },
+	"baker":    func() any { return new(BakerMetadata) },
+	"payout":   func() any { return new(PayoutMetadata) },
+	"asset":    func() any { return new(AssetMetadata) },
+	"dex":      func() any { return new(DexMetadata) },
+	"location": func() any { return new(LocationMetadata) },
+	"domain":   func() any { return new(DomainMetadata) },
+	"media":    func() any { return new(MediaMetadata) },
+	"rights":   func() any { return new(RightsMetadata) },
+	"social":   func() any { return new(SocialMetadata) },
+	"tz16":     func() any { return new(contract.Tz16) },
+	"tz21":     func() any { return new(Tz21Metadata) },
+	"updated":  func() any { return new(UpdatedMetadata) },
 }
 
 type MetadataDescriptor struct {
@@ -40,15 +40,15 @@ type MetadataDescriptor struct {
 
 type Metadata struct {
 	// address + id together are used as unique identifier
-	Address  tezos.Address          `json:"address"`
-	AssetId  *int64                 `json:"asset_id,omitempty"`
-	Contents map[string]interface{} `json:"-"`
+	Address  tezos.Address  `json:"address"`
+	AssetId  *int64         `json:"asset_id,omitempty"`
+	Contents map[string]any `json:"-"`
 }
 
 func NewMetadata(a tezos.Address) *Metadata {
 	return &Metadata{
 		Address:  a,
-		Contents: make(map[string]interface{}),
+		Contents: make(map[string]any),
 	}
 }
 
@@ -68,7 +68,7 @@ func (m Metadata) Has(name string) bool {
 	return ok && v != nil
 }
 
-func (m Metadata) Get(name string) interface{} {
+func (m Metadata) Get(name string) any {
 	if m.Contents != nil {
 		v, ok := m.Contents[name]
 		if ok {
@@ -79,12 +79,12 @@ func (m Metadata) Get(name string) interface{} {
 	if ok {
 		return s()
 	}
-	return make(map[string]interface{})
+	return make(map[string]any)
 }
 
-func (m *Metadata) Set(name string, data interface{}) {
+func (m *Metadata) Set(name string, data any) {
 	if m.Contents == nil {
-		m.Contents = make(map[string]interface{})
+		m.Contents = make(map[string]any)
 	}
 	m.Contents[name] = data
 }
@@ -118,7 +118,7 @@ func (m Metadata) Merge(d Metadata) Metadata {
 }
 
 func (m Metadata) MarshalJSON() ([]byte, error) {
-	out := make(map[string]interface{})
+	out := make(map[string]any)
 	for n, v := range m.Contents {
 		out[n] = v
 	}
@@ -143,12 +143,12 @@ func (m *Metadata) UnmarshalJSON(buf []byte) error {
 		case "asset_id":
 			err = json.Unmarshal(v, &m.AssetId)
 		default:
-			var data interface{}
+			var data any
 			schema, ok := Schemas[n]
 			if ok {
 				data = schema()
 			} else {
-				data = make(map[string]interface{})
+				data = make(map[string]any)
 			}
 			err = json.Unmarshal(v, &data)
 			if err == nil {

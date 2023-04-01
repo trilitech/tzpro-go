@@ -228,21 +228,7 @@ type BigmapValueQuery struct {
 }
 
 func (c *Client) NewBigmapValueQuery() BigmapValueQuery {
-	tinfo, err := GetTypeInfo(&BigmapValueRow{})
-	if err != nil {
-		panic(err)
-	}
-	q := tableQuery{
-		client:  c,
-		Params:  c.base.Copy(),
-		Table:   "bigmap_values",
-		Format:  FormatJSON,
-		Limit:   DefaultLimit,
-		Order:   OrderAsc,
-		Columns: tinfo.Aliases(),
-		Filter:  make(FilterList, 0),
-	}
-	return BigmapValueQuery{q}
+	return BigmapValueQuery{c.newTableQuery("bigmap_values", &BigmapValueRow{})}
 }
 
 func (q BigmapValueQuery) Run(ctx context.Context) (*BigmapValueRowList, error) {
@@ -268,7 +254,7 @@ func (c *Client) QueryBigmapValues(ctx context.Context, filter FilterList, cols 
 
 func (c *Client) GetBigmapValue(ctx context.Context, id int64, key string, params ContractParams) (*BigmapValue, error) {
 	v := &BigmapValue{}
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/%s", id, key))
+	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/%s", id, key)).Url()
 	if err := c.get(ctx, u, nil, v); err != nil {
 		return nil, err
 	}
@@ -277,7 +263,7 @@ func (c *Client) GetBigmapValue(ctx context.Context, id int64, key string, param
 
 func (c *Client) ListBigmapValues(ctx context.Context, id int64, params ContractParams) ([]BigmapValue, error) {
 	vals := make([]BigmapValue, 0)
-	u := params.AppendQuery(fmt.Sprintf("/explorer/bigmap/%d/values", id))
+	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/values", id)).Url()
 	if err := c.get(ctx, u, nil, &vals); err != nil {
 		return nil, err
 	}
