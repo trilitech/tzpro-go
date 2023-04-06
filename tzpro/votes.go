@@ -66,10 +66,13 @@ type Vote struct {
 	TurnoutPct       int                    `json:"turnout_pct"`
 	TurnoutEma       int                    `json:"turnout_ema"`
 	YayRolls         int                    `json:"yay_rolls"`
+	YayStake         float64                `json:"yay_stake"`
 	YayVoters        int                    `json:"yay_voters"`
 	NayRolls         int                    `json:"nay_rolls"`
+	NayStake         float64                `json:"nay_stake"`
 	NayVoters        int                    `json:"nay_voters"`
 	PassRolls        int                    `json:"pass_rolls"`
+	PassStake        float64                `json:"pass_stake"`
 	PassVoters       int                    `json:"pass_voters"`
 	IsOpen           bool                   `json:"is_open"`
 	IsFailed         bool                   `json:"is_failed"`
@@ -88,6 +91,7 @@ type Proposal struct {
 	Height        int64              `json:"height"`
 	Time          time.Time          `json:"time"`
 	Rolls         int64              `json:"rolls"`
+	Stake         float64            `json:"stake"`
 	Voters        int64              `json:"voters"`
 }
 
@@ -102,6 +106,7 @@ type Ballot struct {
 	OpHash           tezos.OpHash           `json:"op"`
 	Ballot           tezos.BallotVote       `json:"ballot"`
 	Rolls            int64                  `json:"rolls"`
+	Stake            float64                `json:"stake"`
 	Sender           tezos.Address          `json:"sender"`
 }
 
