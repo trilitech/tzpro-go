@@ -272,3 +272,7 @@ func nonNil(vals ...interface{}) interface{} {
 	}
 	return nil
 }
+
+func shortDurationString(s string) string {
+	return strings.TrimRight(strings.TrimRight(s, "0s"), "0m")
+}

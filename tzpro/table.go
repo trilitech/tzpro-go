@@ -201,27 +201,28 @@ func (p tableQuery) Check() error {
 }
 
 func (p tableQuery) Url() string {
+	base := p.BaseParams.Clone()
 	if p.Cursor > 0 {
-		p.BaseParams.Query.Set("cursor", strconv.FormatUint(p.Cursor, 10))
+		base.Query.Set("cursor", strconv.FormatUint(p.Cursor, 10))
 	}
-	if p.Limit > 0 && p.BaseParams.Query.Get("limit") == "" {
-		p.BaseParams.Query.Set("limit", strconv.Itoa(p.Limit))
+	if p.Limit > 0 && base.Query.Get("limit") == "" {
+		base.Query.Set("limit", strconv.Itoa(p.Limit))
 	}
-	if len(p.Columns) > 0 && p.BaseParams.Query.Get("columns") == "" {
-		p.BaseParams.Query.Set("columns", strings.Join(p.Columns, ","))
+	if len(p.Columns) > 0 && base.Query.Get("columns") == "" {
+		base.Query.Set("columns", strings.Join(p.Columns, ","))
 	}
 	if p.Verbose {
-		p.BaseParams.Query.Set("verbose", "true")
+		base.Query.Set("verbose", "true")
 	}
 	for _, v := range p.Filter {
-		p.BaseParams.Query.Set(v.Column+"."+string(v.Mode), toString(v.Value))
+		base.Query.Set(v.Column+"."+string(v.Mode), toString(v.Value))
 	}
-	p.BaseParams.Query.Set("order", string(p.Order))
+	base.Query.Set("order", string(p.Order))
 	format := p.Format
 	if format == "" {
 		format = FormatJSON
 	}
-	return p.BaseParams.WithPath("tables/" + p.Table + "." + string(format)).Url()
+	return base.WithPath("tables/" + p.Table + "." + string(format)).Url()
 }
 
 func (c *Client) QueryTable(ctx context.Context, q TableQuery, result any) error {

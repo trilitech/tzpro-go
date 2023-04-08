@@ -200,8 +200,8 @@ const (
 )
 
 const (
-	Collapse1m = 1 * time.Minute
-	Collapse1h = 1 * time.Hour
+	Collapse1m = time.Minute
+	Collapse1h = time.Hour
 	Collapse1d = 24 * time.Hour
 	Collapse1w = 7 * 24 * time.Hour
 )
@@ -218,6 +218,7 @@ type CandleArgs struct {
 }
 
 func (c CandleArgs) Url(p BaseParams) string {
+	p = p.Clone()
 	if c.Limit > 0 && p.Query.Get("limit") == "" {
 		p.Query.Set("limit", strconv.Itoa(c.Limit))
 	}
@@ -228,7 +229,7 @@ func (c CandleArgs) Url(p BaseParams) string {
 		p.Query.Set("fill", string(c.Fill))
 	}
 	if c.Collapse > 0 && p.Query.Get("collapse") == "" {
-		p.Query.Set("collapse", c.Collapse.String())
+		p.Query.Set("collapse", shortDurationString(c.Collapse.String()))
 	}
 	if !c.From.IsZero() && p.Query.Get("start_date") == "" {
 		p.Query.Set("start_date", c.From.Format(time.RFC3339))
