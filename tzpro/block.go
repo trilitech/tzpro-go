@@ -38,8 +38,8 @@ type Block struct {
 	NContractCalls   int                    `json:"n_calls"`
 	NRollupCalls     int                    `json:"n_rollup_calls"`
 	NEvents          int                    `json:"n_events"`
-	NTickets         int                    `json:"n_tickets"`
 	NTx              int                    `json:"n_tx"`
+	NTickets         int                    `json:"n_tickets" tzpro:"notable"`
 	Volume           float64                `json:"volume"`
 	Fee              float64                `json:"fee"`
 	Reward           float64                `json:"reward"`
@@ -59,6 +59,10 @@ type Block struct {
 	LbEscapeVote     string                 `json:"lb_esc_vote"`
 	LbEscapeEma      int64                  `json:"lb_esc_ema"`
 	Protocol         tezos.ProtocolHash     `json:"protocol"`
+	ProposerKeyId    uint64                 `json:"proposer_consensus_key_id"`
+	BakerKeyId       uint64                 `json:"baker_consensus_key_id"`
+	ProposerKey      string                 `json:"proposer_consensus_key"`
+	BakerKey         string                 `json:"baker_consensus_key"`
 	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"notable"`
 	Rights           []Right                `json:"rights,omitempty"    tzpro:"notable"`
 	Ops              []*Op                  `json:"ops,omitempty"       tzpro:"notable"`
@@ -315,6 +319,14 @@ func (b *Block) UnmarshalJSONBrief(data []byte) error {
 			block.LbEscapeEma, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
 		case "protocol":
 			block.Protocol, err = tezos.ParseProtocolHash(f.(string))
+		case "proposer_consensus_key_id":
+			block.ProposerKeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+		case "baker_consensus_key_id":
+			block.BakerKeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+		case "proposer_consensus_key":
+			block.ProposerKey = f.(string)
+		case "baker_consensus_key":
+			block.BakerKey = f.(string)
 		}
 		if err != nil {
 			return err
