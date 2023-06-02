@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Blockwatch Data Inc.
+// Copyright (c) 2020-2023 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package tzpro
@@ -319,9 +319,7 @@ type BakerMetadata struct {
 	Sponsored      bool    `json:"sponsored,omitempty"`
 }
 
-type PayoutMetadata struct {
-	From []tezos.Address `json:"from,omitempty"`
-}
+type PayoutMetadata []tezos.Address
 
 type LocationMetadata struct {
 	Country   iso.Country      `json:"country,omitempty"`
