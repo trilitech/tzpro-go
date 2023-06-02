@@ -4,7 +4,6 @@
 package tzpro
 
 import (
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -40,10 +39,10 @@ func toString(t any) string {
 	return fmt.Sprintf("%v", val.Interface())
 }
 
-func isBase64(s string) bool {
-	_, err := base64.StdEncoding.DecodeString(s)
-	return err == nil
-}
+// func isBase64(s string) bool {
+// 	_, err := base64.StdEncoding.DecodeString(s)
+// 	return err == nil
+// }
 
 func toRawString(t any) (string, error) {
 	val := reflect.Indirect(reflect.ValueOf(t))
