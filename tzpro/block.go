@@ -65,7 +65,6 @@ type Block struct {
 	BakerKey         string                 `json:"baker_consensus_key"`
 	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"notable"`
 	Rights           []Right                `json:"rights,omitempty"    tzpro:"notable"`
-	Ops              []*Op                  `json:"ops,omitempty"       tzpro:"notable"`
 	columns          []string               `json:"-"`
 }
 
@@ -400,20 +399,4 @@ func (c *Client) GetBlockHeight(ctx context.Context, height int64, params BlockP
 	return b, nil
 }
 
-func (c *Client) GetBlockWithOps(ctx context.Context, hash tezos.BlockHash, params BlockParams) (*Block, error) {
-	b := &Block{}
-	u := params.WithPath(fmt.Sprintf("/explorer/block/%s/op", hash)).Url()
-	if err := c.get(ctx, u, nil, b); err != nil {
-		return nil, err
-	}
-	return b, nil
-}
 
-func (c *Client) GetBlockOps(ctx context.Context, hash tezos.BlockHash, params OpParams) ([]*Op, error) {
-	ops := make([]*Op, 0)
-	u := params.WithPath(fmt.Sprintf("/explorer/block/%s/operations", hash)).Url()
-	if err := c.get(ctx, u, nil, &ops); err != nil {
-		return nil, err
-	}
-	return ops, nil
-}

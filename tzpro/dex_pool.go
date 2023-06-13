@@ -49,7 +49,7 @@ func NewDexPoolParams() DexPoolParams {
 
 func (c *Client) GetDexPool(ctx context.Context, addr tezos.Address, id int, params DexPoolParams) (*DexPool, error) {
 	p := &DexPool{}
-	u := params.WithPath(fmt.Sprintf("/v1/dex/pools/%s_%d", addr, id)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/dex/%s_%d", addr, id)).Url()
 	if err := c.get(ctx, u, nil, p); err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *Client) GetDexPool(ctx context.Context, addr tezos.Address, id int, par
 
 func (c *Client) ListDexPools(ctx context.Context, params DexPoolParams) ([]*DexPool, error) {
 	list := make([]*DexPool, 0)
-	u := params.WithPath("/v1/dex/pools").Url()
+	u := params.WithPath("/v1/dex").Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

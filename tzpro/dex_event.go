@@ -56,7 +56,7 @@ func (c *Client) ListDexEvents(ctx context.Context, params DexEventParams) ([]*D
 
 func (c *Client) ListDexPoolEvents(ctx context.Context, addr tezos.Address, id int, params DexEventParams) ([]*DexEvent, error) {
 	list := make([]*DexEvent, 0)
-	u := params.WithPath(fmt.Sprintf("/v1/dex/pools/%s_%d/events", addr, id)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/dex/%s_%d/events", addr, id)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

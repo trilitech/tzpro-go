@@ -4,10 +4,7 @@
 package tzpro
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
@@ -45,129 +42,12 @@ type Tip struct {
 	Status             Status             `json:"status"`
 }
 
-type Deployment struct {
-	Protocol    string `json:"protocol"`
-	Version     int    `json:"version"`      // protocol version sequence on indexed chain
-	StartHeight int64  `json:"start_height"` // first block on indexed chain
-	EndHeight   int64  `json:"end_height"`   // last block on indexed chain or -1
-}
-
-type Status struct {
-	Status    string  `json:"status"` // loading, connecting, stopping, stopped, waiting, syncing, synced, failed
-	Blocks    int64   `json:"blocks"`
-	Finalized int64   `json:"finalized"`
-	Indexed   int64   `json:"indexed"`
-	Progress  float64 `json:"progress"`
-
-	columns []string
-}
-
-func (s *Status) WithColumns(cols ...string) *Status {
-	s.columns = cols
-	return s
-}
-
-func (s *Status) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return s.UnmarshalJSONBrief(data)
-	}
-	type Alias *Status
-	return json.Unmarshal(data, Alias(s))
-}
-
-func (s *Status) UnmarshalJSONBrief(data []byte) error {
-	st := Status{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range s.columns {
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "status":
-			st.Status = f.(string)
-		case "blocks":
-			st.Blocks, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "indexed":
-			st.Indexed, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "progress":
-			st.Progress, err = f.(json.Number).Float64()
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*s = st
-	return nil
-}
-
-func (c *Client) GetStatus(ctx context.Context) (*Status, error) {
-	s := &Status{}
-	if err := c.get(ctx, "/explorer/status", nil, s); err != nil {
-		return nil, err
-	}
-	return s, nil
-}
-
 func (c *Client) GetTip(ctx context.Context) (*Tip, error) {
 	tip := &Tip{}
 	if err := c.get(ctx, "/explorer/tip", nil, tip); err != nil {
 		return nil, err
 	}
 	return tip, nil
-}
-
-func (c *Client) ListProtocols(ctx context.Context) ([]Deployment, error) {
-	protos := make([]Deployment, 0)
-	if err := c.get(ctx, "/explorer/protocols", nil, &protos); err != nil {
-		return nil, err
-	}
-	return protos, nil
-}
-
-type BlockchainConfig struct {
-	Name                   string  `json:"name"`
-	Network                string  `json:"network"`
-	Symbol                 string  `json:"symbol"`
-	ChainId                string  `json:"chain_id"`
-	Deployment             int     `json:"deployment"`
-	Version                int     `json:"version"`
-	Protocol               string  `json:"protocol"`
-	StartHeight            int64   `json:"start_height"`
-	EndHeight              int64   `json:"end_height"`
-	Decimals               int     `json:"decimals"`
-	MinimalStake           float64 `json:"minimal_stake"`
-	PreservedCycles        int64   `json:"preserved_cycles"`
-	MinimalBlockDelay      int     `json:"minimal_block_delay"`
-	DelayIncrementPerRound int     `json:"delay_increment_per_round"`
-}
-
-func (c *Client) GetConfig(ctx context.Context) (*BlockchainConfig, error) {
-	config := &BlockchainConfig{}
-	if err := c.get(ctx, "/explorer/config/head", nil, config); err != nil {
-		return nil, err
-	}
-	return config, nil
-}
-
-func (c *Client) GetConfigHeight(ctx context.Context, height int64) (*BlockchainConfig, error) {
-	config := &BlockchainConfig{}
-	if err := c.get(ctx, "/explorer/config/"+strconv.FormatInt(height, 10), nil, config); err != nil {
-		return nil, err
-	}
-	return config, nil
 }
 
 type Supply struct {

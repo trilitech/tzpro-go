@@ -45,7 +45,7 @@ func NewDexTickerParams() DexTickerParams {
 
 func (c *Client) GetDexTicker(ctx context.Context, addr tezos.Address, id int) (*DexTicker, error) {
 	tick := &DexTicker{}
-	u := fmt.Sprintf("/v1/dex/pools/%s_%d/ticker", addr, id)
+	u := fmt.Sprintf("/v1/dex/%s_%d/ticker", addr, id)
 	if err := c.get(ctx, u, nil, tick); err != nil {
 		return nil, err
 	}

@@ -176,6 +176,9 @@ var ZmqRawOpColumns = []string{
 	"big_map_diff",
 	"errors",
 	"entrypoint",
+	"code_hash",
+	"events",
+	"ticket_updates",
 }
 
 var ZmqStatusColumns = []string{

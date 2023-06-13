@@ -88,7 +88,7 @@ func (c *Client) ListDexTrades(ctx context.Context, params DexTradeParams) ([]*D
 
 func (c *Client) ListDexPoolTrades(ctx context.Context, addr tezos.Address, id int, params DexTradeParams) ([]*DexTrade, error) {
 	list := make([]*DexTrade, 0)
-	u := params.WithPath(fmt.Sprintf("/v1/dex/pools/%s_%d/trades", addr, id)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/dex/%s_%d/trades", addr, id)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

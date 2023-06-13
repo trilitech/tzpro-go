@@ -13,10 +13,10 @@ import (
 type TokenBalance struct {
 	Id         int64         `json:"id"`
 	Owner      tezos.Address `json:"owner"`
-	Contract   tezos.Address `json:"contract"`
+	Ledger     tezos.Address `json:"ledger"`
 	TokenId    tezos.Z       `json:"token_id"`
-	Kind       string        `json:"kind"`
-	Type       string        `json:"type"`
+	Kind       string        `json:"token_kind"`
+	Type       string        `json:"token_type"`
 	Name       string        `json:"name"`
 	Symbol     string        `json:"symbol"`
 	Decimals   int           `json:"decimals"`
@@ -32,9 +32,9 @@ type TokenBalance struct {
 	VolBurn    tezos.Z       `json:"vol_burn"`
 }
 
-func (c *Client) ListTokenOwners(ctx context.Context, addr tezos.Token, params TokenParams) ([]*TokenBalance, error) {
+func (c *Client) ListTokenBalances(ctx context.Context, addr tezos.Token, params TokenParams) ([]*TokenBalance, error) {
 	list := make([]*TokenBalance, 0)
-	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s/owners", addr)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s/balances", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *Client) ListTokenOwners(ctx context.Context, addr tezos.Token, params T
 
 func (c *Client) ListWalletBalances(ctx context.Context, addr tezos.Address, params TokenParams) ([]*TokenBalance, error) {
 	list := make([]*TokenBalance, 0)
-	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/token/balances", addr)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/balances", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

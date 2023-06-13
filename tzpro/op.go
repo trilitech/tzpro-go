@@ -606,3 +606,12 @@ func (c *Client) GetOp(ctx context.Context, hash tezos.OpHash, params OpParams) 
 	}
 	return o, nil
 }
+
+func (c *Client) GetBlockOps(ctx context.Context, hash tezos.BlockHash, params OpParams) ([]*Op, error) {
+	ops := make([]*Op, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/block/%s/operations", hash)).Url()
+	if err := c.get(ctx, u, nil, &ops); err != nil {
+		return nil, err
+	}
+	return ops, nil
+}

@@ -13,10 +13,10 @@ import (
 
 type Token struct {
 	Id             uint64        `json:"id"`
-	Contract       tezos.Address `json:"contract"`
+	Ledger         tezos.Address `json:"ledger"`
 	TokenId        tezos.Z       `json:"token_id"`
-	Kind           string        `json:"kind"`
-	Type           string        `json:"type"`
+	Kind           string        `json:"token_kind"`
+	Type           string        `json:"token_type"`
 	Category       string        `json:"category"`
 	Name           string        `json:"name"`
 	Symbol         string        `json:"symbol"`
@@ -34,7 +34,7 @@ type Token struct {
 }
 
 func (t Token) Address() tezos.Token {
-	return tezos.NewToken(t.Contract, t.TokenId)
+	return tezos.NewToken(t.Ledger, t.TokenId)
 }
 
 type TokenParams = Params[Token]

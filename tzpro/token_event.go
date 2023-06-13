@@ -12,10 +12,10 @@ import (
 
 type TokenEvent struct {
 	Id        int64         `json:"id"`
-	Contract  tezos.Address `json:"contract"`
+	Ledger    tezos.Address `json:"contract"`
 	TokenId   tezos.Z       `json:"token_id"`
-	TokenKind string        `json:"kind"`
-	TokenType string        `json:"type"`
+	TokenKind string        `json:"token_kind"`
+	TokenType string        `json:"token_type"`
 	EventType string        `json:"event_type"`
 	Name      string        `json:"name"`
 	Symbol    string        `json:"symbol"`

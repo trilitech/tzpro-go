@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ClientVersion    = "0.15.1"
+	ClientVersion    = "0.17.0"
 	DefaultLimit     = 50000
 	DefaultCacheSize = 2048
 	userAgent        = "tzpro-go/v" + ClientVersion
@@ -73,7 +73,7 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 	cache, _ := lru.New2Q(sz)
 	return &Client{
 		transport:  httpClient,
-		log:        defaultLog,
+		log:        log.Disabled,
 		base:       params,
 		market:     params,
 		cache:      cache,
@@ -270,7 +270,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, headers ht
 // provided response channel.
 func (c *Client) handleRequest(req *request) {
 	// only dump content-type application/json
-	c.log.Trace(newLogClosure(func() string {
+	c.log.Trace(log.NewClosure(func() string {
 		r, _ := httputil.DumpRequestOut(req.httpRequest, req.httpRequest.Header.Get("Content-Type") == "application/json")
 		return string(r)
 	}))
@@ -304,7 +304,7 @@ func (c *Client) handleRequest(req *request) {
 	}
 	defer resp.Body.Close()
 
-	c.log.Tracef("response: %s", newLogClosure(func() string {
+	c.log.Tracef("response: %s", log.NewClosure(func() string {
 		s, _ := httputil.DumpResponse(resp, isTextResponse(resp))
 		return string(s)
 	}))
