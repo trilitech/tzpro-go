@@ -249,7 +249,7 @@ for {
 
 ### Building complex Table Queries
 
-The [TzPro Table API](https://tzpro.com/docs/api#table-endpoints) is the fastest way to ingest and process on-chain data in bulk. The SDK defines typed query objects for most tables and allows you to add filter conditions and other configuration to these queries.
+The [TzPro Table API](https://legacy-docs.tzpro.io/legacy-api-v0/tables) is the fastest way to ingest and process on-chain data in bulk. The SDK defines typed query objects for most tables and allows you to add filter conditions and other configuration to these queries.
 
 ```go
 import (
