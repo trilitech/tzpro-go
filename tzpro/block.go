@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Blockwatch Data Inc.
+// Copyright (c) 2020-2023 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package tzpro
@@ -6,9 +6,7 @@ package tzpro
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
@@ -18,7 +16,7 @@ type Block struct {
 	RowId            uint64                 `json:"row_id"`
 	Hash             tezos.BlockHash        `json:"hash"`
 	ParentHash       *tezos.BlockHash       `json:"predecessor,omitempty"`
-	FollowerHash     *tezos.BlockHash       `json:"successor,omitempty"  tzpro:"notable"`
+	FollowerHash     *tezos.BlockHash       `json:"successor,omitempty"  tzpro:"-"`
 	Timestamp        time.Time              `json:"time"`
 	Height           int64                  `json:"height"`
 	Cycle            int64                  `json:"cycle"`
@@ -63,10 +61,9 @@ type Block struct {
 	BakerKeyId       uint64                 `json:"baker_consensus_key_id"`
 	ProposerKey      string                 `json:"proposer_consensus_key"`
 	BakerKey         string                 `json:"baker_consensus_key"`
-	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"notable"`
-	Rights           []Right                `json:"rights,omitempty"    tzpro:"notable"`
+	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"-"`
+	Rights           []Right                `json:"rights,omitempty"    tzpro:"-"`
 	Ops              []*Op                  `json:"-"`
-	columns          []string               `json:"-"`
 }
 
 type Head struct {
@@ -151,11 +148,6 @@ func (b *Block) Head() *Head {
 	}
 }
 
-func (b *Block) WithColumns(cols ...string) *Block {
-	b.columns = cols
-	return b
-}
-
 type BlockList struct {
 	Rows    []*Block
 	columns []string
@@ -179,161 +171,7 @@ func (l *BlockList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("BlockList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		r := &Block{
-			columns: l.columns,
-		}
-		if err := r.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		r.columns = nil
-		l.Rows = append(l.Rows, r)
-	}
-	return nil
-}
-
-func (b *Block) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return b.UnmarshalJSONBrief(data)
-	}
-	type Alias *Block
-	return json.Unmarshal(data, Alias(b))
-}
-
-func (b *Block) UnmarshalJSONBrief(data []byte) error {
-	block := Block{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range b.columns {
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "row_id":
-			block.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "hash":
-			block.Hash, err = tezos.ParseBlockHash(f.(string))
-		case "predecessor":
-			var h tezos.BlockHash
-			h, err = tezos.ParseBlockHash(f.(string))
-			if err == nil {
-				block.ParentHash = &h
-			}
-		case "time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				block.Timestamp = time.Unix(0, ts*1000000).UTC()
-			}
-		case "height":
-			block.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "cycle":
-			block.Cycle, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "is_cycle_snapshot":
-			block.IsCycleSnapshot, err = strconv.ParseBool(f.(json.Number).String())
-		case "solvetime":
-			block.Solvetime, err = strconv.Atoi(f.(json.Number).String())
-		case "version":
-			block.Version, err = strconv.Atoi(f.(json.Number).String())
-		case "round":
-			block.Round, err = strconv.Atoi(f.(json.Number).String())
-		case "nonce":
-			block.Nonce = f.(string)
-		case "voting_period_kind":
-			block.VotingPeriodKind = tezos.ParseVotingPeriod(f.(string))
-		case "baker_id":
-			block.BakerId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "baker":
-			block.Baker, err = tezos.ParseAddress(f.(string))
-		case "proposer_id":
-			block.ProposerId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "proposer":
-			block.Proposer, err = tezos.ParseAddress(f.(string))
-		case "n_endorsed_slots":
-			block.NSlotsEndorsed, err = strconv.Atoi(f.(json.Number).String())
-		case "n_ops_applied":
-			block.NOpsApplied, err = strconv.Atoi(f.(json.Number).String())
-		case "n_ops_failed":
-			block.NOpsFailed, err = strconv.Atoi(f.(json.Number).String())
-		case "n_calls":
-			block.NContractCalls, err = strconv.Atoi(f.(json.Number).String())
-		case "n_rollup_calls":
-			block.NRollupCalls, err = strconv.Atoi(f.(json.Number).String())
-		case "n_tx":
-			block.NTx, err = strconv.Atoi(f.(json.Number).String())
-		case "n_events":
-			block.NEvents, err = strconv.Atoi(f.(json.Number).String())
-		case "n_tickets":
-			block.NTickets, err = strconv.Atoi(f.(json.Number).String())
-		case "volume":
-			block.Volume, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "fee":
-			block.Fee, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "reward":
-			block.Reward, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "deposit":
-			block.Deposit, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "activated_supply":
-			block.ActivatedSupply, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "minted_supply":
-			block.MintedSupply, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "burned_supply":
-			block.BurnedSupply, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "n_accounts":
-			block.SeenAccounts, err = strconv.Atoi(f.(json.Number).String())
-		case "n_new_accounts":
-			block.NewAccounts, err = strconv.Atoi(f.(json.Number).String())
-		case "n_new_contracts":
-			block.NewContracts, err = strconv.Atoi(f.(json.Number).String())
-		case "n_cleared_accounts":
-			block.ClearedAccounts, err = strconv.Atoi(f.(json.Number).String())
-		case "n_funded_accounts":
-			block.FundedAccounts, err = strconv.Atoi(f.(json.Number).String())
-		case "gas_limit":
-			block.GasLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "gas_used":
-			block.GasUsed, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "storage_paid":
-			block.StoragePaid, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "pct_account_reuse":
-			block.PctAccountReuse, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "lb_esc_vote":
-			block.LbEscapeVote = f.(string)
-		case "lb_esc_ema":
-			block.LbEscapeEma, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "protocol":
-			block.Protocol, err = tezos.ParseProtocolHash(f.(string))
-		case "proposer_consensus_key_id":
-			block.ProposerKeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "baker_consensus_key_id":
-			block.BakerKeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "proposer_consensus_key":
-			block.ProposerKey = f.(string)
-		case "baker_consensus_key":
-			block.BakerKey = f.(string)
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*b = block
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
 type BlockQuery struct {
@@ -353,17 +191,6 @@ func (q BlockQuery) Run(ctx context.Context) (*BlockList, error) {
 	}
 	return result, nil
 }
-
-// func (c *Client) QueryBlocks(ctx context.Context, filter FilterList, cols []string) (*BlockList, error) {
-// 	q := c.NewBlockQuery()
-// 	if len(cols) > 0 {
-// 		q.Columns = cols
-// 	}
-// 	if len(filter) > 0 {
-// 		q.Filter = filter
-// 	}
-// 	return q.Run(ctx)
-// }
 
 type BlockParams = Params[Block]
 

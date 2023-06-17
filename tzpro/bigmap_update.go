@@ -7,10 +7,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/micheline"
@@ -76,8 +74,6 @@ type BigmapUpdateRow struct {
 	Value    string               `json:"value,omitempty"`
 	Height   int64                `json:"height"`
 	Time     time.Time            `json:"time"`
-
-	columns []string `json:"-"`
 }
 
 func (r BigmapUpdateRow) Event() (ev micheline.BigmapEvent) {
@@ -213,81 +209,7 @@ func (l *BigmapUpdateRowList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("BigmapUpdateRowList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		b := &BigmapUpdateRow{
-			columns: l.columns,
-		}
-		if err := b.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		b.columns = nil
-		l.Rows = append(l.Rows, b)
-	}
-	return nil
-}
-
-func (b *BigmapUpdateRow) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return b.UnmarshalJSONBrief(data)
-	}
-	type Alias *BigmapUpdateRow
-	return json.Unmarshal(data, Alias(b))
-}
-
-func (b *BigmapUpdateRow) UnmarshalJSONBrief(data []byte) error {
-	br := BigmapUpdateRow{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range b.columns {
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "row_id":
-			br.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "bigmap_id":
-			br.BigmapId, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "action":
-			br.Action, err = micheline.ParseDiffAction(f.(string))
-		case "key_id":
-			br.KeyId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "hash":
-			br.Hash, err = tezos.ParseExprHash(f.(string))
-		case "key":
-			br.Key = f.(string)
-		case "value":
-			br.Value = f.(string)
-		case "height":
-			br.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				br.Time = time.Unix(0, ts*1000000).UTC()
-			}
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*b = br
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
 type BigmapUpdateQuery struct {

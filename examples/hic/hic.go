@@ -24,7 +24,7 @@ var (
 	flags   = flag.NewFlagSet("hic", flag.ContinueOnError)
 	verbose bool
 	nofail  bool
-	index   string
+	api     string
 	ipfs    string
 	offset  int
 	store   string
@@ -34,7 +34,7 @@ func init() {
 	flags.Usage = func() {}
 	flags.BoolVar(&verbose, "v", false, "be verbose")
 	flags.BoolVar(&nofail, "nofail", false, "no fail on IPFS error")
-	flags.StringVar(&index, "index", "https://api.tzpro.io", "TzStats API URL")
+	flags.StringVar(&api, "api", "https://api.tzpro.io", "TzStats API URL")
 	flags.StringVar(&ipfs, "ipfs", "https://ipfs.tzstats.com", "IPFS gateway URL")
 	flags.IntVar(&offset, "offset", 0, "NFT List offset")
 	flags.StringVar(&store, "store", "nfts/", "path where we store metadata downloaded frm IPFS")
@@ -110,7 +110,7 @@ func run() error {
 	ctx := context.Background()
 
 	// create a new SDK client
-	c, err := tzpro.NewClient(index, nil)
+	c, err := tzpro.NewClient(api, nil)
 	if err != nil {
 		return err
 	}

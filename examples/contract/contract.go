@@ -24,19 +24,23 @@ import (
 
 var (
 	flags      = flag.NewFlagSet("contract", flag.ContinueOnError)
-	verbose    bool
 	withPrim   bool
 	withUnpack bool
 	nocolor    bool
 	node       string
-	index      string
+	api        string
+	verbose    bool
+	vdebug     bool
+	vtrace     bool
 )
 
 func init() {
 	flags.Usage = func() {}
-	flags.BoolVar(&verbose, "v", false, "be verbose")
-	flags.StringVar(&node, "node", "http://127.0.0.1:8732", "Tezos node url")
-	flags.StringVar(&index, "index", "http://127.0.0.1:8000", "TzPro API url")
+	flag.BoolVar(&verbose, "v", false, "verbose")
+	flag.BoolVar(&vdebug, "vv", false, "debug")
+	flag.BoolVar(&vtrace, "vvv", false, "trace")
+	flags.StringVar(&node, "node", "https://rpc.tzpro.io", "Tezos node url")
+	flags.StringVar(&api, "api", "https://api.tzpro.io", "TzPro API url")
 	flags.BoolVar(&withPrim, "prim", false, "show primitives")
 	flags.BoolVar(&withUnpack, "unpack", false, "unpack packed contract data")
 	flags.BoolVar(&nocolor, "no-color", false, "disable color output")
@@ -58,11 +62,14 @@ func main() {
 		log.Fatal("Error:", err)
 		os.Exit(1)
 	}
-
-	if verbose {
+	switch {
+	case verbose:
+		log.SetLevel(log.LevelInfo)
+	case vdebug:
 		log.SetLevel(log.LevelDebug)
+	case vtrace:
+		log.SetLevel(log.LevelTrace)
 	}
-
 	if err := run(); err != nil {
 		if e, ok := tzpro.IsApiError(err); ok {
 			fmt.Printf("Error: %s: %s\n", e.Errors[0].Message, e.Errors[0].Detail)
@@ -85,7 +92,7 @@ func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, err := tzpro.NewClient(index, nil)
+	c, err := tzpro.NewClient(api, nil)
 	if err != nil {
 		return err
 	}

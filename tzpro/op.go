@@ -6,15 +6,22 @@ package tzpro
 import (
 	"bytes"
 	"context"
-	"encoding/binary"
+	// "encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"strconv"
+	// "strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/micheline"
 	"blockwatch.cc/tzgo/tezos"
+)
+
+var (
+	ErrNoStorage    = errors.New("no storage")
+	ErrNoParams     = errors.New("no parameters")
+	ErrNoBigmapDiff = errors.New("no bigmap diff")
 )
 
 type Costs struct {
@@ -41,67 +48,66 @@ func (x Costs) Sum() float64 {
 }
 
 type Op struct {
-	Id           uint64                 `json:"id"`
-	Type         OpType                 `json:"type"`
-	Hash         tezos.OpHash           `json:"hash"`
-	Height       int64                  `json:"height"`
-	Cycle        int64                  `json:"cycle"`
-	Timestamp    time.Time              `json:"time"`
-	OpN          int                    `json:"op_n"`
-	OpP          int                    `json:"op_p"`
-	Status       tezos.OpStatus         `json:"status"`
-	IsSuccess    bool                   `json:"is_success"`
-	IsContract   bool                   `json:"is_contract"`
-	IsInternal   bool                   `json:"is_internal"`
-	IsEvent      bool                   `json:"is_event"`
-	IsRollup     bool                   `json:"is_rollup"`
-	Counter      int64                  `json:"counter"`
-	GasLimit     int64                  `json:"gas_limit"`
-	GasUsed      int64                  `json:"gas_used"`
-	StorageLimit int64                  `json:"storage_limit"`
-	StoragePaid  int64                  `json:"storage_paid"`
-	Volume       float64                `json:"volume"`
-	Fee          float64                `json:"fee"`
-	Reward       float64                `json:"reward"`
-	Deposit      float64                `json:"deposit"`
-	Burned       float64                `json:"burned"`
-	SenderId     uint64                 `json:"sender_id"`
-	ReceiverId   uint64                 `json:"receiver_id"`
-	CreatorId    uint64                 `json:"creator_id"`
-	BakerId      uint64                 `json:"baker_id"`
-	Data         json.RawMessage        `json:"data,omitempty"`
-	Parameters   *ContractParameters    `json:"parameters,omitempty"` // transaction
-	StorageHash  uint64                 `json:"storage_hash,omitempty"`
-	CodeHash     string                 `json:"code_hash,omitempty"`
-	Errors       json.RawMessage        `json:"errors,omitempty"`
-	Sender       tezos.Address          `json:"sender"`
-	Receiver     tezos.Address          `json:"receiver"`
-	Creator      tezos.Address          `json:"creator"` // origination
-	Baker        tezos.Address          `json:"baker"`   // delegation, origination
-	Block        tezos.BlockHash        `json:"block"`
-	Entrypoint   string                 `json:"entrypoint,omitempty"`
-	BigmapDiff   BigmapUpdates          `json:"big_map_diff,omitempty"` // transaction, origination
-	BigmapEvents micheline.BigmapEvents `json:"-"`                      // raw, transaction, origination
+	Id           uint64          `json:"id"`
+	Type         OpType          `json:"type"`
+	Hash         tezos.OpHash    `json:"hash"`
+	Height       int64           `json:"height"`
+	Cycle        int64           `json:"cycle"`
+	Timestamp    time.Time       `json:"time"`
+	OpN          int             `json:"op_n"`
+	OpP          int             `json:"op_p"`
+	Status       tezos.OpStatus  `json:"status"`
+	IsSuccess    bool            `json:"is_success"`
+	IsContract   bool            `json:"is_contract"`
+	IsInternal   bool            `json:"is_internal"`
+	IsEvent      bool            `json:"is_event"`
+	IsRollup     bool            `json:"is_rollup"`
+	Counter      int64           `json:"counter"`
+	GasLimit     int64           `json:"gas_limit"`
+	GasUsed      int64           `json:"gas_used"`
+	StorageLimit int64           `json:"storage_limit"`
+	StoragePaid  int64           `json:"storage_paid"`
+	Volume       float64         `json:"volume"`
+	Fee          float64         `json:"fee"`
+	Reward       float64         `json:"reward"`
+	Deposit      float64         `json:"deposit"`
+	Burned       float64         `json:"burned"`
+	SenderId     uint64          `json:"sender_id"`
+	ReceiverId   uint64          `json:"receiver_id"`
+	CreatorId    uint64          `json:"creator_id"`
+	BakerId      uint64          `json:"baker_id"`
+	Data         json.RawMessage `json:"data,omitempty"`
+	Parameters   json.RawMessage `json:"parameters,omitempty"`
+	StorageHash  string          `json:"storage_hash,omitempty"`
+	CodeHash     string          `json:"code_hash,omitempty"`
+	Errors       json.RawMessage `json:"errors,omitempty"`
+	Sender       tezos.Address   `json:"sender"`
+	Receiver     tezos.Address   `json:"receiver"`
+	Creator      tezos.Address   `json:"creator"` // origination
+	Baker        tezos.Address   `json:"baker"`   // delegation, origination
+	Block        tezos.BlockHash `json:"block"`
+	Entrypoint   string          `json:"entrypoint,omitempty"`
 
 	// explorer or ZMQ APIs only
-	PrevBaker     tezos.Address       `json:"previous_baker"     tzpro:"notable"` // delegation
-	Source        tezos.Address       `json:"source"             tzpro:"notable"` // internal operations
-	Offender      tezos.Address       `json:"offender"           tzpro:"notable"` // double_x
-	Accuser       tezos.Address       `json:"accuser"            tzpro:"notable"` // double_x
-	Loser         tezos.Address       `json:"loser"              tzpro:"notable"` // smart rollup refutation game
-	Winner        tezos.Address       `json:"winner"             tzpro:"notable"` // smart rollup refutation game
-	Staker        tezos.Address       `json:"staker"             tzpro:"notable"` // smart rollup refutation game
-	Storage       *ContractValue      `json:"storage,omitempty"  tzpro:"notable"` // transaction, origination
-	Script        *micheline.Script   `json:"script,omitempty"   tzpro:"notable"` // origination
-	Power         int                 `json:"power,omitempty"    tzpro:"notable"` // endorsement
-	Limit         *float64            `json:"limit,omitempty"    tzpro:"notable"` // set deposits limit
-	Confirmations int64               `json:"confirmations"      tzpro:"notable"`
-	NOps          int                 `json:"n_ops,omitempty"    tzpro:"notable"`
-	Batch         []*Op               `json:"batch,omitempty"    tzpro:"notable"`
-	Internal      []*Op               `json:"internal,omitempty" tzpro:"notable"`
-	Metadata      map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
-	Events        []Event             `json:"events,omitempty"   tzpro:"notable"`
-	TicketUpdates []TicketUpdate      `json:"ticket_updates,omitempty"   tzpro:"notable"`
+	PrevBaker     tezos.Address       `json:"previous_baker"            tzpro:"-"` // delegation
+	Source        tezos.Address       `json:"source"                    tzpro:"-"` // internal operations
+	Offender      tezos.Address       `json:"offender"                  tzpro:"-"` // double_x
+	Accuser       tezos.Address       `json:"accuser"                   tzpro:"-"` // double_x
+	Loser         tezos.Address       `json:"loser"                     tzpro:"-"` // smart rollup refutation game
+	Winner        tezos.Address       `json:"winner"                    tzpro:"-"` // smart rollup refutation game
+	Staker        tezos.Address       `json:"staker"                    tzpro:"-"` // smart rollup refutation game
+	Storage       json.RawMessage     `json:"storage,omitempty"         tzpro:"-"` // transaction, origination
+	BigmapDiff    json.RawMessage     `json:"big_map_diff,omitempty"  tzpro:"-"`   // transaction, origination
+	Script        *micheline.Script   `json:"script,omitempty"          tzpro:"-"` // origination
+	Power         int                 `json:"power,omitempty"           tzpro:"-"` // endorsement
+	Limit         *float64            `json:"limit,omitempty"           tzpro:"-"` // set deposits limit
+	Confirmations int64               `json:"confirmations"             tzpro:"-"`
+	NOps          int                 `json:"n_ops,omitempty"           tzpro:"-"`
+	Batch         []*Op               `json:"batch,omitempty"           tzpro:"-"`
+	Internal      []*Op               `json:"internal,omitempty"        tzpro:"-"`
+	Metadata      map[string]Metadata `json:"metadata,omitempty"        tzpro:"-"`
+	Events        []Event             `json:"events,omitempty"          tzpro:"-"`
+	TicketUpdates []TicketUpdate      `json:"ticket_updates,omitempty"  tzpro:"-"`
 
 	columns  []string                 // optional, for decoding bulk arrays
 	param    micheline.Type           // optional, may be decoded from script
@@ -223,6 +229,226 @@ func (o Op) Costs() Costs {
 	}
 }
 
+func (o Op) DecodeParams() (*ContractParameters, error) {
+	if o.Parameters == nil {
+		return nil, ErrNoParams
+	}
+	switch o.Parameters[0] {
+	case '"':
+		buf, err := hex.DecodeString(string(o.Parameters[1 : len(o.Parameters)-1]))
+		if err != nil && !o.noFail {
+			return nil, err
+		}
+		params := &micheline.Parameters{}
+		err = params.UnmarshalBinary(buf)
+		if err != nil && !o.noFail {
+			return nil, err
+		}
+		ep, prim, _ := params.MapEntrypoint(o.param)
+		cp := &ContractParameters{
+			Entrypoint: ep.Name,
+		}
+		if o.withPrim {
+			cp.ContractValue.Prim = &prim
+		} else {
+			// strip entrypoint name annot
+			typ := ep.Type()
+			typ.Prim.Anno = nil
+			val := micheline.NewValue(typ, prim)
+			val.Render = o.onError
+			cp.ContractValue.Value, err = val.Map()
+			if err != nil && !o.noFail {
+				return nil, fmt.Errorf("op %s (%d) decoding params %s: %v", o.Hash, o.Id, string(o.Parameters), err)
+			}
+		}
+		return cp, nil
+	case '{':
+		cp := &ContractParameters{}
+		err := json.Unmarshal(o.Parameters, cp)
+		return cp, err
+	}
+	return nil, ErrNoParams
+}
+
+func (o Op) DecodeStoragePrim() (prim micheline.Prim, err error) {
+	if o.Storage == nil {
+		err = ErrNoStorage
+		return
+	}
+	switch o.Storage[0] {
+	case '"':
+		var buf []byte
+		buf, err = hex.DecodeString(string(o.Storage[1 : len(o.Storage)-1]))
+		if err != nil && !o.noFail {
+			return
+		}
+		err = prim.UnmarshalBinary(buf)
+		if err != nil && !o.noFail {
+			return
+		}
+		err = nil
+		return
+	default:
+		cv := &ContractValue{}
+		err := json.Unmarshal(o.Storage, cv)
+		return *cv.Prim, err
+	}
+}
+
+func (o Op) DecodeStorage() (*ContractValue, error) {
+	if o.Storage == nil {
+		return nil, ErrNoStorage
+	}
+	switch o.Storage[0] {
+	case '"':
+		buf, err := hex.DecodeString(string(o.Storage[1 : len(o.Storage)-1]))
+		if err != nil && !o.noFail {
+			return nil, err
+		}
+		var prim micheline.Prim
+		err = prim.UnmarshalBinary(buf)
+		if err != nil && !o.noFail {
+			return nil, err
+		}
+		cv := &ContractValue{}
+		if o.store.IsValid() {
+			val := micheline.NewValue(o.store, prim)
+			val.Render = o.onError
+			cv.Value, err = val.Map()
+			if err != nil && !o.noFail {
+				return nil, fmt.Errorf("op %s (%d) decoding storage %s: %v", o.Hash, o.Id, string(o.Storage), err)
+			}
+		} else {
+			cv.Prim = &prim
+		}
+		return cv, nil
+	default:
+		cv := &ContractValue{}
+		err := json.Unmarshal(o.Storage, cv)
+		return cv, err
+	}
+}
+
+func (o Op) DecodeBigmapEvents() (micheline.BigmapEvents, error) {
+	if o.BigmapDiff == nil {
+		return nil, ErrNoBigmapDiff
+	}
+	switch o.BigmapDiff[0] {
+	case '"':
+		// hex encoded low-level events
+		buf, err := hex.DecodeString(string(o.BigmapDiff[1 : len(o.BigmapDiff)-1]))
+		if err != nil && !o.noFail {
+			return nil, err
+		}
+		events := make(micheline.BigmapEvents, 0)
+		err = events.UnmarshalBinary(buf)
+		if err != nil && !o.noFail {
+			return nil, err
+		}
+		return events, nil
+	default:
+		// json encoded high-level updates
+		updates, err := o.DecodeBigmapUpdates()
+		if err != nil {
+			return nil, err
+		}
+		return updates.Events(), nil
+	}
+}
+
+func (o Op) DecodeBigmapUpdates() (BigmapUpdates, error) {
+	if o.BigmapDiff == nil {
+		return nil, ErrNoBigmapDiff
+	}
+	switch o.BigmapDiff[0] {
+	case '"':
+		events, err := o.DecodeBigmapEvents()
+		if err != nil {
+			return nil, err
+		}
+		updates := make(BigmapUpdates, 0, len(events))
+		if o.withPrim {
+			// decode prim only
+			for _, v := range events {
+				upd := BigmapUpdate{
+					Action:   v.Action,
+					BigmapId: v.Id,
+				}
+				switch v.Action {
+				case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+					kt, vt := v.KeyType.Clone(), v.ValueType.Clone()
+					upd.KeyTypePrim = &kt
+					upd.ValueTypePrim = &vt
+				case micheline.DiffActionUpdate:
+					key, val := v.Key.Clone(), v.Value.Clone()
+					upd.KeyPrim, upd.ValuePrim = &key, &val
+				case micheline.DiffActionRemove:
+					key := v.Key.Clone()
+					upd.KeyPrim = &key
+				}
+				updates = append(updates, upd)
+			}
+		} else {
+			// full key/value unpack, requires script type
+			for _, v := range events {
+				var ktyp, vtyp micheline.Type
+				if typ, ok := o.bigmaps[v.Id]; ok {
+					ktyp, vtyp = typ.Left(), typ.Right()
+				} else {
+					ktyp = v.Key.BuildType()
+				}
+				upd := BigmapUpdate{
+					Action:   v.Action,
+					BigmapId: v.Id,
+				}
+				switch v.Action {
+				case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+					// alloc/copy only
+					upd.KeyType = micheline.Type{Prim: v.KeyType}.TypedefPtr("@key")
+					upd.ValueType = micheline.Type{Prim: v.ValueType}.TypedefPtr("@value")
+					upd.SourceId = v.SourceId
+					upd.DestId = v.DestId
+				default:
+					// update/remove only
+					if !v.Key.IsEmptyBigmap() {
+						keybuf, _ := v.GetKey(ktyp).MarshalJSON()
+						mk := MultiKey{}
+						_ = mk.UnmarshalJSON(keybuf)
+						upd.Key = mk
+						upd.Hash = v.KeyHash
+					}
+					if o.withMeta {
+						upd.Meta = &BigmapMeta{
+							Contract:     o.Receiver,
+							BigmapId:     v.Id,
+							UpdateTime:   o.Timestamp,
+							UpdateHeight: o.Height,
+						}
+					}
+					if v.Action == micheline.DiffActionUpdate {
+						// unpack value if type is known
+						if vtyp.IsValid() {
+							val := micheline.NewValue(vtyp, v.Value)
+							val.Render = o.onError
+							upd.Value, err = val.Map()
+							if err != nil && !o.noFail {
+								return nil, fmt.Errorf("op %s (%d) decoding bigmap %d/%s: %v", o.Hash, o.Id, v.Id, v.KeyHash, err)
+							}
+						}
+					}
+				}
+				updates = append(updates, upd)
+			}
+		}
+		return updates, nil
+	default:
+		// json encoded high-level updates
+		var bmu BigmapUpdates
+		err := json.Unmarshal(o.BigmapDiff, &bmu)
+		return bmu, err
+	}
+}
+
 type OpGroup []*Op
 
 func (og OpGroup) Costs() Costs {
@@ -261,295 +487,298 @@ func (l *OpList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("OpList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		op := &Op{
-			withPrim: l.withPrim,
-			noFail:   l.noFail,
-			columns:  l.columns,
-		}
-		// we may need contract scripts
-		if is, ok := getTableColumn(v, l.columns, "is_contract"); ok && is == "1" {
-			recv, ok := getTableColumn(v, l.columns, "receiver")
-			if ok && recv != "" && recv != "null" {
-				addr, err := tezos.ParseAddress(recv)
-				if err != nil {
-					return fmt.Errorf("decode: invalid receiver address %s: %v", recv, err)
-				}
-				// load contract type info (required for decoding storage/param data)
-				script, err := l.client.loadCachedContractScript(l.ctx, addr)
-				if err != nil {
-					return err
-				}
-				op = op.WithScript(script)
-			}
-		}
-		if err := op.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		op.columns = nil
-		l.Rows = append(l.Rows, op)
-	}
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
-func (o *Op) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return o.UnmarshalJSONBrief(data)
-	}
-	type Alias *Op
-	return json.Unmarshal(data, Alias(o))
-}
+// 	array := make([]json.RawMessage, 0)
+// 	if err := json.Unmarshal(data, &array); err != nil {
+// 		return err
+// 	}
+// 	for _, v := range array {
+// 		op := &Op{
+// 			withPrim: l.withPrim,
+// 			noFail:   l.noFail,
+// 			columns:  l.columns,
+// 		}
+// 		// we may need contract scripts
+// 		if is, ok := getTableColumn(v, l.columns, "is_contract"); ok && is == "1" {
+// 			recv, ok := getTableColumn(v, l.columns, "receiver")
+// 			if ok && recv != "" && recv != "null" {
+// 				addr, err := tezos.ParseAddress(recv)
+// 				if err != nil {
+// 					return fmt.Errorf("decode: invalid receiver address %s: %v", recv, err)
+// 				}
+// 				// load contract type info (required for decoding storage/param data)
+// 				script, err := l.client.loadCachedContractScript(l.ctx, addr)
+// 				if err != nil {
+// 					return err
+// 				}
+// 				op = op.WithScript(script)
+// 			}
+// 		}
+// 		if err := op.UnmarshalJSON(v); err != nil {
+// 			return err
+// 		}
+// 		op.columns = nil
+// 		l.Rows = append(l.Rows, op)
+// 	}
+// 	return nil
+// }
 
-func (o *Op) UnmarshalJSONBrief(data []byte) error {
-	op := Op{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range o.columns {
-		var buf []byte
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "id":
-			op.Id, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "type":
-			op.Type = ParseOpType(f.(string))
-		case "hash":
-			op.Hash, err = tezos.ParseOpHash(f.(string))
-		case "height":
-			op.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "block":
-			op.Block, err = tezos.ParseBlockHash(f.(string))
-		case "time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				op.Timestamp = time.Unix(0, ts*1000000).UTC()
-			}
-		case "cycle":
-			op.Cycle, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "counter":
-			op.Counter, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "op_n":
-			op.OpN, err = strconv.Atoi(f.(json.Number).String())
-		case "op_p":
-			op.OpP, err = strconv.Atoi(f.(json.Number).String())
-		case "status":
-			op.Status = tezos.ParseOpStatus(f.(string))
-		case "is_success":
-			op.IsSuccess, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_contract":
-			op.IsContract, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_event":
-			op.IsEvent, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_internal":
-			op.IsInternal, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_rollup":
-			op.IsRollup, err = strconv.ParseBool(f.(json.Number).String())
-		case "gas_limit":
-			op.GasLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "gas_used":
-			op.GasUsed, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "storage_limit":
-			op.StorageLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "storage_paid":
-			op.StoragePaid, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "volume":
-			op.Volume, err = f.(json.Number).Float64()
-		case "fee":
-			op.Fee, err = f.(json.Number).Float64()
-		case "reward":
-			op.Reward, err = f.(json.Number).Float64()
-		case "deposit":
-			op.Deposit, err = f.(json.Number).Float64()
-		case "burned":
-			op.Burned, err = f.(json.Number).Float64()
-		case "sender_id":
-			op.SenderId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "receiver_id":
-			op.ReceiverId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "creator_id":
-			op.CreatorId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "baker_id":
-			op.BakerId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "sender":
-			op.Sender, err = tezos.ParseAddress(f.(string))
-		case "receiver":
-			op.Receiver, err = tezos.ParseAddress(f.(string))
-		case "creator":
-			op.Creator, err = tezos.ParseAddress(f.(string))
-		case "baker":
-			op.Baker, err = tezos.ParseAddress(f.(string))
-		case "data":
-			op.Data, err = json.Marshal(f)
-		case "errors":
-			op.Errors, err = json.Marshal(f)
-		case "entrypoint":
-			if op.Parameters == nil {
-				op.Parameters = &ContractParameters{}
-			}
-			op.Parameters.Entrypoint = f.(string)
-			op.Entrypoint = f.(string)
-		case "parameters":
-			// FIXME: support rollup params here
-			var buf []byte
-			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 && !op.IsRollup {
-				params := &micheline.Parameters{}
-				err = params.UnmarshalBinary(buf)
-				if err == nil {
-					ep, prim, _ := params.MapEntrypoint(o.param)
-					op.Parameters = &ContractParameters{
-						Entrypoint: ep.Name,
-					}
-					if o.withPrim {
-						op.Parameters.ContractValue.Prim = &prim
-					} else {
-						// strip entrypoint name annot
-						typ := ep.Type()
-						typ.Prim.Anno = nil
-						val := micheline.NewValue(typ, prim)
-						val.Render = o.onError
-						op.Parameters.ContractValue.Value, err = val.Map()
-						if err != nil {
-							err = fmt.Errorf("op %s (%d) decoding params %s: %v", op.Hash, op.Id, f.(string), err)
-						}
-					}
-				}
-			}
-		case "storage_hash":
-			buf, err = hex.DecodeString(f.(string))
-			op.StorageHash = binary.BigEndian.Uint64(buf[:8])
-		case "storage":
-			// ZMQ only
-			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
-				prim := micheline.Prim{}
-				err = prim.UnmarshalBinary(buf)
-				if err == nil {
-					op.Storage = &ContractValue{}
-					if o.withPrim {
-						op.Storage.Prim = &prim
-					} else if o.store.IsValid() {
-						val := micheline.NewValue(o.store, prim)
-						val.Render = o.onError
-						op.Storage.Value, err = val.Map()
-						if err != nil {
-							err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
-						}
-					}
-				}
-			}
-		case "big_map_diff":
-			// ZMQ and table
-			var buf []byte
-			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
-				op.BigmapEvents = make(micheline.BigmapEvents, 0)
-				err = op.BigmapEvents.UnmarshalBinary(buf)
-				if err == nil {
-					op.BigmapDiff = make(BigmapUpdates, 0, len(op.BigmapEvents))
-					if o.withPrim {
-						// decode prim only
-						for _, v := range op.BigmapEvents {
-							upd := BigmapUpdate{
-								Action:   v.Action,
-								BigmapId: v.Id,
-							}
-							switch v.Action {
-							case micheline.DiffActionAlloc, micheline.DiffActionCopy:
-								kt, vt := v.KeyType.Clone(), v.ValueType.Clone()
-								upd.KeyTypePrim = &kt
-								upd.ValueTypePrim = &vt
-							case micheline.DiffActionUpdate:
-								key, val := v.Key.Clone(), v.Value.Clone()
-								upd.KeyPrim, upd.ValuePrim = &key, &val
-							case micheline.DiffActionRemove:
-								key := v.Key.Clone()
-								upd.KeyPrim = &key
-							}
-							op.BigmapDiff = append(op.BigmapDiff, upd)
-						}
-					} else {
-						// full key/value unpack, requires script type
-						for _, v := range op.BigmapEvents {
-							var ktyp, vtyp micheline.Type
-							if typ, ok := o.bigmaps[v.Id]; ok {
-								ktyp, vtyp = typ.Left(), typ.Right()
-							} else {
-								ktyp = v.Key.BuildType()
-							}
-							upd := BigmapUpdate{
-								Action:   v.Action,
-								BigmapId: v.Id,
-							}
-							switch v.Action {
-							case micheline.DiffActionAlloc, micheline.DiffActionCopy:
-								// alloc/copy only
-								upd.KeyType = micheline.Type{Prim: v.KeyType}.TypedefPtr("@key")
-								upd.ValueType = micheline.Type{Prim: v.ValueType}.TypedefPtr("@value")
-								upd.SourceId = v.SourceId
-								upd.DestId = v.DestId
-							default:
-								// update/remove only
-								if !v.Key.IsEmptyBigmap() {
-									keybuf, _ := v.GetKey(ktyp).MarshalJSON()
-									mk := MultiKey{}
-									_ = mk.UnmarshalJSON(keybuf)
-									upd.Key = mk
-									upd.Hash = v.KeyHash
-								}
-								if o.withMeta {
-									upd.Meta = &BigmapMeta{
-										Contract:     op.Receiver,
-										BigmapId:     v.Id,
-										UpdateTime:   op.Timestamp,
-										UpdateHeight: op.Height,
-									}
-								}
-								if v.Action == micheline.DiffActionUpdate {
-									// unpack value if type is known
-									if vtyp.IsValid() {
-										val := micheline.NewValue(vtyp, v.Value)
-										val.Render = o.onError
-										upd.Value, err = val.Map()
-										if err != nil {
-											err = fmt.Errorf("op %s (%d) decoding bigmap %d/%s: %v", op.Hash, op.Id, v.Id, v.KeyHash, err)
-										}
-									}
-								}
-							}
-							if err != nil {
-								break
-							}
-							op.BigmapDiff = append(op.BigmapDiff, upd)
-						}
-					}
-				}
-			}
-		case "code_hash":
-			op.CodeHash = f.(string)
-		}
-		if err != nil && !op.noFail {
-			return err
-		}
-	}
-	*o = op
-	return nil
-}
+// func (o *Op) UnmarshalJSON(data []byte) error {
+// 	if len(data) == 0 || bytes.Equal(data, null) {
+// 		return nil
+// 	}
+// 	if len(data) == 2 {
+// 		return nil
+// 	}
+// 	if data[0] == '[' {
+// 		return o.UnmarshalJSONBrief(data)
+// 	}
+// 	type Alias *Op
+// 	return json.Unmarshal(data, Alias(o))
+// }
+
+// func (o *Op) UnmarshalJSONBrief(data []byte) error {
+// 	op := Op{}
+// 	dec := json.NewDecoder(bytes.NewReader(data))
+// 	dec.UseNumber()
+// 	unpacked := make([]interface{}, 0)
+// 	err := dec.Decode(&unpacked)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	for i, v := range o.columns {
+// 		var buf []byte
+// 		f := unpacked[i]
+// 		if f == nil {
+// 			continue
+// 		}
+// 		switch v {
+// 		case "id":
+// 			op.Id, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+// 		case "type":
+// 			op.Type = ParseOpType(f.(string))
+// 		case "hash":
+// 			op.Hash, err = tezos.ParseOpHash(f.(string))
+// 		case "height":
+// 			op.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "block":
+// 			op.Block, err = tezos.ParseBlockHash(f.(string))
+// 		case "time":
+// 			var ts int64
+// 			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 			if err == nil {
+// 				op.Timestamp = time.Unix(0, ts*1000000).UTC()
+// 			}
+// 		case "cycle":
+// 			op.Cycle, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "counter":
+// 			op.Counter, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "op_n":
+// 			op.OpN, err = strconv.Atoi(f.(json.Number).String())
+// 		case "op_p":
+// 			op.OpP, err = strconv.Atoi(f.(json.Number).String())
+// 		case "status":
+// 			op.Status = tezos.ParseOpStatus(f.(string))
+// 		case "is_success":
+// 			op.IsSuccess, err = strconv.ParseBool(f.(json.Number).String())
+// 		case "is_contract":
+// 			op.IsContract, err = strconv.ParseBool(f.(json.Number).String())
+// 		case "is_event":
+// 			op.IsEvent, err = strconv.ParseBool(f.(json.Number).String())
+// 		case "is_internal":
+// 			op.IsInternal, err = strconv.ParseBool(f.(json.Number).String())
+// 		case "is_rollup":
+// 			op.IsRollup, err = strconv.ParseBool(f.(json.Number).String())
+// 		case "gas_limit":
+// 			op.GasLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "gas_used":
+// 			op.GasUsed, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "storage_limit":
+// 			op.StorageLimit, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "storage_paid":
+// 			op.StoragePaid, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
+// 		case "volume":
+// 			op.Volume, err = f.(json.Number).Float64()
+// 		case "fee":
+// 			op.Fee, err = f.(json.Number).Float64()
+// 		case "reward":
+// 			op.Reward, err = f.(json.Number).Float64()
+// 		case "deposit":
+// 			op.Deposit, err = f.(json.Number).Float64()
+// 		case "burned":
+// 			op.Burned, err = f.(json.Number).Float64()
+// 		case "sender_id":
+// 			op.SenderId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+// 		case "receiver_id":
+// 			op.ReceiverId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+// 		case "creator_id":
+// 			op.CreatorId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+// 		case "baker_id":
+// 			op.BakerId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
+// 		case "sender":
+// 			op.Sender, err = tezos.ParseAddress(f.(string))
+// 		case "receiver":
+// 			op.Receiver, err = tezos.ParseAddress(f.(string))
+// 		case "creator":
+// 			op.Creator, err = tezos.ParseAddress(f.(string))
+// 		case "baker":
+// 			op.Baker, err = tezos.ParseAddress(f.(string))
+// 		case "data":
+// 			op.Data, err = json.Marshal(f)
+// 		case "errors":
+// 			op.Errors, err = json.Marshal(f)
+// 		case "entrypoint":
+// 			if op.Parameters == nil {
+// 				op.Parameters = &ContractParameters{}
+// 			}
+// 			op.Parameters.Entrypoint = f.(string)
+// 			op.Entrypoint = f.(string)
+// 		case "parameters":
+// 			// FIXME: support rollup params here
+// 			var buf []byte
+// 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 && !op.IsRollup {
+// 				params := &micheline.Parameters{}
+// 				err = params.UnmarshalBinary(buf)
+// 				if err == nil {
+// 					ep, prim, _ := params.MapEntrypoint(o.param)
+// 					op.Parameters = &ContractParameters{
+// 						Entrypoint: ep.Name,
+// 					}
+// 					if o.withPrim {
+// 						op.Parameters.ContractValue.Prim = &prim
+// 					} else {
+// 						// strip entrypoint name annot
+// 						typ := ep.Type()
+// 						typ.Prim.Anno = nil
+// 						val := micheline.NewValue(typ, prim)
+// 						val.Render = o.onError
+// 						op.Parameters.ContractValue.Value, err = val.Map()
+// 						if err != nil {
+// 							err = fmt.Errorf("op %s (%d) decoding params %s: %v", op.Hash, op.Id, f.(string), err)
+// 						}
+// 					}
+// 				}
+// 			}
+// 		case "storage_hash":
+// 			buf, err = hex.DecodeString(f.(string))
+// 			op.StorageHash = binary.BigEndian.Uint64(buf[:8])
+// 		case "storage":
+// 			// ZMQ only
+// 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
+// 				prim := micheline.Prim{}
+// 				err = prim.UnmarshalBinary(buf)
+// 				if err == nil {
+// 					op.Storage = &ContractValue{}
+// 					if o.withPrim {
+// 						op.Storage.Prim = &prim
+// 					} else if o.store.IsValid() {
+// 						val := micheline.NewValue(o.store, prim)
+// 						val.Render = o.onError
+// 						op.Storage.Value, err = val.Map()
+// 						if err != nil {
+// 							err = fmt.Errorf("op %s (%d) decoding storage %s: %v", op.Hash, op.Id, f.(string), err)
+// 						}
+// 					}
+// 				}
+// 			}
+// 		case "big_map_diff":
+// 			// ZMQ and table
+// 			var buf []byte
+// 			if buf, err = hex.DecodeString(f.(string)); err == nil && len(buf) > 0 {
+// 				op.BigmapEvents = make(micheline.BigmapEvents, 0)
+// 				err = op.BigmapEvents.UnmarshalBinary(buf)
+// 				if err == nil {
+// 					op.BigmapDiff = make(BigmapUpdates, 0, len(op.BigmapEvents))
+// 					if o.withPrim {
+// 						// decode prim only
+// 						for _, v := range op.BigmapEvents {
+// 							upd := BigmapUpdate{
+// 								Action:   v.Action,
+// 								BigmapId: v.Id,
+// 							}
+// 							switch v.Action {
+// 							case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+// 								kt, vt := v.KeyType.Clone(), v.ValueType.Clone()
+// 								upd.KeyTypePrim = &kt
+// 								upd.ValueTypePrim = &vt
+// 							case micheline.DiffActionUpdate:
+// 								key, val := v.Key.Clone(), v.Value.Clone()
+// 								upd.KeyPrim, upd.ValuePrim = &key, &val
+// 							case micheline.DiffActionRemove:
+// 								key := v.Key.Clone()
+// 								upd.KeyPrim = &key
+// 							}
+// 							op.BigmapDiff = append(op.BigmapDiff, upd)
+// 						}
+// 					} else {
+// 						// full key/value unpack, requires script type
+// 						for _, v := range op.BigmapEvents {
+// 							var ktyp, vtyp micheline.Type
+// 							if typ, ok := o.bigmaps[v.Id]; ok {
+// 								ktyp, vtyp = typ.Left(), typ.Right()
+// 							} else {
+// 								ktyp = v.Key.BuildType()
+// 							}
+// 							upd := BigmapUpdate{
+// 								Action:   v.Action,
+// 								BigmapId: v.Id,
+// 							}
+// 							switch v.Action {
+// 							case micheline.DiffActionAlloc, micheline.DiffActionCopy:
+// 								// alloc/copy only
+// 								upd.KeyType = micheline.Type{Prim: v.KeyType}.TypedefPtr("@key")
+// 								upd.ValueType = micheline.Type{Prim: v.ValueType}.TypedefPtr("@value")
+// 								upd.SourceId = v.SourceId
+// 								upd.DestId = v.DestId
+// 							default:
+// 								// update/remove only
+// 								if !v.Key.IsEmptyBigmap() {
+// 									keybuf, _ := v.GetKey(ktyp).MarshalJSON()
+// 									mk := MultiKey{}
+// 									_ = mk.UnmarshalJSON(keybuf)
+// 									upd.Key = mk
+// 									upd.Hash = v.KeyHash
+// 								}
+// 								if o.withMeta {
+// 									upd.Meta = &BigmapMeta{
+// 										Contract:     op.Receiver,
+// 										BigmapId:     v.Id,
+// 										UpdateTime:   op.Timestamp,
+// 										UpdateHeight: op.Height,
+// 									}
+// 								}
+// 								if v.Action == micheline.DiffActionUpdate {
+// 									// unpack value if type is known
+// 									if vtyp.IsValid() {
+// 										val := micheline.NewValue(vtyp, v.Value)
+// 										val.Render = o.onError
+// 										upd.Value, err = val.Map()
+// 										if err != nil {
+// 											err = fmt.Errorf("op %s (%d) decoding bigmap %d/%s: %v", op.Hash, op.Id, v.Id, v.KeyHash, err)
+// 										}
+// 									}
+// 								}
+// 							}
+// 							if err != nil {
+// 								break
+// 							}
+// 							op.BigmapDiff = append(op.BigmapDiff, upd)
+// 						}
+// 					}
+// 				}
+// 			}
+// 		case "code_hash":
+// 			op.CodeHash = f.(string)
+// 		}
+// 		if err != nil && !op.noFail {
+// 			return err
+// 		}
+// 	}
+// 	*o = op
+// 	return nil
+// }
 
 type OpQuery struct {
 	tableQuery

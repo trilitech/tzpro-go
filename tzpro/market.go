@@ -228,7 +228,7 @@ func (c *Client) ListCandles(ctx context.Context, args CandleArgs) (*CandleList,
 		if err != nil {
 			panic(err)
 		}
-		args.Columns = tinfo.FilteredAliases("noseries")
+		args.Columns = tinfo.FilteredAliases(fieldFlagIgnore)
 	}
 	resp := &CandleList{
 		Rows:    make([]Candle, 0),

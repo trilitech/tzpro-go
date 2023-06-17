@@ -11,8 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	"strconv"
-	"strings"
 	"time"
 
 	"blockwatch.cc/tzgo/micheline"
@@ -25,30 +23,30 @@ type Contract struct {
 	Address       tezos.Address        `json:"address"`
 	CreatorId     uint64               `json:"creator_id,omitempty"`
 	Creator       tezos.Address        `json:"creator"`
-	BakerId       uint64               `json:"baker_id,omitempty" tzpro:"notable"`
-	Baker         tezos.Address        `json:"baker"              tzpro:"notable"`
+	BakerId       uint64               `json:"baker_id,omitempty"  tzpro:"-"`
+	Baker         tezos.Address        `json:"baker"               tzpro:"-"`
 	FirstSeen     int64                `json:"first_seen"`
 	LastSeen      int64                `json:"last_seen"`
 	FirstSeenTime time.Time            `json:"first_seen_time"`
 	LastSeenTime  time.Time            `json:"last_seen_time"`
 	StorageSize   int64                `json:"storage_size"`
 	StoragePaid   int64                `json:"storage_paid"`
-	TotalFeesUsed float64              `json:"total_fees_used"    tzpro:"notable"`
-	Script        *micheline.Script    `json:"script,omitempty"`
-	Storage       *micheline.Prim      `json:"storage,omitempty"`
+	TotalFeesUsed float64              `json:"total_fees_used"     tzpro:"-"`
+	Script        *micheline.Script    `json:"script,omitempty"    tzpro:"hex"`
+	Storage       *micheline.Prim      `json:"storage,omitempty"   tzpro:"hex"`
 	InterfaceHash string               `json:"iface_hash"`
 	CodeHash      string               `json:"code_hash"`
 	StorageHash   string               `json:"storage_hash"`
-	Features      []string             `json:"features"`
-	Interfaces    []string             `json:"interfaces"`
-	CallStats     map[string]int       `json:"call_stats"`
-	NCallsIn      int                  `json:"n_calls_in"          tzpro:"notable"`
-	NCallsOut     int                  `json:"n_calls_out"         tzpro:"notable"`
-	NCallsFailed  int                  `json:"n_calls_failed"      tzpro:"notable"`
-	Bigmaps       map[string]int64     `json:"bigmaps,omitempty"   tzpro:"notable"`
-	Metadata      map[string]*Metadata `json:"metadata,omitempty"  tzpro:"notable"`
+	Features      StringList           `json:"features"`
+	Interfaces    StringList           `json:"interfaces"`
+	CallStats     map[string]int       `json:"call_stats"          tzpro:"-"`
+	NCallsIn      int                  `json:"n_calls_in"          tzpro:"-"`
+	NCallsOut     int                  `json:"n_calls_out"         tzpro:"-"`
+	NCallsFailed  int                  `json:"n_calls_failed"      tzpro:"-"`
+	Bigmaps       map[string]int64     `json:"bigmaps,omitempty"   tzpro:"-"`
+	Metadata      map[string]*Metadata `json:"metadata,omitempty"  tzpro:"-"`
 
-	columns []string `json:"-"`
+	// columns []string `json:"-"`
 }
 
 func ParseU64(s string) (u uint64) {
@@ -92,134 +90,7 @@ func (l *ContractList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("ContractList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		r := &Contract{
-			columns: l.columns,
-		}
-		if err := r.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		r.columns = nil
-		l.Rows = append(l.Rows, r)
-	}
-	return nil
-}
-
-func (a *Contract) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return a.UnmarshalJSONBrief(data)
-	}
-	type Alias *Contract
-	return json.Unmarshal(data, Alias(a))
-}
-
-func (c *Contract) UnmarshalJSONBrief(data []byte) error {
-	cc := Contract{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range c.columns {
-		// var t int64
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "row_id":
-			cc.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "account_id":
-			cc.AccountId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "address":
-			cc.Address, err = tezos.ParseAddress(f.(string))
-		case "creator_id":
-			cc.CreatorId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "creator":
-			cc.Creator, err = tezos.ParseAddress(f.(string))
-		case "first_seen":
-			cc.FirstSeen, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "last_seen":
-			cc.LastSeen, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "first_seen_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				cc.FirstSeenTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "last_seen_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				cc.LastSeenTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "storage_size":
-			cc.StorageSize, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "storage_paid":
-			cc.StoragePaid, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "script":
-			var buf []byte
-			buf, err = hex.DecodeString(f.(string))
-			if err == nil && len(buf) > 0 {
-				cc.Script = &micheline.Script{}
-				err = cc.Script.UnmarshalBinary(buf)
-			}
-		case "storage":
-			var buf []byte
-			buf, err = hex.DecodeString(f.(string))
-			if err == nil && len(buf) > 0 {
-				cc.Storage = &micheline.Prim{}
-				err = cc.Storage.UnmarshalBinary(buf)
-			}
-		case "iface_hash":
-			cc.InterfaceHash = f.(string)
-		case "code_hash":
-			cc.CodeHash = f.(string)
-		case "storage_hash":
-			cc.StorageHash = f.(string)
-		case "call_stats":
-			var buf []byte
-			buf, err = hex.DecodeString(f.(string))
-			if err == nil && len(buf) > 0 {
-				cc.CallStats = make(map[string]int)
-				if cc.Script != nil {
-					var eps micheline.Entrypoints
-					eps, err = cc.Script.Entrypoints(false)
-					for _, ep := range eps {
-						if len(buf) < ep.Id*4+4 {
-							continue
-						}
-						cc.CallStats[ep.Name] = int(binary.BigEndian.Uint32(buf[ep.Id*4:]))
-					}
-				} else {
-					for i := 0; i < len(buf); i += 4 {
-						cc.CallStats[strconv.Itoa(i/4)] = int(binary.BigEndian.Uint32(buf[i:]))
-					}
-				}
-			}
-		case "features":
-			cc.Features = strings.Split(f.(string), ",")
-		case "interfaces":
-			cc.Interfaces = strings.Split(f.(string), ",")
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*c = cc
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
 type ContractMeta struct {

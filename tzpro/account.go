@@ -6,24 +6,21 @@ package tzpro
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
 )
 
-//nolint:staticcheck
 type Account struct {
 	RowId              uint64              `json:"row_id"`
 	Address            tezos.Address       `json:"address"`
 	AddressType        tezos.AddressType   `json:"address_type"`
 	Pubkey             tezos.Key           `json:"pubkey"`
 	Counter            int64               `json:"counter"`
-	BakerId            uint64              `json:"baker_id,omitempty"`
+	BakerId            uint64              `json:"baker_id,omitempty"    tzpro:"-"`
 	Baker              *tezos.Address      `json:"baker,omitempty"`
-	CreatorId          uint64              `json:"creator_id,omitempty"`
+	CreatorId          uint64              `json:"creator_id,omitempty"  tzpro:"-"`
 	Creator            *tezos.Address      `json:"creator,omitempty"`
 	FirstIn            int64               `json:"first_in"`
 	FirstOut           int64               `json:"first_out"`
@@ -58,10 +55,9 @@ type Account struct {
 	NTxFailed          int                 `json:"n_tx_failed"`
 	NTxOut             int                 `json:"n_tx_out"`
 	NTxIn              int                 `json:"n_tx_in"`
-	LifetimeRewards    float64             `json:"lifetime_rewards,omitempty"`
-	PendingRewards     float64             `json:"pending_rewards,omitempty"`
-	Metadata           map[string]Metadata `json:"metadata,omitempty" tzpro:"notable"`
-	columns            []string            `json:"-"`
+	LifetimeRewards    float64             `json:"lifetime_rewards,omitempty" tzpro:"-"`
+	PendingRewards     float64             `json:"pending_rewards,omitempty"  tzpro:"-"`
+	Metadata           map[string]Metadata `json:"metadata,omitempty"         tzpro:"-"`
 }
 
 type AccountList struct {
@@ -87,179 +83,7 @@ func (l *AccountList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("AccountList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		r := &Account{
-			columns: l.columns,
-		}
-		if err := r.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		r.columns = nil
-		l.Rows = append(l.Rows, r)
-	}
-	return nil
-}
-
-func (a *Account) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return a.UnmarshalJSONBrief(data)
-	}
-	type Alias *Account
-	return json.Unmarshal(data, Alias(a))
-}
-
-func (a *Account) UnmarshalJSONBrief(data []byte) error {
-	acc := Account{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range a.columns {
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "row_id":
-			acc.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "address":
-			acc.Address, err = tezos.ParseAddress(f.(string))
-		case "address_type":
-			acc.AddressType = tezos.ParseAddressType(f.(string))
-		case "pubkey":
-			acc.Pubkey, err = tezos.ParseKey(f.(string))
-		case "counter":
-			acc.Counter, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "baker_id":
-			acc.BakerId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "baker":
-			var a tezos.Address
-			a, err = tezos.ParseAddress(f.(string))
-			if err == nil {
-				acc.Baker = &a
-			}
-		case "creator_id":
-			acc.CreatorId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "creator":
-			var a tezos.Address
-			a, err = tezos.ParseAddress(f.(string))
-			if err == nil {
-				acc.Creator = &a
-			}
-		case "first_in":
-			acc.FirstIn, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "first_out":
-			acc.FirstOut, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "first_seen":
-			acc.FirstSeen, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "last_in":
-			acc.LastIn, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "last_out":
-			acc.LastOut, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "last_seen":
-			acc.LastSeen, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "delegated_since":
-			acc.DelegatedSince, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "total_received":
-			acc.TotalReceived, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "total_sent":
-			acc.TotalSent, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "total_burned":
-			acc.TotalBurned, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "total_fees_paid":
-			acc.TotalFeesPaid, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "total_fees_used":
-			acc.TotalFeesUsed, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "unclaimed_balance":
-			acc.UnclaimedBalance, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "spendable_balance":
-			acc.SpendableBalance, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "frozen_bond":
-			acc.FrozenBond, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "lost_bond":
-			acc.LostBond, err = strconv.ParseFloat(f.(json.Number).String(), 64)
-		case "is_funded":
-			acc.IsFunded, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_activated":
-			acc.IsActivated, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_delegated":
-			acc.IsDelegated, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_revealed":
-			acc.IsRevealed, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_baker":
-			acc.IsBaker, err = strconv.ParseBool(f.(json.Number).String())
-		case "is_contract":
-			acc.IsContract, err = strconv.ParseBool(f.(json.Number).String())
-		case "n_tx_success":
-			acc.NTxSuccess, err = strconv.Atoi(f.(json.Number).String())
-		case "n_tx_failed":
-			acc.NTxFailed, err = strconv.Atoi(f.(json.Number).String())
-		case "n_tx_out":
-			acc.NTxOut, err = strconv.Atoi(f.(json.Number).String())
-		case "n_tx_in":
-			acc.NTxIn, err = strconv.Atoi(f.(json.Number).String())
-		case "first_seen_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.FirstSeenTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "last_seen_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.LastSeenTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "first_in_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.FirstInTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "last_in_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.LastInTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "first_out_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.FirstOutTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "last_out_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.LastOutTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "delegated_since_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				acc.DelegatedSinceTime = time.Unix(0, ts*1000000).UTC()
-			}
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*a = acc
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
 type AccountParams = Params[Account]

@@ -4,7 +4,9 @@
 package tzpro
 
 import (
+	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -14,6 +16,90 @@ import (
 
 	"blockwatch.cc/tzgo/tezos"
 )
+
+type Time time.Time
+
+func (f Time) Time() time.Time {
+	return time.Time(f)
+}
+
+func (f *Time) UnmarshalText(buf []byte) error {
+	val := string(buf)
+
+	// try parsing as int
+	if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+		// 1st try parsing as unix timestamp
+		// detect UNIX timestamp scale: we choose somewhat arbitrarity
+		// Dec 31, 9999 23:59:59 as cut-off time here
+		switch {
+		case i < 253402300799:
+			// timestamp is in seconds
+			*f = Time(time.Unix(i, 0).UTC())
+		case i < 253402300799000:
+			// timestamp is in milliseconds
+			*f = Time(time.Unix(0, i*1000000).UTC())
+		case i < 253402300799000000:
+			// timestamp is in microseconds
+			*f = Time(time.Unix(0, i*1000).UTC())
+		default:
+			// timestamp is in nanoseconds
+			*f = Time(time.Unix(0, i).UTC())
+		}
+		return nil
+	}
+	t, err := time.Parse(time.RFC3339, val)
+	*f = Time(t)
+	return err
+}
+
+func (f *Time) UnmarshalJSON(data []byte) error {
+	return f.UnmarshalText(bytes.Trim(data, "\""))
+}
+
+type Bool bool
+
+func (b Bool) Bool() bool {
+	return bool(b)
+}
+
+func (b Bool) True() bool {
+	return bool(b)
+}
+
+func (b Bool) False() bool {
+	return !bool(b)
+}
+
+func (b *Bool) UnmarshalText(buf []byte) error {
+	switch s := string(buf); s {
+	case "0", "false":
+		*b = false
+	case "1", "true":
+		*b = true
+	default:
+		return fmt.Errorf("invalid bool value %q", s)
+	}
+	return nil
+}
+
+func (b *Bool) UnmarshalJSON(data []byte) error {
+	return b.UnmarshalText(bytes.Trim(data, "\""))
+}
+
+type StringList []string
+
+func (l *StringList) UnmarshalText(data []byte) error {
+	*l = strings.Split(string(data), ",")
+	return nil
+}
+
+func (l *StringList) UnmarshalJSON(data []byte) error {
+	if len(data) > 0 && data[0] == '"' {
+		return l.UnmarshalText(bytes.Trim(data, `"`))
+	}
+	type alias *StringList
+	return json.Unmarshal(data, alias(l))
+}
 
 var null = []byte(`null`)
 

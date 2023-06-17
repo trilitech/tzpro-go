@@ -458,7 +458,7 @@ func (c *Client) ListMetadata(ctx context.Context) ([]Metadata, error) {
 	return resp, nil
 }
 
-func (c *Client) GetAccountMetadata(ctx context.Context, addr tezos.Address) (Metadata, error) {
+func (c *Client) GetWalletMetadata(ctx context.Context, addr tezos.Address) (Metadata, error) {
 	var resp Metadata
 	if err := c.get(ctx, "/metadata/"+addr.String(), nil, &resp); err != nil {
 		return resp, err
@@ -466,9 +466,9 @@ func (c *Client) GetAccountMetadata(ctx context.Context, addr tezos.Address) (Me
 	return resp, nil
 }
 
-func (c *Client) GetAssetMetadata(ctx context.Context, addr tezos.Address, assetId int64) (Metadata, error) {
+func (c *Client) GetAssetMetadata(ctx context.Context, addr tezos.Token) (Metadata, error) {
 	var resp Metadata
-	if err := c.get(ctx, fmt.Sprintf("/metadata/%s/%d", addr, assetId), nil, &resp); err != nil {
+	if err := c.get(ctx, fmt.Sprintf("/metadata/%s", addr), nil, &resp); err != nil {
 		return resp, err
 	}
 	return resp, nil
@@ -484,7 +484,7 @@ func (c *Client) UpdateMetadata(ctx context.Context, alias Metadata) (Metadata, 
 	var resp Metadata
 	u := fmt.Sprintf("/metadata/%s", alias.Address)
 	if alias.AssetId != nil {
-		u += "/" + strconv.FormatInt(*alias.AssetId, 10)
+		u += "_" + strconv.FormatInt(*alias.AssetId, 10)
 	}
 	if err := c.put(ctx, u, nil, &alias, &resp); err != nil {
 		return resp, err
@@ -492,21 +492,29 @@ func (c *Client) UpdateMetadata(ctx context.Context, alias Metadata) (Metadata, 
 	return resp, nil
 }
 
-func (c *Client) RemoveAccountMetadata(ctx context.Context, addr tezos.Address) error {
+func (c *Client) RemoveWalletMetadata(ctx context.Context, addr tezos.Address) error {
 	return c.delete(ctx, fmt.Sprintf("/metadata/%s", addr), nil)
 }
 
-func (c *Client) RemoveAssetMetadata(ctx context.Context, addr tezos.Address, assetId int64) error {
-	return c.delete(ctx, fmt.Sprintf("/metadata/%s/%d", addr, assetId), nil)
+func (c *Client) RemoveAssetMetadata(ctx context.Context, addr tezos.Token) error {
+	return c.delete(ctx, fmt.Sprintf("/metadata/%s", addr), nil)
 }
 
 func (c *Client) PurgeMetadata(ctx context.Context) error {
 	return c.delete(ctx, "/metadata", nil)
 }
 
-func (c *Client) Describe(ctx context.Context, ident string) (MetadataDescriptor, error) {
+func (c *Client) Describe(ctx context.Context, class, ident string) (MetadataDescriptor, error) {
 	var resp MetadataDescriptor
-	if err := c.get(ctx, "/metadata/describe/"+ident, nil, &resp); err != nil {
+	if err := c.get(ctx, fmt.Sprintf("/metadata/describe/%s/%s", class, ident), nil, &resp); err != nil {
+		return resp, err
+	}
+	return resp, nil
+}
+
+func (c *Client) DescribeAddress(ctx context.Context, addr tezos.Address) (MetadataDescriptor, error) {
+	var resp MetadataDescriptor
+	if err := c.get(ctx, fmt.Sprintf("/metadata/describe/%s", addr), nil, &resp); err != nil {
 		return resp, err
 	}
 	return resp, nil

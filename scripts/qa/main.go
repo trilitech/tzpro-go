@@ -69,6 +69,7 @@ func run() error {
 	TestWallet(ctx, c)
 	TestBaker(ctx, c)
 	TestContract(ctx, c)
+	TestMarket(ctx, c)
 	TestToken(ctx, c)
 	TestDex(ctx, c)
 	TestFarm(ctx, c)

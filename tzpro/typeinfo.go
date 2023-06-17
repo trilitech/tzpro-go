@@ -4,7 +4,6 @@
 package tzpro
 
 import (
-	// "encoding"
 	"fmt"
 	"reflect"
 	"strings"
@@ -14,6 +13,13 @@ import (
 const (
 	tagName  = "json"
 	flagName = "tzpro"
+)
+
+const (
+	fieldFlagTime = 1 << iota
+	fieldFlagBool
+	fieldFlagHex
+	fieldFlagIgnore
 )
 
 // TypeInfo holds details for the representation of a type.
@@ -29,20 +35,28 @@ type FieldInfo struct {
 	Idx      []int
 	Name     string
 	Alias    string
-	Flags    []string
+	Flags    int
 	TypeName string
 }
 
-func (f FieldInfo) ContainsFlag(flag string) bool {
-	for _, v := range f.Flags {
-		if v == flag {
-			return true
+func parseFlags(s string) int {
+	var flags int
+	for _, v := range strings.Split(s, ",") {
+		switch v {
+		case "-":
+			flags |= fieldFlagIgnore
+		case "hex":
+			flags |= fieldFlagHex
 		}
 	}
-	return false
+	return flags
 }
 
-func (t TypeInfo) FilteredAliases(f string) []string {
+func (f FieldInfo) ContainsFlag(flag int) bool {
+	return f.Flags&flag > 0
+}
+
+func (t TypeInfo) FilteredAliases(f int) []string {
 	s := make([]string, 0, len(t.Fields))
 	for _, v := range t.Fields {
 		if v.ContainsFlag(f) {
@@ -69,20 +83,21 @@ func (t TypeInfo) FieldNames() []string {
 	return s
 }
 
+func (t TypeInfo) Find(name string) (FieldInfo, bool) {
+	for _, v := range t.Fields {
+		if name == v.Name || name == v.Alias {
+			return v, true
+		}
+	}
+	return FieldInfo{}, false
+}
+
 func (f FieldInfo) String() string {
-	return fmt.Sprintf("FieldInfo: %s typ=%s idx=%d", f.Name, f.TypeName, f.Idx)
+	return fmt.Sprintf("FieldInfo: %s alias=%s typ=%s idx=%d", f.Name, f.Alias, f.TypeName, f.Idx)
 }
 
 var tinfoMap = make(map[reflect.Type]*TypeInfo)
 var tinfoLock sync.RWMutex
-
-// var (
-// textUnmarshalerType = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
-// textMarshalerType   = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
-// binaryUnmarshalerType = reflect.TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem()
-// binaryMarshalerType   = reflect.TypeOf((*encoding.BinaryMarshaler)(nil)).Elem()
-// byteSliceType         = reflect.TypeOf([]byte(nil))
-// )
 
 // GetTypeInfo returns the typeInfo structure with details necessary
 // for marshaling and unmarshaling typ.
@@ -101,6 +116,9 @@ func getReflectTypeInfo(typ reflect.Type, tagname string) (*TypeInfo, error) {
 	tinfoLock.RUnlock()
 	if ok {
 		return tinfo, nil
+	}
+	if typ.Kind() == reflect.Pointer {
+		typ = typ.Elem()
 	}
 	if typ.Kind() != reflect.Struct {
 		return nil, fmt.Errorf("type %s (%s) is not a struct", typ.String(), typ.Kind())
@@ -160,7 +178,13 @@ func structFieldInfo(f *reflect.StructField, tagname string) *FieldInfo {
 	default:
 		finfo.Alias = tags[0]
 	}
-	finfo.Flags = strings.Split(f.Tag.Get(flagName), ",")
+	finfo.Flags = parseFlags(f.Tag.Get(flagName))
+	if finfo.TypeName == "time.Time" {
+		finfo.Flags |= fieldFlagTime
+	}
+	if finfo.TypeName == "bool" {
+		finfo.Flags |= fieldFlagBool
+	}
 	return finfo
 }
 
@@ -223,7 +247,7 @@ func derefValue(val reflect.Value) reflect.Value {
 	}
 
 	if val.Kind() == reflect.Ptr {
-		if val.IsNil() {
+		if val.IsNil() && val.CanSet() {
 			val.Set(reflect.New(val.Type().Elem()))
 		}
 		val = val.Elem()

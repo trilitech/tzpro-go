@@ -67,10 +67,15 @@ func (m *ZmqMessage) DecodeOpWithScript(ctx context.Context, c *Client) (*Op, er
 }
 
 func (m *ZmqMessage) DecodeBlock() (*Block, error) {
-	b := new(Block).WithColumns(ZmqRawBlockColumns...)
-	if err := json.Unmarshal(m.body, b); err != nil {
+	// b := new(Block).WithColumns(ZmqRawBlockColumns...)
+	b := new(Block)
+	err := DecodeSlice(m.body, ZmqRawBlockColumns, b)
+	if err != nil {
 		return nil, err
 	}
+	// if err := json.Unmarshal(m.body, b); err != nil {
+	// 	return nil, err
+	// }
 	return b, nil
 }
 

@@ -101,7 +101,7 @@ func (c *Client) newTableQuery(name string, val any) tableQuery {
 		Format:     FormatJSON,
 		Limit:      DefaultLimit,
 		Order:      OrderAsc,
-		Columns:    tinfo.FilteredAliases("notable"),
+		Columns:    tinfo.FilteredAliases(fieldFlagIgnore),
 		Filter:     make(FilterList, 0),
 	}
 }
@@ -229,8 +229,7 @@ func (c *Client) QueryTable(ctx context.Context, q TableQuery, result any) error
 	if err := q.Check(); err != nil {
 		return err
 	}
-	err := c.get(ctx, q.Url(), nil, result)
-	return err
+	return c.get(ctx, q.Url(), nil, result)
 }
 
 func (c *Client) StreamTable(ctx context.Context, q TableQuery, w io.Writer) (StreamResponse, error) {

@@ -7,10 +7,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/micheline"
@@ -63,8 +61,6 @@ type BigmapRow struct {
 	DeleteTime   time.Time       `json:"delete_time"`
 	KeyType      string          `json:"key_type"`
 	ValueType    string          `json:"value_type"`
-
-	columns []string `json:"-"`
 }
 
 func (r BigmapRow) DecodeKeyType() (micheline.Type, error) {
@@ -116,105 +112,7 @@ func (l *BigmapRowList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("BigmapRowList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		b := &BigmapRow{
-			columns: l.columns,
-		}
-		if err := b.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		b.columns = nil
-		l.Rows = append(l.Rows, b)
-	}
-	return nil
-}
-
-func (b *BigmapRow) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return b.UnmarshalJSONBrief(data)
-	}
-	type Alias *BigmapRow
-	return json.Unmarshal(data, Alias(b))
-}
-
-func (b *BigmapRow) UnmarshalJSONBrief(data []byte) error {
-	br := BigmapRow{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range b.columns {
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "row_id":
-			br.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "contract":
-			br.Contract, err = tezos.ParseAddress(f.(string))
-		case "account_id":
-			br.AccountId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "bigmap_id":
-			br.BigmapId, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "n_updates":
-			br.NUpdates, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "n_keys":
-			br.NKeys, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "alloc_height":
-			br.AllocHeight, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "alloc_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				br.AllocTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "alloc_block":
-			br.AllocBlock, err = tezos.ParseBlockHash(f.(string))
-		case "update_height":
-			br.UpdateHeight, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "update_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				br.UpdateTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "update_block":
-			br.UpdateBlock, err = tezos.ParseBlockHash(f.(string))
-		case "delete_height":
-			br.DeleteHeight, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "delete_time":
-			var ts int64
-			ts, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-			if err == nil {
-				br.DeleteTime = time.Unix(0, ts*1000000).UTC()
-			}
-		case "delete_block":
-			br.DeleteBlock, err = tezos.ParseBlockHash(f.(string))
-		case "key_type":
-			br.KeyType = f.(string)
-		case "value_type":
-			br.ValueType = f.(string)
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*b = br
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
 type BigmapQuery struct {

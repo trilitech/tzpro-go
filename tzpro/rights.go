@@ -6,10 +6,7 @@ package tzpro
 import (
 	"bytes"
 	"context"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"blockwatch.cc/tzgo/tezos"
 )
@@ -38,7 +35,6 @@ type CycleRights struct {
 	Endorsed  tezos.HexBytes `json:"blocks_endorsed"`
 	Seed      tezos.HexBytes `json:"seeds_required"`
 	Seeded    tezos.HexBytes `json:"seeds_revealed"`
-	columns   []string       `json:"-"`
 }
 
 func isSet(buf []byte, i int) bool {
@@ -123,81 +119,7 @@ func (l *CycleRightsList) UnmarshalJSON(data []byte) error {
 	if data[0] != '[' {
 		return fmt.Errorf("CycleRightsList: expected JSON array")
 	}
-	array := make([]json.RawMessage, 0)
-	if err := json.Unmarshal(data, &array); err != nil {
-		return err
-	}
-	for _, v := range array {
-		r := &CycleRights{
-			columns: l.columns,
-		}
-		if err := r.UnmarshalJSON(v); err != nil {
-			return err
-		}
-		r.columns = nil
-		l.Rows = append(l.Rows, r)
-	}
-	return nil
-}
-
-func (r *CycleRights) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || bytes.Equal(data, null) {
-		return nil
-	}
-	if len(data) == 2 {
-		return nil
-	}
-	if data[0] == '[' {
-		return r.UnmarshalJSONBrief(data)
-	}
-	type Alias *CycleRights
-	return json.Unmarshal(data, Alias(r))
-}
-
-func (r *CycleRights) UnmarshalJSONBrief(data []byte) error {
-	right := CycleRights{}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.UseNumber()
-	unpacked := make([]interface{}, 0)
-	err := dec.Decode(&unpacked)
-	if err != nil {
-		return err
-	}
-	for i, v := range r.columns {
-		f := unpacked[i]
-		if f == nil {
-			continue
-		}
-		switch v {
-		case "row_id":
-			right.RowId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "height":
-			right.Height, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "cycle":
-			right.Cycle, err = strconv.ParseInt(f.(json.Number).String(), 10, 64)
-		case "account_id":
-			right.AccountId, err = strconv.ParseUint(f.(json.Number).String(), 10, 64)
-		case "address":
-			right.Address, err = tezos.ParseAddress(f.(string))
-		case "baking_rights":
-			right.Bake, err = hex.DecodeString(f.(string))
-		case "endorsing_rights":
-			right.Endorse, err = hex.DecodeString(f.(string))
-		case "blocks_baked":
-			right.Baked, err = hex.DecodeString(f.(string))
-		case "blocks_endorsed":
-			right.Endorsed, err = hex.DecodeString(f.(string))
-		case "seeds_required":
-			right.Seed, err = hex.DecodeString(f.(string))
-		case "seeds_revealed":
-			right.Seeded, err = hex.DecodeString(f.(string))
-		}
-		if err != nil {
-			return err
-		}
-	}
-	*r = right
-	return nil
+	return DecodeSlice(data, l.columns, &l.Rows)
 }
 
 type CycleRightsQuery struct {
