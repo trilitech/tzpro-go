@@ -5,6 +5,7 @@ package tzpro
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"blockwatch.cc/tzgo/tezos"
@@ -38,9 +39,27 @@ func NewTokenEventParams() TokenEventParams {
 	}
 }
 
-func (c *Client) ListTokenEvents(ctx context.Context, params TokenParams) ([]*TokenEvent, error) {
+func (c *Client) ListTokenEvents(ctx context.Context, params TokenEventParams) ([]*TokenEvent, error) {
 	list := make([]*TokenEvent, 0)
 	u := params.WithPath("/v1/tokens/events").Url()
+	if err := c.get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *Client) ListLedgerEvents(ctx context.Context, addr tezos.Address, params TokenEventParams) ([]*TokenEvent, error) {
+	list := make([]*TokenEvent, 0)
+	u := params.WithPath(fmt.Sprintf("/v1/ledgers/%s/events", addr)).Url()
+	if err := c.get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *Client) ListTokenIdEvents(ctx context.Context, addr tezos.Token, params TokenEventParams) ([]*TokenEvent, error) {
+	list := make([]*TokenEvent, 0)
+	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s/events", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

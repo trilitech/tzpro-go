@@ -176,13 +176,13 @@ func (q SnapshotQuery) Run(ctx context.Context) (*SnapshotList, error) {
 	return result, nil
 }
 
-func (c *Client) QuerySnapshots(ctx context.Context, filter FilterList, cols []string) (*SnapshotList, error) {
-	q := c.NewSnapshotQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
+// func (c *Client) QuerySnapshots(ctx context.Context, filter FilterList, cols []string) (*SnapshotList, error) {
+// 	q := c.NewSnapshotQuery()
+// 	if len(cols) > 0 {
+// 		q.Columns = cols
+// 	}
+// 	if len(filter) > 0 {
+// 		q.Filter = filter
+// 	}
+// 	return q.Run(ctx)
+// }

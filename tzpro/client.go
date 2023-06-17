@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
+	"os"
 	"strings"
 	"time"
 
@@ -71,7 +72,7 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 		sz = 2
 	}
 	cache, _ := lru.New2Q(sz)
-	return &Client{
+	c := &Client{
 		transport:  httpClient,
 		log:        log.Disabled,
 		base:       params,
@@ -81,7 +82,9 @@ func NewClient(url string, httpClient *http.Client) (*Client, error) {
 		userAgent:  userAgent,
 		numRetries: 0,
 		retryDelay: 0,
-	}, nil
+	}
+	c.WithApiKey(os.Getenv("TZPRO_API_KEY"))
+	return c, nil
 }
 
 func (c *Client) DefaultHeaders() http.Header {

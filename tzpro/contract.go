@@ -362,17 +362,6 @@ func (q ContractQuery) Run(ctx context.Context) (*ContractList, error) {
 	return result, nil
 }
 
-func (c *Client) QueryContracts(ctx context.Context, filter FilterList, cols []string) (*ContractList, error) {
-	q := c.NewContractQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
-
 func (c *Client) GetContract(ctx context.Context, addr tezos.Address, params ContractParams) (*Contract, error) {
 	cc := &Contract{}
 	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s", addr)).Url()

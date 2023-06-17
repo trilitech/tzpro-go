@@ -54,9 +54,18 @@ func (c *Client) ListDexEvents(ctx context.Context, params DexEventParams) ([]*D
 	return list, nil
 }
 
-func (c *Client) ListDexPoolEvents(ctx context.Context, addr tezos.Address, id int, params DexEventParams) ([]*DexEvent, error) {
+func (c *Client) ListDexPoolEvents(ctx context.Context, addr PoolAddress, params DexEventParams) ([]*DexEvent, error) {
 	list := make([]*DexEvent, 0)
-	u := params.WithPath(fmt.Sprintf("/v1/dex/%s_%d/events", addr, id)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/dex/%s/events", addr)).Url()
+	if err := c.get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *Client) ListWalletDexEvents(ctx context.Context, addr tezos.Address, params DexEventParams) ([]*DexEvent, error) {
+	list := make([]*DexEvent, 0)
+	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/dex_events", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

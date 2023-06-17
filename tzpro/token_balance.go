@@ -32,7 +32,24 @@ type TokenBalance struct {
 	VolBurn    tezos.Z       `json:"vol_burn"`
 }
 
-func (c *Client) ListTokenBalances(ctx context.Context, addr tezos.Token, params TokenParams) ([]*TokenBalance, error) {
+type TokenBalanceParams = Params[TokenBalance]
+
+func NewTokenBalanceParams() TokenBalanceParams {
+	return TokenBalanceParams{
+		Query: make(map[string][]string),
+	}
+}
+
+func (c *Client) ListLedgerBalances(ctx context.Context, addr tezos.Address, params TokenBalanceParams) ([]*TokenBalance, error) {
+	list := make([]*TokenBalance, 0)
+	u := params.WithPath(fmt.Sprintf("/v1/ledgers/%s/balances", addr)).Url()
+	if err := c.get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *Client) ListTokenBalances(ctx context.Context, addr tezos.Token, params TokenBalanceParams) ([]*TokenBalance, error) {
 	list := make([]*TokenBalance, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s/balances", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
@@ -41,7 +58,7 @@ func (c *Client) ListTokenBalances(ctx context.Context, addr tezos.Token, params
 	return list, nil
 }
 
-func (c *Client) ListWalletBalances(ctx context.Context, addr tezos.Address, params TokenParams) ([]*TokenBalance, error) {
+func (c *Client) ListWalletBalances(ctx context.Context, addr tezos.Address, params TokenBalanceParams) ([]*TokenBalance, error) {
 	list := make([]*TokenBalance, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/balances", addr)).Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {

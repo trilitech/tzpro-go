@@ -11,7 +11,7 @@ import (
 	"blockwatch.cc/tzgo/tezos"
 )
 
-type Token struct {
+type Ledger struct {
 	Id             uint64    `json:"id"`
 	Ledger         string    `json:"ledger"`
 	TokenId        tezos.Z   `json:"token_id"`
@@ -33,31 +33,31 @@ type Token struct {
 	LastChangeTime time.Time `json:"last_supply_change_time"`
 }
 
-func (t Token) Address() tezos.Token {
+func (t Ledger) Address() tezos.Token {
 	addr, _ := tezos.ParseAddress(t.Ledger)
 	return tezos.NewToken(addr, t.TokenId)
 }
 
-type TokenParams = Params[Token]
+type LedgerParams = Params[Ledger]
 
-func NewTokenParams() TokenParams {
-	return TokenParams{
+func NewLedgerParams() LedgerParams {
+	return LedgerParams{
 		Query: make(map[string][]string),
 	}
 }
 
-func (c *Client) GetToken(ctx context.Context, addr tezos.Token, params TokenParams) (*Token, error) {
-	t := &Token{}
-	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s", addr)).Url()
+func (c *Client) GetLedger(ctx context.Context, addr tezos.Address, params LedgerParams) (*Ledger, error) {
+	t := &Ledger{}
+	u := params.WithPath(fmt.Sprintf("/v1/ledgers/%s", addr)).Url()
 	if err := c.get(ctx, u, nil, t); err != nil {
 		return nil, err
 	}
 	return t, nil
 }
 
-func (c *Client) ListTokens(ctx context.Context, params TokenParams) ([]*Token, error) {
-	list := make([]*Token, 0)
-	u := params.WithPath("/v1/tokens").Url()
+func (c *Client) ListLedgers(ctx context.Context, params LedgerParams) ([]*Ledger, error) {
+	list := make([]*Ledger, 0)
+	u := params.WithPath("/v1/ledgers").Url()
 	if err := c.get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}

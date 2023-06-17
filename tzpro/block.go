@@ -65,6 +65,7 @@ type Block struct {
 	BakerKey         string                 `json:"baker_consensus_key"`
 	Metadata         map[string]Metadata    `json:"metadata,omitempty"  tzpro:"notable"`
 	Rights           []Right                `json:"rights,omitempty"    tzpro:"notable"`
+	Ops              []*Op                  `json:"-"`
 	columns          []string               `json:"-"`
 }
 
@@ -353,16 +354,16 @@ func (q BlockQuery) Run(ctx context.Context) (*BlockList, error) {
 	return result, nil
 }
 
-func (c *Client) QueryBlocks(ctx context.Context, filter FilterList, cols []string) (*BlockList, error) {
-	q := c.NewBlockQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
+// func (c *Client) QueryBlocks(ctx context.Context, filter FilterList, cols []string) (*BlockList, error) {
+// 	q := c.NewBlockQuery()
+// 	if len(cols) > 0 {
+// 		q.Columns = cols
+// 	}
+// 	if len(filter) > 0 {
+// 		q.Filter = filter
+// 	}
+// 	return q.Run(ctx)
+// }
 
 type BlockParams = Params[Block]
 
@@ -398,5 +399,3 @@ func (c *Client) GetBlockHeight(ctx context.Context, height int64, params BlockP
 	}
 	return b, nil
 }
-
-

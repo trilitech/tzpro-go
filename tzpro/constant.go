@@ -162,17 +162,6 @@ func (q ConstantQuery) Run(ctx context.Context) (*ConstantList, error) {
 	return result, nil
 }
 
-func (c *Client) QueryConstants(ctx context.Context, filter FilterList, cols []string) (*ConstantList, error) {
-	q := c.NewConstantQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
-
 func (c *Client) GetConstant(ctx context.Context, addr tezos.ExprHash, params ConstantParams) (*Constant, error) {
 	cc := &Constant{}
 	u := params.WithPath(fmt.Sprintf("/explorer/constant/%s", addr)).Url()

@@ -40,7 +40,6 @@ func main() {
 
 	if verbose {
 		log.SetLevel(log.LevelDebug)
-		tzpro.UseLogger(log.Log)
 	}
 
 	if err := run(); err != nil {
@@ -56,6 +55,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	c.WithLogger(log.Log)
 
 	if err := searchCalls(ctx, c); err != nil {
 		return err

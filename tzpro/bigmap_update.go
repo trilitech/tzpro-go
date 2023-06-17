@@ -322,17 +322,6 @@ func (q BigmapUpdateQuery) Run(ctx context.Context) (*BigmapUpdateRowList, error
 	return result, nil
 }
 
-func (c *Client) QueryBigmapUpdates(ctx context.Context, filter FilterList, cols []string) (*BigmapUpdateRowList, error) {
-	q := c.NewBigmapUpdateQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
-
 func (c *Client) ListBigmapUpdates(ctx context.Context, id int64, params ContractParams) ([]BigmapUpdate, error) {
 	upd := make([]BigmapUpdate, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/updates", id)).Url()

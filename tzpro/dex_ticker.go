@@ -7,8 +7,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"blockwatch.cc/tzgo/tezos"
 )
 
 type DexTicker struct {
@@ -43,9 +41,9 @@ func NewDexTickerParams() DexTickerParams {
 	}
 }
 
-func (c *Client) GetDexTicker(ctx context.Context, addr tezos.Address, id int) (*DexTicker, error) {
+func (c *Client) GetDexTicker(ctx context.Context, addr PoolAddress) (*DexTicker, error) {
 	tick := &DexTicker{}
-	u := fmt.Sprintf("/v1/dex/%s_%d/ticker", addr, id)
+	u := fmt.Sprintf("/v1/dex/%s/ticker", addr)
 	if err := c.get(ctx, u, nil, tick); err != nil {
 		return nil, err
 	}

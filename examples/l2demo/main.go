@@ -56,7 +56,6 @@ func main() {
 		log.Warnf("Missing config file, using default values.")
 	}
 
-	tzpro.UseLogger(log.Log)
 	if verbose {
 		log.SetLevel(log.LevelDebug)
 	}
@@ -87,6 +86,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	client.WithLogger(log.Log)
 
 	return watchContract(ctx, client, addr)
 }

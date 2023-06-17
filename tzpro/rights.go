@@ -217,14 +217,3 @@ func (q CycleRightsQuery) Run(ctx context.Context) (*CycleRightsList, error) {
 	}
 	return result, nil
 }
-
-func (c *Client) QueryCycleRights(ctx context.Context, filter FilterList, cols []string) (*CycleRightsList, error) {
-	q := c.NewCycleRightsQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}

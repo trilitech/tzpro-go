@@ -18,7 +18,7 @@ import (
 	"blockwatch.cc/tzgo/micheline"
 	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
-	"github.com/daviddengcn/go-colortext"
+	ct "github.com/daviddengcn/go-colortext"
 	"github.com/echa/log"
 )
 
@@ -61,7 +61,6 @@ func main() {
 
 	if verbose {
 		log.SetLevel(log.LevelDebug)
-		tzpro.UseLogger(log.Log)
 	}
 
 	if err := run(); err != nil {
@@ -90,6 +89,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	c.WithLogger(log.Log)
 
 	switch cmd {
 	case "info":

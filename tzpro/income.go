@@ -244,14 +244,3 @@ func (q IncomeQuery) Run(ctx context.Context) (*IncomeList, error) {
 	}
 	return result, nil
 }
-
-func (c *Client) QueryIncome(ctx context.Context, filter FilterList, cols []string) (*IncomeList, error) {
-	q := c.NewIncomeQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}

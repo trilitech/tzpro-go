@@ -104,7 +104,6 @@ func run() error {
 
 	if verbose {
 		log.SetLevel(log.LevelDebug)
-		tzpro.UseLogger(log.Log)
 	}
 
 	// use a placeholder calling context
@@ -115,6 +114,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	c.WithLogger(log.Log)
 
 	ipfsc, err := tzpro.NewClient(ipfs, nil)
 	if err != nil {

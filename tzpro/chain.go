@@ -249,14 +249,3 @@ func (q ChainQuery) Run(ctx context.Context) (*ChainList, error) {
 	}
 	return result, nil
 }
-
-func (c *Client) QueryChains(ctx context.Context, filter FilterList, cols []string) (*ChainList, error) {
-	q := c.NewChainQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}

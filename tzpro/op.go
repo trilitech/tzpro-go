@@ -579,17 +579,6 @@ func (q OpQuery) Run(ctx context.Context) (*OpList, error) {
 	return result, nil
 }
 
-func (c *Client) QueryOps(ctx context.Context, filter FilterList, cols []string) (*OpList, error) {
-	q := c.NewOpQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
-
 type OpParams = Params[Op]
 
 func NewOpParams() OpParams {

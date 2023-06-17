@@ -249,17 +249,6 @@ func (q BigmapQuery) Run(ctx context.Context) (*BigmapRowList, error) {
 	return result, nil
 }
 
-func (c *Client) QueryBigmaps(ctx context.Context, filter FilterList, cols []string) (*BigmapRowList, error) {
-	q := c.NewBigmapQuery()
-	if len(cols) > 0 {
-		q.Columns = cols
-	}
-	if len(filter) > 0 {
-		q.Filter = filter
-	}
-	return q.Run(ctx)
-}
-
 func (c *Client) GetBigmap(ctx context.Context, id int64, params ContractParams) (*Bigmap, error) {
 	b := &Bigmap{}
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d", id)).Url()
