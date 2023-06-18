@@ -45,8 +45,6 @@ type Contract struct {
 	NCallsFailed  int                  `json:"n_calls_failed"      tzpro:"-"`
 	Bigmaps       map[string]int64     `json:"bigmaps,omitempty"   tzpro:"-"`
 	Metadata      map[string]*Metadata `json:"metadata,omitempty"  tzpro:"-"`
-
-	// columns []string `json:"-"`
 }
 
 func ParseU64(s string) (u uint64) {

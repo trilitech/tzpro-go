@@ -5,7 +5,6 @@ package tzpro
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"blockwatch.cc/tzgo/tezos"
@@ -34,17 +33,17 @@ func (m *ZmqMessage) DecodeBlockHash() (tezos.BlockHash, error) {
 }
 
 func (m *ZmqMessage) DecodeOp() (*Op, error) {
-	o := new(Op).WithColumns(ZmqRawOpColumns...)
-	if err := json.Unmarshal(m.body, o); err != nil {
+	o := new(Op)
+	err := DecodeSlice(m.body, ZmqRawOpColumns, o)
+	if err != nil {
 		return nil, err
 	}
 	return o, nil
 }
 
 func (m *ZmqMessage) DecodeOpWithScript(ctx context.Context, c *Client) (*Op, error) {
-	o := new(Op).WithColumns(ZmqRawOpColumns...)
-
-	// we may need contract scripts
+	o := new(Op)
+	// load contract type info (required for decoding storage/param data)
 	if is, ok := m.GetField("is_contract"); ok && is == "1" {
 		recv, ok := m.GetField("receiver")
 		if ok && recv != "" && recv != "null" {
@@ -52,36 +51,33 @@ func (m *ZmqMessage) DecodeOpWithScript(ctx context.Context, c *Client) (*Op, er
 			if err != nil {
 				return nil, fmt.Errorf("decode: invalid receiver address %s: %v, %#v", recv, err, string(m.body))
 			}
-			// load contract type info (required for decoding storage/param data)
 			script, err := c.loadCachedContractScript(ctx, addr)
 			if err != nil {
 				return nil, err
 			}
-			o = o.WithScript(script)
+			o.WithScript(script)
 		}
 	}
-	if err := json.Unmarshal(m.body, o); err != nil {
+	err := DecodeSlice(m.body, ZmqRawOpColumns, o)
+	if err != nil {
 		return nil, err
 	}
 	return o, nil
 }
 
 func (m *ZmqMessage) DecodeBlock() (*Block, error) {
-	// b := new(Block).WithColumns(ZmqRawBlockColumns...)
 	b := new(Block)
 	err := DecodeSlice(m.body, ZmqRawBlockColumns, b)
 	if err != nil {
 		return nil, err
 	}
-	// if err := json.Unmarshal(m.body, b); err != nil {
-	// 	return nil, err
-	// }
 	return b, nil
 }
 
 func (m *ZmqMessage) DecodeStatus() (*Status, error) {
-	s := new(Status).WithColumns(ZmqStatusColumns...)
-	if err := json.Unmarshal(m.body, s); err != nil {
+	s := new(Status)
+	err := DecodeSlice(m.body, ZmqStatusColumns, s)
+	if err != nil {
 		return nil, err
 	}
 	return s, nil
