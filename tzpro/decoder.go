@@ -64,6 +64,25 @@ func DecodeSlice(buf []byte, fields []string, val any) error {
 	return err
 }
 
+func Decode(buf []byte, fields []string, val any) error {
+	// val must be pointer to struct
+	v := reflect.ValueOf(val)
+	if v.Kind() != reflect.Ptr {
+		return fmt.Errorf("decode: non-pointer passed to Decode")
+	}
+	v = reflect.Indirect(v)
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("decode: non slice type %T for Decode", val)
+	}
+	dec, err := buildDecoder(v.Type(), fields)
+	if err != nil {
+		return err
+	}
+
+	jdec := json.NewDecoder(bytes.NewReader(buf))
+	return dec.decode(jdec, v)
+}
+
 func (d *Decoder) decode(dec *json.Decoder, dst reflect.Value) error {
 	// read open bracket
 	_, err := dec.Token()
@@ -142,6 +161,9 @@ func buildDecoder(typ reflect.Type, fields []string) (*Decoder, error) {
 	tinfo, err := getReflectTypeInfo(typ, "json")
 	if err != nil {
 		return nil, err
+	}
+	if fields == nil {
+		fields = tinfo.Aliases()
 	}
 	d = &Decoder{
 		id:    key,
