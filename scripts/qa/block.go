@@ -5,44 +5,44 @@ import (
 	"fmt"
 
 	"blockwatch.cc/tzpro-go/tzpro"
+	"blockwatch.cc/tzpro-go/tzpro/index"
 )
 
-func TestBlock(ctx context.Context, c *tzpro.Client, tip *tzpro.Tip) {
-	bp := tzpro.NewBlockParams().WithRights().WithMeta()
-	op := tzpro.NewOpParams().WithStorage().WithMeta()
+func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
+	bp := tzpro.NewParams().WithRights().WithMeta()
+	op := tzpro.NewParams().WithStorage().WithMeta()
 
 	// block
 	try("GetBlock", func() {
-		if _, err := c.GetBlock(ctx, tip.Hash, bp); err != nil {
+		if _, err := c.Block.GetHash(ctx, tip.Hash, bp); err != nil {
 			panic(err)
 		}
 	})
 
 	// block head
 	try("GetHead", func() {
-		if _, err := c.GetHead(ctx, bp); err != nil {
+		if _, err := c.Block.GetHead(ctx, bp); err != nil {
 			panic(err)
 		}
 	})
 
 	// block height
 	try("GetBlockHeight", func() {
-		if _, err := c.GetBlockHeight(ctx, tip.Height, bp); err != nil {
+		if _, err := c.Block.GetHeight(ctx, tip.Height, bp); err != nil {
 			panic(err)
 		}
 	})
 
 	// block ops
 	try("GetBlockOps", func() {
-		if ops, err := c.GetBlockOps(ctx, tip.Hash, op); err != nil || len(ops) == 0 {
+		if ops, err := c.Block.ListOpsHash(ctx, tip.Hash, op); err != nil || len(ops) == 0 {
 			panic(fmt.Errorf("len=%d %v", len(ops), err))
 		}
 	})
 
 	// block table
 	try("Block query", func() {
-		bq := c.NewBlockQuery()
-		bq.WithLimit(2).WithDesc()
+		bq := c.Block.NewQuery().WithLimit(2).WithDesc()
 		if _, err := bq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -52,16 +52,16 @@ func TestBlock(ctx context.Context, c *tzpro.Client, tip *tzpro.Tip) {
 	// Operations
 	//
 	try("Op query", func() {
-		oq := c.NewOpQuery()
-		oq.WithFilter(tzpro.FilterModeEqual, "type", "transaction").
+		oq := c.Op.NewQuery().
+			WithEqual("type", "transaction").
 			WithLimit(100).
-			WithOrder(tzpro.OrderDesc)
+			WithDesc()
 		ores, err := oq.Run(ctx)
 		if err != nil {
 			panic(err)
 		}
 		if ores.Len() > 0 {
-			if _, err := c.GetOp(ctx, ores.Rows[0].Hash, op); err != nil {
+			if _, err := c.Op.Get(ctx, ores.Rows()[0].Hash, op); err != nil {
 				panic(fmt.Errorf("GetOp: %v", err))
 			}
 		}

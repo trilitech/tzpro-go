@@ -7,23 +7,24 @@ import (
 )
 
 func TestFarm(ctx context.Context, c *tzpro.Client) {
+	p := tzpro.NewParams()
 	// dex
 	try("ListFarms", func() {
-		if _, err := c.ListFarms(ctx, tzpro.NewFarmParams()); err != nil {
+		if _, err := c.Farm.ListFarms(ctx, p); err != nil {
 			panic(err)
 		}
 	})
 
 	// events
 	try("ListFarmEvents", func() {
-		if _, err := c.ListFarmEvents(ctx, tzpro.NewFarmEventParams()); err != nil {
+		if _, err := c.Farm.ListEvents(ctx, p); err != nil {
 			panic(err)
 		}
 	})
 
 	// positions
 	try("ListFarmPositions", func() {
-		if _, err := c.ListFarmPositions(ctx, tzpro.NewFarmPositionParams()); err != nil {
+		if _, err := c.Farm.ListPositions(ctx, p); err != nil {
 			panic(err)
 		}
 	})

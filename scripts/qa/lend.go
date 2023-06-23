@@ -7,23 +7,24 @@ import (
 )
 
 func TestLend(ctx context.Context, c *tzpro.Client) {
+	p := tzpro.NewParams()
 	// dex
 	try("ListLendings", func() {
-		if _, err := c.ListLendingPools(ctx, tzpro.NewLendingPoolParams()); err != nil {
+		if _, err := c.Lend.ListPools(ctx, p); err != nil {
 			panic(err)
 		}
 	})
 
 	// events
 	try("ListLendingEvents", func() {
-		if _, err := c.ListLendingEvents(ctx, tzpro.NewLendingEventParams()); err != nil {
+		if _, err := c.Lend.ListEvents(ctx, p); err != nil {
 			panic(err)
 		}
 	})
 
 	// positions
 	try("ListLendingPositions", func() {
-		if _, err := c.ListLendingPositions(ctx, tzpro.NewLendingPositionParams()); err != nil {
+		if _, err := c.Lend.ListPositions(ctx, p); err != nil {
 			panic(err)
 		}
 	})

@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"os"
 
-	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
 	"github.com/echa/log"
 )
@@ -39,12 +37,9 @@ func main() {
 		log.SetLevel(log.LevelTrace)
 	}
 	// create a new SDK client
-	c, err := tzpro.NewClient(api, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	c.WithLogger(log.Log)
+	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
+	var err error
 	switch mode {
 	case "explorer":
 		err = runExplorer(c)
@@ -60,10 +55,10 @@ func main() {
 
 func runExplorer(c *tzpro.Client) error {
 	// use explorer API to get account info and embed metadata if available
-	a, err := c.GetAccount(
+	a, err := c.Account.Get(
 		context.Background(),
-		tezos.MustParseAddress(os.Args[1]),
-		tzpro.NewAccountParams().WithMeta(),
+		tzpro.NewAddress(flag.Arg(0)),
+		tzpro.NewParams().WithMeta(),
 	)
 	if err != nil {
 		return err
@@ -75,14 +70,12 @@ func runExplorer(c *tzpro.Client) error {
 
 func runTable(c *tzpro.Client) error {
 	// use table API to get raw account info
-	q := c.NewAccountQuery()
-	q.WithFilter(tzpro.FilterModeEqual, "address", os.Args[1])
+	q := c.Account.NewQuery().WithEqual("address", flag.Arg(0))
 	res, err := q.Run(context.Background())
 	if err != nil {
 		return err
 	}
-	a := res.Rows[0]
-	buf, _ := json.MarshalIndent(a, "", "  ")
-	fmt.Println(string(buf))
+	buf, _ := json.MarshalIndent(res.Rows()[0], "", "  ")
+	fmt.Println(res.Cursor(), string(buf))
 	return nil
 }

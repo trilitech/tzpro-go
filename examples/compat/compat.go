@@ -11,9 +11,7 @@ import (
 
 func main() {
 	log.SetLevel(log.LevelDebug)
-	c, _ := tzpro.NewClient("http://localhost:8000", nil)
-	c.WithLogger(log.Log)
-	q := c.NewContractQuery()
-	_, err := q.Run(context.Background())
+	c := tzpro.NewClient("https://api.tzpro.io", nil).WithLogger(log.Log)
+	_, err := c.Contract.NewQuery().Run(context.Background())
 	fmt.Println(err)
 }

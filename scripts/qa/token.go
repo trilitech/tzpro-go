@@ -8,16 +8,17 @@ import (
 )
 
 func TestToken(ctx context.Context, c *tzpro.Client) {
+	p := tzpro.NewParams()
 	// ledgers
 	try("ListLedgers", func() {
-		if _, err := c.ListLedgers(ctx, tzpro.NewLedgerParams()); err != nil {
+		if _, err := c.Token.ListLedgers(ctx, p); err != nil {
 			panic(err)
 		}
 	})
 
 	// tokens
 	try("ListTokens", func() {
-		if _, err := c.ListTokens(ctx, tzpro.NewTokenParams()); err != nil {
+		if _, err := c.Token.ListTokens(ctx, p); err != nil {
 			panic(err)
 		}
 	})
@@ -25,13 +26,13 @@ func TestToken(ctx context.Context, c *tzpro.Client) {
 	// balances
 	try("ListLedgerBalances", func() {
 		addr := tezos.MustParseAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton")
-		if _, err := c.ListLedgerBalances(ctx, addr, tzpro.NewTokenBalanceParams()); err != nil {
+		if _, err := c.Token.ListLedgerBalances(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})
 	try("ListTokenBalances", func() {
 		addr := tezos.MustParseToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
-		if _, err := c.ListTokenBalances(ctx, addr, tzpro.NewTokenBalanceParams()); err != nil {
+		if _, err := c.Token.ListTokenBalances(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})
@@ -39,37 +40,32 @@ func TestToken(ctx context.Context, c *tzpro.Client) {
 	// events
 	try("ListLedgerEvents", func() {
 		addr := tezos.MustParseAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton")
-		if _, err := c.ListLedgerEvents(ctx, addr, tzpro.NewTokenEventParams()); err != nil {
+		if _, err := c.Token.ListLedgerEvents(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})
 	try("ListTokenEvents", func() {
-		if _, err := c.ListTokenEvents(ctx, tzpro.NewTokenEventParams()); err != nil {
-			panic(err)
-		}
-	})
-	try("ListTokenIdEvents", func() {
 		addr := tezos.MustParseToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
-		if _, err := c.ListTokenIdEvents(ctx, addr, tzpro.NewTokenEventParams()); err != nil {
+		if _, err := c.Token.ListTokenEvents(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})
 
 	// metadata
 	try("ListTokenMetadata", func() {
-		if _, err := c.ListTokenMetadata(ctx, tzpro.NewTokenMetadataParams()); err != nil {
+		if _, err := c.Token.ListMetadata(ctx, p); err != nil {
 			panic(err)
 		}
 	})
 	try("GetLedgerMeta", func() {
 		addr := tezos.MustParseAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton")
-		if _, err := c.GetLedgerMetadata(ctx, addr, tzpro.NewTokenMetadataParams()); err != nil {
+		if _, err := c.Token.GetLedgerMetadata(ctx, addr); err != nil {
 			panic(err)
 		}
 	})
 	try("GetTokenMetadata", func() {
 		addr := tezos.MustParseToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
-		if _, err := c.GetTokenMetadata(ctx, addr, tzpro.NewTokenMetadataParams()); err != nil {
+		if _, err := c.Token.GetTokenMetadata(ctx, addr); err != nil {
 			panic(err)
 		}
 	})

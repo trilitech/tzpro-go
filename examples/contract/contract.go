@@ -36,9 +36,9 @@ var (
 
 func init() {
 	flags.Usage = func() {}
-	flag.BoolVar(&verbose, "v", false, "verbose")
-	flag.BoolVar(&vdebug, "vv", false, "debug")
-	flag.BoolVar(&vtrace, "vvv", false, "trace")
+	flags.BoolVar(&verbose, "v", false, "verbose")
+	flags.BoolVar(&vdebug, "vv", false, "debug")
+	flags.BoolVar(&vtrace, "vvv", false, "trace")
 	flags.StringVar(&node, "node", "https://rpc.tzpro.io", "Tezos node url")
 	flags.StringVar(&api, "api", "https://api.tzpro.io", "TzPro API url")
 	flags.BoolVar(&withPrim, "prim", false, "show primitives")
@@ -71,7 +71,7 @@ func main() {
 		log.SetLevel(log.LevelTrace)
 	}
 	if err := run(); err != nil {
-		if e, ok := tzpro.IsApiError(err); ok {
+		if e, ok := tzpro.IsErrApi(err); ok {
 			fmt.Printf("Error: %s: %s\n", e.Errors[0].Message, e.Errors[0].Detail)
 		} else {
 			fmt.Printf("Error: %v\n", err)
@@ -92,11 +92,7 @@ func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, err := tzpro.NewClient(api, nil)
-	if err != nil {
-		return err
-	}
-	c.WithLogger(log.Log)
+	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
 	switch cmd {
 	case "info":
@@ -135,7 +131,7 @@ func run() error {
 }
 
 func getContractInfo(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	cc, err := c.GetContract(ctx, addr, tzpro.NewContractParams())
+	cc, err := c.Contract.Get(ctx, addr, tzpro.NewParams())
 	if err != nil {
 		return err
 	}
@@ -145,7 +141,7 @@ func getContractInfo(ctx context.Context, c *tzpro.Client, addr tezos.Address) e
 }
 
 func getContractType(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	script, err := c.GetContractScript(ctx, addr, tzpro.NewContractParams().WithPrim())
+	script, err := c.Contract.GetScript(ctx, addr, tzpro.NewParams().WithPrim())
 	if err != nil {
 		return err
 	}
@@ -159,7 +155,7 @@ func getContractType(ctx context.Context, c *tzpro.Client, addr tezos.Address) e
 }
 
 func getContractEntrypoints(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	cc, err := c.GetContractScript(ctx, addr, tzpro.NewContractParams().WithPrim())
+	cc, err := c.Contract.GetScript(ctx, addr, tzpro.NewParams().WithPrim())
 	if err != nil {
 		return err
 	}
@@ -177,12 +173,12 @@ func getContractEntrypoints(ctx context.Context, c *tzpro.Client, addr tezos.Add
 }
 
 func getContractStorage(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	p := tzpro.NewContractParams().WithPrim()
-	cc, err := c.GetContractScript(ctx, addr, p)
+	p := tzpro.NewParams().WithPrim()
+	cc, err := c.Contract.GetScript(ctx, addr, p)
 	if err != nil {
 		return err
 	}
-	store, err := c.GetContractStorage(ctx, addr, p)
+	store, err := c.Contract.GetStorage(ctx, addr, p)
 	if err != nil {
 		return err
 	}
@@ -196,30 +192,43 @@ func getContractStorage(ctx context.Context, c *tzpro.Client, addr tezos.Address
 }
 
 func getContractCall(ctx context.Context, c *tzpro.Client, hash tezos.OpHash) error {
-	ops, err := c.GetOp(ctx, hash, tzpro.NewOpParams().WithPrim())
+	ops, err := c.Op.Get(ctx, hash, tzpro.NewParams().WithPrim())
 	if err != nil {
 		return err
 	}
 	for i, op := range ops {
+		fmt.Printf("%s %d %d/%d\n", op.Hash, i, op.OpN, op.OpP)
+		fmt.Printf("  type:    %s\n", op.Type)
+		fmt.Printf("  target:  %s\n", op.Receiver)
+		fmt.Printf("  params:  %t\n", op.HasParameters())
+		fmt.Printf("  storage: %t\n", op.HasStorage())
+		fmt.Printf("  bigmap:  %t\n", op.HasBigmapUpdates())
 		if op.Type != tzpro.OpTypeTransaction {
 			continue
 		}
 		if !op.IsContract {
 			continue
 		}
-		script, err := c.GetContractScript(ctx, op.Receiver, tzpro.NewContractParams().WithPrim())
-		if err != nil {
-			return err
-		}
-		eps, err := script.Script.Entrypoints(withPrim)
-		if err != nil {
-			return err
-		}
-		fmt.Printf("Call Parameters for %d/%d/%d\n", op.OpN, op.OpP, i)
-		print(micheline.NewValue(eps[op.Parameters.Entrypoint].Type(), *op.Parameters.Prim), 2)
-		if withPrim {
-			fmt.Println("Michelson:")
-			print(op.Parameters.Prim, 0)
+		if op.HasParameters() {
+			script, err := c.Contract.GetScript(ctx, op.Receiver, tzpro.NewParams().WithPrim())
+			if err != nil {
+				return err
+			}
+			op.WithScript(script)
+			args, err := op.DecodeParams(false, 0)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("  Entrypoint: %s\n", args.Entrypoint)
+			fmt.Printf("  Args: %#v", args)
+			fmt.Println("  Params:")
+			print(args.Value, 2)
+			if withPrim {
+				fmt.Println("Michelson:")
+				print(args.Prim, 0)
+			}
+		} else {
+			fmt.Println("  Transfer only")
 		}
 	}
 	return nil
@@ -242,12 +251,14 @@ func print(val interface{}, n int) error {
 	if nocolor {
 		os.Stdout.Write(body)
 	} else {
-		raw := make(map[string]interface{})
+		var raw interface{}
+		// raw := make(map[string]interface{})
 		dec := json.NewDecoder(bytes.NewBuffer(body))
 		dec.UseNumber()
 		dec.Decode(&raw)
 		printJSON(1, raw, false)
 	}
+	fmt.Println()
 	return nil
 }
 

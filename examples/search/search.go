@@ -51,11 +51,7 @@ func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, err := tzpro.NewClient(index, nil)
-	if err != nil {
-		return err
-	}
-	c.WithLogger(log.Log)
+	c := tzpro.NewClient(index, nil).WithLogger(log.Log)
 
 	if err := searchCalls(ctx, c); err != nil {
 		return err
@@ -76,13 +72,13 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 	}
 	log.Infof("Searching calls to %s for address %s", recv, addr)
 
-	p := tzpro.NewContractParams().WithLimit(500)
+	p := tzpro.NewParams().WithLimit(500)
 	plog := log.NewProgressLogger(log.Log)
 	var (
 		count int
 	)
 	for {
-		calls, err := c.ListContractCalls(ctx, recv, p)
+		calls, err := c.Contract.ListCalls(ctx, recv, p)
 		if err != nil {
 			return err
 		}
@@ -92,7 +88,8 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 		for _, v := range calls {
 			found := false
 			if v.Parameters != nil {
-				err := v.Parameters.Walk("", func(path string, value interface{}) error {
+				args, _ := v.DecodeParams(false, 0)
+				err := args.Walk("", func(path string, value interface{}) error {
 					if value == nil {
 						return nil
 					}
@@ -106,7 +103,8 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 				}
 			}
 			if v.Storage != nil {
-				err := v.Storage.Walk("", func(path string, value interface{}) error {
+				store, _ := v.DecodeStorage(false, 0)
+				err := store.Walk("", func(path string, value interface{}) error {
 					if value == nil {
 						return nil
 					}
@@ -119,7 +117,8 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 					log.Errorf("%s: %v", v.Hash, err)
 				}
 			}
-			for _, bmd := range v.BigmapDiff {
+			events, _ := v.DecodeBigmapUpdates(false, false, 0)
+			for _, bmd := range events {
 				err := bmd.Walk("", func(path string, value interface{}) error {
 					if value == nil {
 						return nil
@@ -151,11 +150,11 @@ func search(ctx context.Context, c *tzpro.Client) error {
 	addr := flags.Arg(1)
 	log.Infof("Searching calls to %s for address %s", recv, addr)
 
-	q := c.NewOpQuery()
-	q.Limit = 50000
-	q.WithFilter(tzpro.FilterModeEqual, "type", "transaction")
-	q.WithFilter(tzpro.FilterModeEqual, "receiver", recv)
-	q.WithColumns("row_id", "hash", "parameters", "storage", "big_map_diff")
+	q := c.Op.NewQuery().
+		WithLimit(50000).
+		WithEqual("type", "transaction").
+		WithEqual("receiver", recv).
+		WithColumns("id", "hash", "parameters", "big_map_diff", "is_contract", "receiver")
 
 	plog := log.NewProgressLogger(log.Log)
 	var (
@@ -163,7 +162,7 @@ func search(ctx context.Context, c *tzpro.Client) error {
 		count  int
 	)
 	for {
-		q.Cursor = cursor
+		q.WithCursor(cursor)
 		log.Infof("Fetching calls from id %d...", cursor)
 		ops, err := q.Run(ctx)
 		if err != nil {
@@ -172,10 +171,18 @@ func search(ctx context.Context, c *tzpro.Client) error {
 		if ops.Len() == 0 {
 			break
 		}
-		for _, v := range ops.Rows {
+		if err := c.Op.ResolveTypes(ctx, ops.Rows()...); err != nil {
+			return err
+		}
+		for _, v := range ops.Rows() {
 			found := false
 			if v.Parameters != nil {
-				err := v.Parameters.Walk("", func(path string, value interface{}) error {
+				args, err := v.DecodeParams(false, 0)
+				if err != nil {
+					log.Errorf("%s: %v", v.Hash, err)
+					continue
+				}
+				err = args.Walk("", func(path string, value interface{}) error {
 					if value == nil {
 						return nil
 					}
@@ -189,22 +196,25 @@ func search(ctx context.Context, c *tzpro.Client) error {
 					log.Errorf("%s: %v", v.Hash, err)
 				}
 			}
-			if v.Storage != nil {
-				err := v.Storage.Walk("", func(path string, value interface{}) error {
-					if value == nil {
-						return nil
-					}
-					log.Infof("%s: storage %s = %v", v.Hash, path, value)
-					if s, ok := value.(string); ok {
-						found = found || s == addr
-					}
-					return nil
-				})
-				if err != nil {
-					log.Errorf("%s: %v", v.Hash, err)
-				}
-			}
-			for _, bmd := range v.BigmapDiff {
+			// deprecated on API
+			// if v.Storage != nil {
+			// 	store, _ := v.DecodeStorage(false, 0)
+			// 	err := store.Walk("", func(path string, value interface{}) error {
+			// 		if value == nil {
+			// 			return nil
+			// 		}
+			// 		log.Infof("%s: storage %s = %v", v.Hash, path, value)
+			// 		if s, ok := value.(string); ok {
+			// 			found = found || s == addr
+			// 		}
+			// 		return nil
+			// 	})
+			// 	if err != nil {
+			// 		log.Errorf("%s: %v", v.Hash, err)
+			// 	}
+			// }
+			events, _ := v.DecodeBigmapUpdates(false, false, 0)
+			for _, bmd := range events {
 				err := bmd.Walk("", func(path string, value interface{}) error {
 					if value == nil {
 						return nil

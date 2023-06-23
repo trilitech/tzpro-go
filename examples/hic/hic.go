@@ -13,6 +13,7 @@ import (
 
 	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
+	"blockwatch.cc/tzpro-go/tzpro/index"
 	"github.com/echa/log"
 )
 
@@ -54,7 +55,7 @@ type HicMetadata struct {
 	Symbol             string             `json:"symbol"`
 	ArtifactUri        string             `json:"artifactUri"`
 	Creators           []string           `json:"creators"`
-	Formats            []tzpro.Tz21Format `json:"formats"`
+	Formats            []index.Tz21Format `json:"formats"`
 	ThumbnailUri       string             `json:"thumbnailUri"`
 	Decimals           int                `json:"decimals"`
 	IsBooleanAmount    bool               `json:"isBooleanAmount"`
@@ -72,7 +73,7 @@ func (h HicNFT) ResolveMetadata(ctx context.Context, c *tzpro.Client) (*HicMetad
 		return nil, fmt.Errorf("Missing token metadata")
 	}
 	meta := &HicMetadata{}
-	if err := c.GetIpfsData(ctx, uri, meta); err != nil {
+	if err := c.Ipfs.GetData(ctx, uri, meta); err != nil {
 		return nil, err
 	}
 	return meta, nil
@@ -110,24 +111,15 @@ func run() error {
 	ctx := context.Background()
 
 	// create a new SDK client
-	c, err := tzpro.NewClient(api, nil)
-	if err != nil {
-		return err
-	}
-	c.WithLogger(log.Log)
-
-	ipfsc, err := tzpro.NewClient(ipfs, nil)
-	if err != nil {
-		return err
-	}
+	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
 	switch cmd := flags.Arg(0); cmd {
 	case "fetch":
-		return fetch(ctx, c, ipfsc)
+		return fetch(ctx, c)
 	case "list":
 		return list(ctx, c)
 	case "exploit":
-		return findExploits(ctx, c, ipfsc)
+		return findExploits(ctx, c)
 	case "":
 		return fmt.Errorf("Missing command")
 	default:
@@ -136,17 +128,17 @@ func run() error {
 
 }
 
-func findExploits(ctx context.Context, c, ipfsc *tzpro.Client) error {
+func findExploits(ctx context.Context, c *tzpro.Client) error {
 	// fetch all NFTs from bigmap 511
 	start := time.Now()
 	var count int = offset
-	params := tzpro.NewContractParams().
+	params := tzpro.NewParams().
 		WithMeta().
 		WithUnpack().
 		WithLimit(500).
 		WithOffset(uint(offset))
 	for {
-		nfts, err := c.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
+		nfts, err := c.Contract.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
 		if err != nil {
 			return err
 		}
@@ -159,7 +151,7 @@ func findExploits(ctx context.Context, c, ipfsc *tzpro.Client) error {
 				return fmt.Errorf("%v %#v", err, v.Value)
 			}
 		again:
-			meta, err := nft.ResolveMetadata(ctx, ipfsc)
+			meta, err := nft.ResolveMetadata(ctx, c)
 			if err != nil {
 				if e, ok := tzpro.IsErrRateLimited(err); ok {
 					fmt.Printf("ERR 429 - waiting %s...\n", e.Deadline())
@@ -202,17 +194,17 @@ func findExploits(ctx context.Context, c, ipfsc *tzpro.Client) error {
 	return nil
 }
 
-func fetch(ctx context.Context, c, ipfsc *tzpro.Client) error {
+func fetch(ctx context.Context, c *tzpro.Client) error {
 	// fetch all NFTs from bigmap 511
 	start := time.Now()
 	var count int = offset
-	params := tzpro.NewContractParams().
+	params := tzpro.NewParams().
 		WithMeta().
 		WithUnpack().
 		WithLimit(500).
 		WithOffset(uint(offset))
 	for {
-		nfts, err := c.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
+		nfts, err := c.Contract.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
 		if err != nil {
 			return err
 		}
@@ -229,7 +221,7 @@ func fetch(ctx context.Context, c, ipfsc *tzpro.Client) error {
 				continue
 			}
 		again:
-			meta, err := nft.ResolveMetadata(ctx, ipfsc)
+			meta, err := nft.ResolveMetadata(ctx, c)
 			if err != nil {
 				if e, ok := tzpro.IsErrRateLimited(err); ok {
 					fmt.Printf("ERR 429 - waiting %s...\n", e.Deadline())
@@ -258,13 +250,13 @@ func fetch(ctx context.Context, c, ipfsc *tzpro.Client) error {
 
 func list(ctx context.Context, c *tzpro.Client) error {
 	var count int = offset
-	params := tzpro.NewContractParams().
+	params := tzpro.NewParams().
 		WithMeta().
 		WithUnpack().
 		WithLimit(500).
 		WithOffset(uint(offset))
 	for {
-		nfts, err := c.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
+		nfts, err := c.Contract.ListBigmapValues(ctx, HIC_NFT_BIGMAP, params)
 		if err != nil {
 			return err
 		}

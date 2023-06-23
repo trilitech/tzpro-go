@@ -7,3 +7,4 @@
 # OSX specific files
 .DS_Store
 vendor/
+playground/

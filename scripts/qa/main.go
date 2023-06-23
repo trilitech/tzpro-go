@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	// "runtime/debug"
 	"strings"
 
 	"blockwatch.cc/tzpro-go/tzpro"
@@ -46,6 +47,7 @@ func try(name string, fn func()) {
 		if err := recover(); err != nil {
 			fmt.Printf("FAILED\nError: %v\n", err)
 			nFail++
+			// fmt.Println(string(debug.Stack()))
 		} else {
 			fmt.Println("OK")
 		}
@@ -58,11 +60,7 @@ func run() error {
 	ctx := context.Background()
 
 	// create a new SDK client
-	c, err := tzpro.NewClient(api, nil)
-	if err != nil {
-		return err
-	}
-	c.WithLogger(log.Log)
+	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
 	tip := TestCommon(ctx, c)
 	TestBlock(ctx, c, tip)

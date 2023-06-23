@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
 )
 
@@ -28,22 +27,19 @@ func run() error {
 	ctx := context.Background()
 
 	// create a new SDK client
-	c, err := tzpro.NewClient("https://api.tzpro.io", nil)
-	if err != nil {
-		return err
-	}
+	c := tzpro.NewClient("https://api.tzpro.io", nil)
 
 	// parse an address
-	addr, err := tezos.ParseAddress(flag.Arg(0))
+	addr, err := tzpro.ParseAddress(flag.Arg(0))
 	if err != nil {
 		return err
 	}
 
 	// fetch metadata for the address
-	md, err := c.GetWalletMetadata(ctx, addr)
+	md, err := c.Metadata.GetWallet(ctx, addr)
 	if err != nil {
 		// handle 404 NotFound errors in a special way
-		if e, ok := tzpro.IsHttpError(err); ok && e.Status == http.StatusNotFound {
+		if e, ok := tzpro.IsErrHttp(err); ok && e.Status == http.StatusNotFound {
 			return fmt.Errorf("No metadata for this account")
 		}
 		return err

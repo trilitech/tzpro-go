@@ -5,28 +5,29 @@ import (
 	"time"
 
 	"blockwatch.cc/tzpro-go/tzpro"
+	"blockwatch.cc/tzpro-go/tzpro/market"
 )
 
 func TestMarket(ctx context.Context, c *tzpro.Client) {
 	try("GetTickers", func() {
-		if _, err := c.GetTickers(ctx); err != nil {
+		if _, err := c.Market.ListTickers(ctx); err != nil {
 			panic(err)
 		}
 	})
 
 	try("GetTicker", func() {
-		if _, err := c.GetTicker(ctx, "kraken", "XTZ_USD"); err != nil {
+		if _, err := c.Market.GetTicker(ctx, "kraken", "XTZ_USD"); err != nil {
 			panic(err)
 		}
 	})
 	try("ListCandles", func() {
-		args := tzpro.CandleArgs{
+		args := market.CandleParams{
 			Market:   "kraken",
 			Pair:     "XTZ_USD",
 			Collapse: tzpro.Collapse1d,
 			From:     time.Now().Add(-168 * time.Hour),
 		}
-		if _, err := c.ListCandles(ctx, args); err != nil {
+		if _, err := c.Market.ListCandles(ctx, args); err != nil {
 			panic(err)
 		}
 	})

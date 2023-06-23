@@ -44,20 +44,16 @@ func run() error {
 	ctx := context.Background()
 
 	// create a new SDK client
-	c, err := tzpro.NewClient(api, nil)
-	if err != nil {
-		return err
-	}
+	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
 	// fetch block
-	q := c.NewBlockQuery()
-	q.WithLimit(1).WithDesc()
+	q := c.Block.NewQuery().WithLimit(1).WithDesc()
 	res, err := q.Run(ctx)
 	if err != nil {
 		return err
 	}
 
-	buf, _ := json.MarshalIndent(res.Rows[0], "", "  ")
+	buf, _ := json.MarshalIndent(res.Rows()[0], "", "  ")
 	fmt.Println(string(buf))
 	return nil
 }
