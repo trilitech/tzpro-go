@@ -58,9 +58,9 @@ type Contract struct {
 	TotalFeesUsed float64              `json:"total_fees_used"     tzpro:"-"`
 	Script        *Script              `json:"script,omitempty"    tzpro:",hex"`
 	Storage       *Prim                `json:"storage,omitempty"   tzpro:",hex"`
-	InterfaceHash string               `json:"iface_hash"`
-	CodeHash      string               `json:"code_hash"`
-	StorageHash   string               `json:"storage_hash"`
+	InterfaceHash util.HexBytes        `json:"iface_hash"`
+	CodeHash      util.HexBytes        `json:"code_hash"`
+	StorageHash   util.HexBytes        `json:"storage_hash"`
 	Features      util.StringList      `json:"features"`
 	Interfaces    util.StringList      `json:"interfaces"`
 	CallStats     map[string]int       `json:"call_stats"          tzpro:"-"`

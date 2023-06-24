@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"blockwatch.cc/tzpro-go/internal/client"
+	"blockwatch.cc/tzpro-go/internal/util"
 )
 
 type OpAPI interface {
@@ -82,8 +83,8 @@ type Op struct {
 	Data         json.RawMessage `json:"data,omitempty"`
 	Parameters   json.RawMessage `json:"parameters,omitempty"`
 	BigmapDiff   json.RawMessage `json:"big_map_diff,omitempty"` // transaction, origination
-	StorageHash  string          `json:"storage_hash,omitempty"`
-	CodeHash     string          `json:"code_hash,omitempty"`
+	StorageHash  util.HexBytes   `json:"storage_hash,omitempty"`
+	CodeHash     util.HexBytes   `json:"code_hash,omitempty"`
 	Errors       json.RawMessage `json:"errors,omitempty"`
 	Sender       Address         `json:"sender"`
 	Receiver     Address         `json:"receiver"`

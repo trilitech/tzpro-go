@@ -1,7 +1,7 @@
 // Copyright (c) 2023 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
-package defi
+package wallet
 
 import (
 	"blockwatch.cc/tzgo/tezos"

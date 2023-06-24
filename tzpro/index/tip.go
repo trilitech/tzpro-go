@@ -9,35 +9,35 @@ import (
 )
 
 type Tip struct {
-	Name               string    `json:"name"`
-	Network            string    `json:"network"`
-	Symbol             string    `json:"symbol"`
-	ChainId            string    `json:"chain_id"`
-	GenesisTime        time.Time `json:"genesis_time"`
-	Hash               BlockHash `json:"block_hash"`
-	Height             int64     `json:"height"`
-	Cycle              int64     `json:"cycle"`
-	Timestamp          time.Time `json:"timestamp"`
-	Protocol           string    `json:"protocol"`
-	TotalAccounts      int64     `json:"total_accounts"`
-	TotalContracts     int64     `json:"total_contracts"`
-	TotalRollups       int64     `json:"total_rollups"`
-	FundedAccounts     int64     `json:"funded_accounts"`
-	DustAccounts       int64     `json:"dust_accounts"`
-	DustDelegators     int64     `json:"dust_delegators"`
-	TotalOps           int64     `json:"total_ops"`
-	Delegators         int64     `json:"delegators"`
-	Bakers             int64     `json:"bakers"`
-	Rolls              int64     `json:"rolls"`
-	RollOwners         int64     `json:"roll_owners"`
-	NewAccounts30d     int64     `json:"new_accounts_30d"`
-	ClearedAccounts30d int64     `json:"cleared_accounts_30d"`
-	FundedAccounts30d  int64     `json:"funded_accounts_30d"`
-	Inflation1Y        float64   `json:"inflation_1y"`
-	InflationRate1Y    float64   `json:"inflation_rate_1y"`
-	Health             int       `json:"health"`
-	Supply             *Supply   `json:"supply,omitempty"`
-	Status             Status    `json:"status"`
+	Name               string       `json:"name"`
+	Network            string       `json:"network"`
+	Symbol             string       `json:"symbol"`
+	ChainId            ChainIdHash  `json:"chain_id"`
+	GenesisTime        time.Time    `json:"genesis_time"`
+	Hash               BlockHash    `json:"block_hash"`
+	Height             int64        `json:"height"`
+	Cycle              int64        `json:"cycle"`
+	Timestamp          time.Time    `json:"timestamp"`
+	Protocol           ProtocolHash `json:"protocol"`
+	TotalAccounts      int64        `json:"total_accounts"`
+	TotalContracts     int64        `json:"total_contracts"`
+	TotalRollups       int64        `json:"total_rollups"`
+	FundedAccounts     int64        `json:"funded_accounts"`
+	DustAccounts       int64        `json:"dust_accounts"`
+	DustDelegators     int64        `json:"dust_delegators"`
+	TotalOps           int64        `json:"total_ops"`
+	Delegators         int64        `json:"delegators"`
+	Bakers             int64        `json:"bakers"`
+	Rolls              int64        `json:"rolls"`
+	RollOwners         int64        `json:"roll_owners"`
+	NewAccounts30d     int64        `json:"new_accounts_30d"`
+	ClearedAccounts30d int64        `json:"cleared_accounts_30d"`
+	FundedAccounts30d  int64        `json:"funded_accounts_30d"`
+	Inflation1Y        float64      `json:"inflation_1y"`
+	InflationRate1Y    float64      `json:"inflation_rate_1y"`
+	Health             int          `json:"health"`
+	Supply             *Supply      `json:"supply,omitempty"`
+	Status             Status       `json:"status"`
 }
 
 func (c *explorerClient) GetTip(ctx context.Context) (*Tip, error) {

@@ -4,6 +4,7 @@
 package util
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"io"
 )
@@ -57,4 +58,9 @@ func (h HexBytes) String() string {
 // Bytes type-casts HexBytes back to a byte slice
 func (h HexBytes) Bytes() []byte {
 	return []byte(h)
+}
+
+// Return u64 value from decoded bytes
+func (h HexBytes) U64() uint64 {
+	return binary.BigEndian.Uint64(h[:8])
 }

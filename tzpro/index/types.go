@@ -19,6 +19,7 @@ type (
 	BlockHash    = tezos.BlockHash
 	ExprHash     = tezos.ExprHash
 	ProtocolHash = tezos.ProtocolHash
+	ChainIdHash  = tezos.ChainIdHash
 	Address      = tezos.Address
 	AddressType  = tezos.AddressType
 	AddressSet   = tezos.AddressSet

@@ -183,8 +183,13 @@ func (q *TableQuery[T]) WithOrder(order OrderType) *TableQuery[T] {
 	return q
 }
 
-func (q *TableQuery[T]) WithDesc() *TableQuery[T] {
+func (q *TableQuery[T]) Desc() *TableQuery[T] {
 	q.Order = "desc"
+	return q
+}
+
+func (q *TableQuery[T]) Asc() *TableQuery[T] {
+	q.Order = "asc"
 	return q
 }
 
