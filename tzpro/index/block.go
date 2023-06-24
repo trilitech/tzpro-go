@@ -31,7 +31,7 @@ type blockClient struct {
 type Block struct {
 	RowId            uint64              `json:"row_id"`
 	Hash             BlockHash           `json:"hash"`
-	ParentHash       *BlockHash          `json:"predecessor,omitempty"  tzpro:"-"` // avoid join
+	ParentHash       *BlockHash          `json:"predecessor,omitempty"`
 	FollowerHash     *BlockHash          `json:"successor,omitempty"    tzpro:"-"`
 	Timestamp        time.Time           `json:"time"`
 	Height           int64               `json:"height"`
@@ -72,7 +72,7 @@ type Block struct {
 	PctAccountReuse  float64             `json:"pct_account_reuse"`
 	LbEscapeVote     string              `json:"lb_esc_vote"`
 	LbEscapeEma      int64               `json:"lb_esc_ema"`
-	Protocol         string              `json:"protocol"`
+	Protocol         ProtocolHash        `json:"protocol"`
 	ProposerKeyId    uint64              `json:"proposer_consensus_key_id"`
 	BakerKeyId       uint64              `json:"baker_consensus_key_id"`
 	ProposerKey      string              `json:"proposer_consensus_key"`

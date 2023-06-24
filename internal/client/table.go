@@ -312,6 +312,13 @@ func (r *TableQueryResult[T]) Len() int {
 	return len(r.rows)
 }
 
+func (r *TableQueryResult[T]) Last() (t T) {
+	if l := len(r.rows); l > 0 {
+		t = r.rows[l-1]
+	}
+	return
+}
+
 func (r *TableQueryResult[T]) Cursor() uint64 {
 	if len(r.rows) == 0 {
 		return 0

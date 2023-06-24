@@ -7,18 +7,10 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
 	"blockwatch.cc/tzpro-go/internal/client"
-)
-
-var (
-	ErrNoStorage    = errors.New("no storage")
-	ErrNoParams     = errors.New("no parameters")
-	ErrNoBigmapDiff = errors.New("no bigmap diff")
-	ErrNoType       = errors.New("API type missing")
 )
 
 type OpAPI interface {

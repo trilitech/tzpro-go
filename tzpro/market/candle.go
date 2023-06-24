@@ -51,7 +51,7 @@ func (l CandleList) AsOf(t time.Time) (c *Candle) {
 	return
 }
 
-type CandleParams struct {
+type CandleQuery struct {
 	Market   string
 	Pair     string
 	Collapse time.Duration
@@ -62,7 +62,7 @@ type CandleParams struct {
 	Limit    int
 }
 
-func (c CandleParams) Url() string {
+func (c CandleQuery) Url() string {
 	p := client.NewQuery()
 	if c.Limit > 0 && p.Query.Get("limit") == "" {
 		p.Query.Set("limit", strconv.Itoa(c.Limit))
@@ -85,7 +85,7 @@ func (c CandleParams) Url() string {
 	return p.WithPath("/series/" + c.Market + "/" + c.Pair + "/ohlcv").Url()
 }
 
-func (c *marketClient) ListCandles(ctx context.Context, args CandleParams) (CandleList, error) {
+func (c *marketClient) ListCandles(ctx context.Context, args CandleQuery) (CandleList, error) {
 	var data json.RawMessage
 	if err := c.client.Get(ctx, args.Url(), nil, &data); err != nil {
 		return nil, err

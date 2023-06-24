@@ -12,7 +12,7 @@ import (
 type MarketAPI interface {
 	GetTicker(context.Context, string, string) (*Ticker, error)
 	ListTickers(context.Context) ([]Ticker, error)
-	ListCandles(context.Context, CandleParams) (CandleList, error)
+	ListCandles(context.Context, CandleQuery) (CandleList, error)
 }
 
 func NewMarketAPI(c *client.Client) MarketAPI {

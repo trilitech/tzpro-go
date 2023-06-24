@@ -4,6 +4,8 @@
 package index
 
 import (
+	"errors"
+
 	"blockwatch.cc/tzgo/micheline"
 	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/internal/client"
@@ -12,17 +14,18 @@ import (
 type (
 	Query = client.Query
 
-	OpHash      = tezos.OpHash
-	OpStatus    = tezos.OpStatus
-	BlockHash   = tezos.BlockHash
-	ExprHash    = tezos.ExprHash
-	Address     = tezos.Address
-	AddressType = tezos.AddressType
-	AddressSet  = tezos.AddressSet
-	RightType   = tezos.RightType
-	Key         = tezos.Key
-	Token       = tezos.Token
-	Z           = tezos.Z
+	OpHash       = tezos.OpHash
+	OpStatus     = tezos.OpStatus
+	BlockHash    = tezos.BlockHash
+	ExprHash     = tezos.ExprHash
+	ProtocolHash = tezos.ProtocolHash
+	Address      = tezos.Address
+	AddressType  = tezos.AddressType
+	AddressSet   = tezos.AddressSet
+	RightType    = tezos.RightType
+	Key          = tezos.Key
+	Token        = tezos.Token
+	Z            = tezos.Z
 
 	Script       = micheline.Script
 	Prim         = micheline.Prim
@@ -50,4 +53,11 @@ var (
 	DiffActionRemove   = micheline.DiffActionRemove
 	RightTypeBaking    = tezos.RightTypeBaking
 	RightTypeEndorsing = tezos.RightTypeEndorsing
+)
+
+var (
+	ErrNoStorage    = errors.New("no storage")
+	ErrNoParams     = errors.New("no parameters")
+	ErrNoBigmapDiff = errors.New("no bigmap diff")
+	ErrNoType       = errors.New("API type missing")
 )

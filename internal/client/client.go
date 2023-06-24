@@ -106,7 +106,9 @@ func (c *Client) WithTLS(tc *tls.Config) *Client {
 }
 
 func (c *Client) WithTimeout(d time.Duration) *Client {
-	c.transport.Transport.(*http.Transport).ResponseHeaderTimeout = d
+	if tr, ok := c.transport.Transport.(*http.Transport); ok {
+		tr.ResponseHeaderTimeout = d
+	}
 	c.transport.Timeout = d
 	return c
 }

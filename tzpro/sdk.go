@@ -146,3 +146,11 @@ func (s Client) Retries() int {
 func (s Client) RetryDelay() time.Duration {
 	return s.client.RetryDelay()
 }
+
+func (s Client) CacheGet(key any) (any, bool) {
+	return s.client.CacheGet(key)
+}
+
+func (s Client) CacheAdd(key, val any) {
+	s.client.CacheAdd(key, val)
+}
