@@ -12,14 +12,14 @@ import (
 )
 
 type BakerAPI interface {
-	Get(context.Context, Address, Params) (*Baker, error)
-	List(context.Context, Params) (BakerList, error)
-	ListVotes(context.Context, Address, Params) (BallotList, error)
-	ListEndorsements(context.Context, Address, Params) (OpList, error)
-	ListDelegations(context.Context, Address, Params) (OpList, error)
-	GetRights(context.Context, Address, int64, Params) (*Rights, error)
-	GetIncome(context.Context, Address, int64, Params) (*Income, error)
-	GetSnapshot(context.Context, Address, int64, Params) (*Snapshot, error)
+	Get(context.Context, Address, Query) (*Baker, error)
+	List(context.Context, Query) (BakerList, error)
+	ListVotes(context.Context, Address, Query) (BallotList, error)
+	ListEndorsements(context.Context, Address, Query) (OpList, error)
+	ListDelegations(context.Context, Address, Query) (OpList, error)
+	GetRights(context.Context, Address, int64, Query) (*Rights, error)
+	GetIncome(context.Context, Address, int64, Query) (*Income, error)
+	GetSnapshot(context.Context, Address, int64, Query) (*Snapshot, error)
 
 	NewIncomeQuery() *IncomeQuery
 	NewRightsQuery() *RightsQuery
@@ -130,7 +130,7 @@ type Snapshot struct {
 	Delegators             []Delegator `json:"delegators"`
 }
 
-func (c *bakerClient) Get(ctx context.Context, addr Address, params Params) (*Baker, error) {
+func (c *bakerClient) Get(ctx context.Context, addr Address, params Query) (*Baker, error) {
 	b := &Baker{}
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, b); err != nil {
@@ -139,7 +139,7 @@ func (c *bakerClient) Get(ctx context.Context, addr Address, params Params) (*Ba
 	return b, nil
 }
 
-func (c *bakerClient) List(ctx context.Context, params Params) (BakerList, error) {
+func (c *bakerClient) List(ctx context.Context, params Query) (BakerList, error) {
 	b := make([]*Baker, 0)
 	u := params.WithPath("/explorer/bakers").Url()
 	if err := c.client.Get(ctx, u, nil, &b); err != nil {
@@ -148,7 +148,7 @@ func (c *bakerClient) List(ctx context.Context, params Params) (BakerList, error
 	return b, nil
 }
 
-func (c *bakerClient) ListVotes(ctx context.Context, addr Address, params Params) (BallotList, error) {
+func (c *bakerClient) ListVotes(ctx context.Context, addr Address, params Query) (BallotList, error) {
 	cc := make([]*Ballot, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/votes", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &cc); err != nil {
@@ -157,7 +157,7 @@ func (c *bakerClient) ListVotes(ctx context.Context, addr Address, params Params
 	return cc, nil
 }
 
-func (c *bakerClient) ListEndorsements(ctx context.Context, addr Address, params Params) (OpList, error) {
+func (c *bakerClient) ListEndorsements(ctx context.Context, addr Address, params Query) (OpList, error) {
 	ops := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/endorsements", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &ops); err != nil {
@@ -166,7 +166,7 @@ func (c *bakerClient) ListEndorsements(ctx context.Context, addr Address, params
 	return ops, nil
 }
 
-func (c *bakerClient) ListDelegations(ctx context.Context, addr Address, params Params) (OpList, error) {
+func (c *bakerClient) ListDelegations(ctx context.Context, addr Address, params Query) (OpList, error) {
 	ops := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/delegations", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &ops); err != nil {
@@ -175,7 +175,7 @@ func (c *bakerClient) ListDelegations(ctx context.Context, addr Address, params 
 	return ops, nil
 }
 
-func (c *bakerClient) GetRights(ctx context.Context, addr Address, cycle int64, params Params) (*Rights, error) {
+func (c *bakerClient) GetRights(ctx context.Context, addr Address, cycle int64, params Query) (*Rights, error) {
 	var r Rights
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/rights/%d", addr, cycle)).Url()
 	if err := c.client.Get(ctx, u, nil, &r); err != nil {
@@ -184,7 +184,7 @@ func (c *bakerClient) GetRights(ctx context.Context, addr Address, cycle int64, 
 	return &r, nil
 }
 
-func (c *bakerClient) GetIncome(ctx context.Context, addr Address, cycle int64, params Params) (*Income, error) {
+func (c *bakerClient) GetIncome(ctx context.Context, addr Address, cycle int64, params Query) (*Income, error) {
 	var r Income
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/income/%d", addr, cycle)).Url()
 	if err := c.client.Get(ctx, u, nil, &r); err != nil {
@@ -193,7 +193,7 @@ func (c *bakerClient) GetIncome(ctx context.Context, addr Address, cycle int64, 
 	return &r, nil
 }
 
-func (c *bakerClient) GetSnapshot(ctx context.Context, addr Address, cycle int64, params Params) (*Snapshot, error) {
+func (c *bakerClient) GetSnapshot(ctx context.Context, addr Address, cycle int64, params Query) (*Snapshot, error) {
 	var r Snapshot
 	u := params.WithPath(fmt.Sprintf("/explorer/bakers/%s/snapshot/%d", addr, cycle)).Url()
 	if err := c.client.Get(ctx, u, nil, &r); err != nil {

@@ -32,7 +32,7 @@ type NftPosition struct {
 	CloseTime  *time.Time `json:"close_time,omitempty"`
 }
 
-func (c *nftClient) ListPositions(ctx context.Context, params Params) ([]*NftPosition, error) {
+func (c *nftClient) ListPositions(ctx context.Context, params Query) ([]*NftPosition, error) {
 	list := make([]*NftPosition, 0)
 	u := params.WithPath("/v1/nft/positions").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -41,7 +41,7 @@ func (c *nftClient) ListPositions(ctx context.Context, params Params) ([]*NftPos
 	return list, nil
 }
 
-func (c *nftClient) ListMarketPositions(ctx context.Context, addr Address, params Params) ([]*NftPosition, error) {
+func (c *nftClient) ListMarketPositions(ctx context.Context, addr Address, params Query) ([]*NftPosition, error) {
 	list := make([]*NftPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/nft/%s/positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

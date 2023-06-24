@@ -9,8 +9,8 @@ import (
 )
 
 func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
-	bp := tzpro.NewParams().WithRights().WithMeta()
-	op := tzpro.NewParams().WithStorage().WithMeta()
+	bp := tzpro.WithRights().WithMeta()
+	op := bp.Clone()
 
 	// block
 	try("GetBlock", func() {
@@ -53,7 +53,7 @@ func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
 	//
 	try("Op query", func() {
 		oq := c.Op.NewQuery().
-			WithEqual("type", "transaction").
+			AndEqual("type", "transaction").
 			WithLimit(100).
 			WithDesc()
 		ores, err := oq.Run(ctx)

@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	Params = client.Params
+	Query = client.Query
 
 	OpHash       = tezos.OpHash
 	Address      = tezos.Address

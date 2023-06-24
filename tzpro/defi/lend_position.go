@@ -43,7 +43,7 @@ type LendingPosition struct {
 	InterestUSD        float64    `json:"interest_pending_usd,string"`
 }
 
-func (c *lendClient) ListPositions(ctx context.Context, params Params) ([]*LendingPosition, error) {
+func (c *lendClient) ListPositions(ctx context.Context, params Query) ([]*LendingPosition, error) {
 	list := make([]*LendingPosition, 0)
 	u := params.WithPath("/v1/lend/positions").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -52,7 +52,7 @@ func (c *lendClient) ListPositions(ctx context.Context, params Params) ([]*Lendi
 	return list, nil
 }
 
-func (c *lendClient) ListPoolPositions(ctx context.Context, addr PoolAddress, params Params) ([]*LendingPosition, error) {
+func (c *lendClient) ListPoolPositions(ctx context.Context, addr PoolAddress, params Query) ([]*LendingPosition, error) {
 	list := make([]*LendingPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/lend/%s/positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

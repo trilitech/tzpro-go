@@ -7,7 +7,7 @@ import (
 )
 
 func TestFarm(ctx context.Context, c *tzpro.Client) {
-	p := tzpro.NewParams()
+	p := tzpro.NewQuery()
 	// dex
 	try("ListFarms", func() {
 		if _, err := c.Farm.ListFarms(ctx, p); err != nil {

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Blockwatch Data Inc.
+// Copyright (c) 2023 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package client
@@ -13,14 +13,14 @@ import (
 	"blockwatch.cc/tzpro-go/internal/util"
 )
 
-type Params struct {
+type Query struct {
 	Server string
 	Path   string
 	Query  url.Values
 }
 
-func NewParams() Params {
-	return Params{
+func NewQuery() Query {
+	return Query{
 		Query: url.Values{},
 	}
 }
@@ -30,15 +30,17 @@ func NewParams() Params {
 // server:port/prefix
 // server/prefix
 // /prefix
-func (p Params) Parse(s string) (Params, error) {
+func ParseQuery(s string) (Query, error) {
 	if !strings.HasPrefix(s, "http") {
 		s = "https://" + s
 	}
 	u, err := url.Parse(s)
 	if err != nil {
-		return p, err
+		return NewQuery(), err
 	}
-	p.Query = u.Query()
+	p := Query{
+		Query: u.Query(),
+	}
 	if u.Scheme == "" {
 		u.Scheme = "https"
 	}
@@ -53,8 +55,8 @@ func (p Params) Parse(s string) (Params, error) {
 	return p, nil
 }
 
-func (p Params) Clone() Params {
-	np := Params{
+func (p Query) Clone() Query {
+	np := Query{
 		Query: url.Values{},
 	}
 	np.Server = p.Server
@@ -65,7 +67,7 @@ func (p Params) Clone() Params {
 	return np
 }
 
-func (p Params) WithArg(key string, values ...any) Params {
+func (p Query) AndArg(key string, values ...any) Query {
 	val := util.ToString(values)
 	if val != "" {
 		p.Query.Set(key, val)
@@ -75,153 +77,158 @@ func (p Params) WithArg(key string, values ...any) Params {
 	return p
 }
 
-func (p Params) WithFilter(key string, mode FilterMode, values ...any) Params {
+func (p Query) AndFilter(key string, mode FilterMode, values ...any) Query {
 	p.Query.Set(key+"."+string(mode), util.ToString(values))
 	return p
 }
 
-func (p Params) WithEqual(key string, val any) Params {
+func (p Query) AndEqual(key string, val any) Query {
 	p.Query.Set(key+".eq", util.ToString(val))
 	return p
 }
 
-func (p Params) WithNotEqual(key string, val any) Params {
+func (p Query) AndNotEqual(key string, val any) Query {
 	p.Query.Set(key+".ne", util.ToString(val))
 	return p
 }
 
-func (p Params) WithGt(key string, val any) Params {
+func (p Query) AndGt(key string, val any) Query {
 	p.Query.Set(key+".gt", util.ToString(val))
 	return p
 }
 
-func (p Params) WithGte(key string, val any) Params {
+func (p Query) AndGte(key string, val any) Query {
 	p.Query.Set(key+".gte", util.ToString(val))
 	return p
 }
 
-func (p Params) WithLt(key string, val any) Params {
+func (p Query) AndLt(key string, val any) Query {
 	p.Query.Set(key+".lt", util.ToString(val))
 	return p
 }
 
-func (p Params) WithLte(key string, val any) Params {
+func (p Query) AndLte(key string, val any) Query {
 	p.Query.Set(key+".lte", util.ToString(val))
 	return p
 }
 
-func (p Params) WithIn(key string, val ...any) Params {
+func (p Query) AndIn(key string, val ...any) Query {
 	p.Query.Set(key+".in", util.ToString(val))
 	return p
 }
 
-func (p Params) WithNotIn(key string, val ...any) Params {
+func (p Query) AndNotIn(key string, val ...any) Query {
 	p.Query.Set(key+".nin", util.ToString(val))
 	return p
 }
 
-func (p Params) WithRange(key string, from, to any) Params {
+func (p Query) AndRange(key string, from, to any) Query {
 	p.Query.Set(key+".rg", util.ToString([]any{from, to}))
 	return p
 }
 
-func (p Params) WithRegexp(key string, re string) Params {
+func (p Query) AndRegexp(key string, re string) Query {
 	p.Query.Set(key+".re", re)
 	return p
 }
 
-func (p Params) With(key string) Params {
+func (p Query) And(key string) Query {
 	p.Query.Set(key, "1")
 	return p
 }
 
-func (p Params) WithLimit(v uint) Params {
+func (p Query) AndNot(key string) Query {
+	p.Query.Set(key, "0")
+	return p
+}
+
+func (p Query) WithLimit(v uint) Query {
 	p.Query.Set("limit", strconv.Itoa(int(v)))
 	return p
 }
 
-func (p Params) WithOffset(v uint) Params {
+func (p Query) WithOffset(v uint) Query {
 	p.Query.Set("offset", strconv.Itoa(int(v)))
 	return p
 }
 
-func (p Params) WithCursor(v uint64) Params {
+func (p Query) WithCursor(v uint64) Query {
 	p.Query.Set("cursor", strconv.FormatUint(v, 10))
 	return p
 }
 
-func (p Params) WithOrder(o OrderType) Params {
+func (p Query) WithOrder(o OrderType) Query {
 	p.Query.Set("order", string(o))
 	return p
 }
 
-func (p Params) WithDesc() Params {
+func (p Query) Desc() Query {
 	p.Query.Set("order", "desc")
 	return p
 }
 
-func (p Params) WithAsc() Params {
+func (p Query) Asc() Query {
 	p.Query.Set("order", "asc")
 	return p
 }
 
-func (p Params) WithMeta() Params {
+func (p Query) WithMeta() Query {
 	p.Query.Set("meta", "1")
 	return p
 }
 
-func (p Params) WithTags(t ...string) Params {
+func (p Query) WithTags(t ...string) Query {
 	p.Query.Set("tags", strings.Join(t, ","))
 	return p
 }
 
-func (p Params) WithFrom(t time.Time) Params {
+func (p Query) WithFrom(t time.Time) Query {
 	p.Query.Set("from", t.Format("2006-01-02"))
 	return p
 }
 
-func (p Params) WithTo(t time.Time) Params {
+func (p Query) WithTo(t time.Time) Query {
 	p.Query.Set("to", t.Format("2006-01-02"))
 	return p
 }
 
-func (p Params) WithTimeRange(from, to time.Time) Params {
+func (p Query) WithTimeRange(from, to time.Time) Query {
 	p.Query.Set("from", from.Format("2006-01-02"))
 	p.Query.Set("to", to.Format("2006-01-02"))
 	return p
 }
 
-func (p Params) WithPrim() Params {
+func (p Query) WithPrim() Query {
 	p.Query.Set("prim", "1")
 	return p
 }
 
-func (p Params) WithMerge() Params {
+func (p Query) WithMerge() Query {
 	p.Query.Set("merge", "1")
 	return p
 }
 
-func (p Params) WithStorage() Params {
+func (p Query) WithStorage() Query {
 	p.Query.Set("storage", "1")
 	return p
 }
 
-func (p Params) WithUnpack() Params {
+func (p Query) WithUnpack() Query {
 	p.Query.Set("unpack", "1")
 	return p
 }
 
-func (p Params) WithRights() Params {
+func (p Query) WithRights() Query {
 	p.Query.Set("rights", "1")
 	return p
 }
 
-func (p Params) WithPath(path string) Params {
+func (p Query) WithPath(path string) Query {
 	p.Path = path
 	return p
 }
 
-func (p Params) Url() string {
+func (p Query) Url() string {
 	var b strings.Builder
 	b.WriteString(p.Server)
 	if p.Path != "" {
@@ -235,7 +242,7 @@ func (p Params) Url() string {
 	return b.String()
 }
 
-func (p Params) Check() error {
+func (p Query) Check() error {
 	if p.Server == "" {
 		return fmt.Errorf("empty server URL")
 	}

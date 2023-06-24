@@ -45,7 +45,7 @@ func (c *tokenClient) GetLedger(ctx context.Context, addr Address) (*Ledger, err
 	return t, nil
 }
 
-func (c *tokenClient) ListLedgers(ctx context.Context, params Params) ([]*Ledger, error) {
+func (c *tokenClient) ListLedgers(ctx context.Context, params Query) ([]*Ledger, error) {
 	list := make([]*Ledger, 0)
 	u := params.WithPath("/v1/ledgers").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -54,7 +54,7 @@ func (c *tokenClient) ListLedgers(ctx context.Context, params Params) ([]*Ledger
 	return list, nil
 }
 
-func (c *tokenClient) ListLedgerTokens(ctx context.Context, addr Address, params Params) ([]*Token, error) {
+func (c *tokenClient) ListLedgerTokens(ctx context.Context, addr Address, params Query) ([]*Token, error) {
 	list := make([]*Token, 0)
 	u := params.WithPath("/v1/ledgers/%s/tokens").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

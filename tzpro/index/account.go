@@ -12,9 +12,9 @@ import (
 )
 
 type AccountAPI interface {
-	Get(context.Context, Address, Params) (*Account, error)
-	ListOps(context.Context, Address, Params) (OpList, error)
-	ListContracts(context.Context, Address, Params) (ContractList, error)
+	Get(context.Context, Address, Query) (*Account, error)
+	ListOps(context.Context, Address, Query) (OpList, error)
+	ListContracts(context.Context, Address, Query) (ContractList, error)
 	NewQuery() *AccountQuery
 }
 
@@ -93,7 +93,7 @@ func (c *accountClient) NewQuery() *AccountQuery {
 	return client.NewTableQuery[*Account](c.client, "account")
 }
 
-func (c *accountClient) Get(ctx context.Context, addr Address, params Params) (*Account, error) {
+func (c *accountClient) Get(ctx context.Context, addr Address, params Query) (*Account, error) {
 	a := &Account{}
 	u := params.WithPath(fmt.Sprintf("/explorer/account/%s", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, a); err != nil {
@@ -102,7 +102,7 @@ func (c *accountClient) Get(ctx context.Context, addr Address, params Params) (*
 	return a, nil
 }
 
-func (c *accountClient) ListContracts(ctx context.Context, addr Address, params Params) (ContractList, error) {
+func (c *accountClient) ListContracts(ctx context.Context, addr Address, params Query) (ContractList, error) {
 	cc := make(ContractList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/contracts", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &cc); err != nil {
@@ -111,7 +111,7 @@ func (c *accountClient) ListContracts(ctx context.Context, addr Address, params 
 	return cc, nil
 }
 
-func (c *accountClient) ListOps(ctx context.Context, addr Address, params Params) (OpList, error) {
+func (c *accountClient) ListOps(ctx context.Context, addr Address, params Query) (OpList, error) {
 	ops := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/operations", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &ops); err != nil {

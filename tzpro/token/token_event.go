@@ -29,7 +29,7 @@ type TokenEvent struct {
 	Time      time.Time `json:"time"`
 }
 
-func (c *tokenClient) ListLedgerEvents(ctx context.Context, addr Address, params Params) ([]*TokenEvent, error) {
+func (c *tokenClient) ListLedgerEvents(ctx context.Context, addr Address, params Query) ([]*TokenEvent, error) {
 	list := make([]*TokenEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/ledgers/%s/events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -38,7 +38,7 @@ func (c *tokenClient) ListLedgerEvents(ctx context.Context, addr Address, params
 	return list, nil
 }
 
-func (c *tokenClient) ListTokenEvents(ctx context.Context, addr TokenAddress, params Params) ([]*TokenEvent, error) {
+func (c *tokenClient) ListTokenEvents(ctx context.Context, addr TokenAddress, params Query) ([]*TokenEvent, error) {
 	list := make([]*TokenEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/tokens/%s/events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

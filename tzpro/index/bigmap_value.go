@@ -115,7 +115,7 @@ func (c contractClient) NewBigmapValueQuery() *BigmapValueQuery {
 	return client.NewTableQuery[*BigmapValue](c.client, "bigmap_values")
 }
 
-func (c *contractClient) GetBigmapValue(ctx context.Context, id int64, key string, params Params) (*BigmapValue, error) {
+func (c *contractClient) GetBigmapValue(ctx context.Context, id int64, key string, params Query) (*BigmapValue, error) {
 	v := &BigmapValue{}
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/%s", id, key)).Url()
 	if err := c.client.Get(ctx, u, nil, v); err != nil {
@@ -124,7 +124,7 @@ func (c *contractClient) GetBigmapValue(ctx context.Context, id int64, key strin
 	return v, nil
 }
 
-func (c *contractClient) ListBigmapValues(ctx context.Context, id int64, params Params) (BigmapValueList, error) {
+func (c *contractClient) ListBigmapValues(ctx context.Context, id int64, params Query) (BigmapValueList, error) {
 	vals := make(BigmapValueList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/values", id)).Url()
 	if err := c.client.Get(ctx, u, nil, &vals); err != nil {

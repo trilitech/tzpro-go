@@ -60,7 +60,7 @@ func (c *contractClient) NewBigmapQuery() *BigmapQuery {
 	return client.NewTableQuery[*Bigmap](c.client, "bigmaps")
 }
 
-func (c *contractClient) GetBigmap(ctx context.Context, id int64, params Params) (*Bigmap, error) {
+func (c *contractClient) GetBigmap(ctx context.Context, id int64, params Query) (*Bigmap, error) {
 	b := &Bigmap{}
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d", id)).Url()
 	if err := c.client.Get(ctx, u, nil, b); err != nil {

@@ -32,7 +32,7 @@ type NftTrade struct {
 	Time       time.Time `json:"time"`
 }
 
-func (c *nftClient) ListTrades(ctx context.Context, params Params) ([]*NftTrade, error) {
+func (c *nftClient) ListTrades(ctx context.Context, params Query) ([]*NftTrade, error) {
 	list := make([]*NftTrade, 0)
 	u := params.WithPath("/v1/nft/trades").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -41,7 +41,7 @@ func (c *nftClient) ListTrades(ctx context.Context, params Params) ([]*NftTrade,
 	return list, nil
 }
 
-func (c *nftClient) ListMarketTrades(ctx context.Context, addr Address, params Params) ([]*NftTrade, error) {
+func (c *nftClient) ListMarketTrades(ctx context.Context, addr Address, params Query) ([]*NftTrade, error) {
 	list := make([]*NftTrade, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/nft/%s/trades", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

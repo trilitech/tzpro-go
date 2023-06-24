@@ -13,15 +13,15 @@ import (
 
 type NftAPI interface {
 	GetMarket(context.Context, Address) (*NftMarket, error)
-	ListMarketEvents(context.Context, Address, Params) ([]*NftEvent, error)
-	ListMarketPositions(context.Context, Address, Params) ([]*NftPosition, error)
-	ListMarketTrades(context.Context, Address, Params) ([]*NftTrade, error)
+	ListMarketEvents(context.Context, Address, Query) ([]*NftEvent, error)
+	ListMarketPositions(context.Context, Address, Query) ([]*NftPosition, error)
+	ListMarketTrades(context.Context, Address, Query) ([]*NftTrade, error)
 
 	// firehose
-	ListMarkets(context.Context, Params) ([]*NftMarket, error)
-	ListEvents(context.Context, Params) ([]*NftEvent, error)
-	ListPositions(context.Context, Params) ([]*NftPosition, error)
-	ListTrades(context.Context, Params) ([]*NftTrade, error)
+	ListMarkets(context.Context, Query) ([]*NftMarket, error)
+	ListEvents(context.Context, Query) ([]*NftEvent, error)
+	ListPositions(context.Context, Query) ([]*NftPosition, error)
+	ListTrades(context.Context, Query) ([]*NftTrade, error)
 }
 
 func NewNftAPI(c *client.Client) NftAPI {
@@ -58,7 +58,7 @@ func (c *nftClient) GetMarket(ctx context.Context, addr Address) (*NftMarket, er
 	return p, nil
 }
 
-func (c *nftClient) ListMarkets(ctx context.Context, params Params) ([]*NftMarket, error) {
+func (c *nftClient) ListMarkets(ctx context.Context, params Query) ([]*NftMarket, error) {
 	list := make([]*NftMarket, 0)
 	u := params.WithPath("/v1/nft").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

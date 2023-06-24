@@ -132,7 +132,7 @@ func findExploits(ctx context.Context, c *tzpro.Client) error {
 	// fetch all NFTs from bigmap 511
 	start := time.Now()
 	var count int = offset
-	params := tzpro.NewParams().
+	params := tzpro.NewQuery().
 		WithMeta().
 		WithUnpack().
 		WithLimit(500).
@@ -198,7 +198,7 @@ func fetch(ctx context.Context, c *tzpro.Client) error {
 	// fetch all NFTs from bigmap 511
 	start := time.Now()
 	var count int = offset
-	params := tzpro.NewParams().
+	params := tzpro.NewQuery().
 		WithMeta().
 		WithUnpack().
 		WithLimit(500).
@@ -250,7 +250,7 @@ func fetch(ctx context.Context, c *tzpro.Client) error {
 
 func list(ctx context.Context, c *tzpro.Client) error {
 	var count int = offset
-	params := tzpro.NewParams().
+	params := tzpro.NewQuery().
 		WithMeta().
 		WithUnpack().
 		WithLimit(500).

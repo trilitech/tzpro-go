@@ -11,12 +11,12 @@ import (
 )
 
 type StatsAPI interface {
-	GetAgeReport(context.Context, Params) ([]*AgeReport, error)
-	GetSupplyReport(context.Context, Params) ([]*SupplyReport, error)
-	GetAccountsReport(context.Context, Params) ([]*AccountsReport, error)
-	GetActivityReport(context.Context, Params) ([]*ActivityReport, error)
-	GetBalanceReport(context.Context, Params) ([]*BalanceReport, error)
-	GetOpReport(context.Context, Params) ([]*OpReport, error)
+	GetAgeReport(context.Context, Query) ([]*AgeReport, error)
+	GetSupplyReport(context.Context, Query) ([]*SupplyReport, error)
+	GetAccountsReport(context.Context, Query) ([]*AccountsReport, error)
+	GetActivityReport(context.Context, Query) ([]*ActivityReport, error)
+	GetBalanceReport(context.Context, Query) ([]*BalanceReport, error)
+	GetOpReport(context.Context, Query) ([]*OpReport, error)
 }
 
 func NewStatsAPI(c *client.Client) StatsAPI {
@@ -36,7 +36,7 @@ type AgeReport struct {
 	SumDormant float64   `json:"sum_dormant"`
 }
 
-func (c *statsClient) GetAgeReport(ctx context.Context, params Params) ([]*AgeReport, error) {
+func (c *statsClient) GetAgeReport(ctx context.Context, params Query) ([]*AgeReport, error) {
 	rep := make([]*AgeReport, 0)
 	u := params.WithPath("/explorer/stats/age").Url()
 	if err := c.client.Get(ctx, u, nil, &rep); err != nil {
@@ -65,7 +65,7 @@ type SupplyReport struct {
 	OneDayDaysDestroyed     float64 `json:"tdd_d1"`
 }
 
-func (c *statsClient) GetSupplyReport(ctx context.Context, params Params) ([]*SupplyReport, error) {
+func (c *statsClient) GetSupplyReport(ctx context.Context, params Query) ([]*SupplyReport, error) {
 	rep := make([]*SupplyReport, 0)
 	u := params.WithPath("/explorer/stats/supply").Url()
 	if err := c.client.Get(ctx, u, nil, &rep); err != nil {
@@ -86,7 +86,7 @@ type AccountsReport struct {
 	NewFundedWallets []byte    `json:"new_funded_wallets"`
 }
 
-func (c *statsClient) GetAccountsReport(ctx context.Context, params Params) ([]*AccountsReport, error) {
+func (c *statsClient) GetAccountsReport(ctx context.Context, params Query) ([]*AccountsReport, error) {
 	rep := make([]*AccountsReport, 0)
 	u := params.WithPath("/explorer/stats/sets").Url()
 	if err := c.client.Get(ctx, u, nil, &rep); err != nil {
@@ -124,7 +124,7 @@ type ActivityReport struct {
 	TrafficTop100k      int       `json:"num_tx_top100k"`
 }
 
-func (c *statsClient) GetActivityReport(ctx context.Context, params Params) ([]*ActivityReport, error) {
+func (c *statsClient) GetActivityReport(ctx context.Context, params Query) ([]*ActivityReport, error) {
 	rep := make([]*ActivityReport, 0)
 	u := params.WithPath("/explorer/stats/activity").Url()
 	if err := c.client.Get(ctx, u, nil, &rep); err != nil {
@@ -192,7 +192,7 @@ type BalanceReport struct {
 	GiniBakers         float64   `json:"gini_bakers"`
 }
 
-func (c *statsClient) GetBalanceReport(ctx context.Context, params Params) ([]*BalanceReport, error) {
+func (c *statsClient) GetBalanceReport(ctx context.Context, params Query) ([]*BalanceReport, error) {
 	rep := make([]*BalanceReport, 0)
 	u := params.WithPath("/explorer/stats/balance").Url()
 	if err := c.client.Get(ctx, u, nil, &rep); err != nil {
@@ -216,7 +216,7 @@ type OpReport struct {
 	Median float64   `json:"median"`
 }
 
-func (c *statsClient) GetOpReport(ctx context.Context, params Params) ([]*OpReport, error) {
+func (c *statsClient) GetOpReport(ctx context.Context, params Query) ([]*OpReport, error) {
 	rep := make([]*OpReport, 0)
 	u := params.WithPath("/explorer/stats/op").Url()
 	if err := c.client.Get(ctx, u, nil, &rep); err != nil {

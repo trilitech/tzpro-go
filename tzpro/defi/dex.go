@@ -14,16 +14,16 @@ import (
 type DexAPI interface {
 	GetDex(context.Context, PoolAddress) (*Dex, error)
 	GetTicker(context.Context, PoolAddress) (*DexTicker, error)
-	ListPoolEvents(context.Context, PoolAddress, Params) ([]*DexEvent, error)
-	ListPoolTrades(context.Context, PoolAddress, Params) ([]*DexTrade, error)
-	ListPoolPositions(context.Context, PoolAddress, Params) ([]*DexPosition, error)
+	ListPoolEvents(context.Context, PoolAddress, Query) ([]*DexEvent, error)
+	ListPoolTrades(context.Context, PoolAddress, Query) ([]*DexTrade, error)
+	ListPoolPositions(context.Context, PoolAddress, Query) ([]*DexPosition, error)
 
 	// firehose
-	ListDex(context.Context, Params) ([]*Dex, error)
-	ListTickers(context.Context, Params) ([]*DexTicker, error)
-	ListEvents(context.Context, Params) ([]*DexEvent, error)
-	ListTrades(context.Context, Params) ([]*DexTrade, error)
-	ListPositions(context.Context, Params) ([]*DexPosition, error)
+	ListDex(context.Context, Query) ([]*Dex, error)
+	ListTickers(context.Context, Query) ([]*DexTicker, error)
+	ListEvents(context.Context, Query) ([]*DexEvent, error)
+	ListTrades(context.Context, Query) ([]*DexTrade, error)
+	ListPositions(context.Context, Query) ([]*DexPosition, error)
 }
 
 func NewDexAPI(c *client.Client) DexAPI {
@@ -75,7 +75,7 @@ func (c *dexClient) GetDex(ctx context.Context, addr PoolAddress) (*Dex, error) 
 	return p, nil
 }
 
-func (c *dexClient) ListDex(ctx context.Context, params Params) ([]*Dex, error) {
+func (c *dexClient) ListDex(ctx context.Context, params Query) ([]*Dex, error) {
 	list := make([]*Dex, 0)
 	u := params.WithPath("/v1/dex").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

@@ -9,7 +9,7 @@ import (
 )
 
 func TestContract(ctx context.Context, c *tzpro.Client) {
-	cp := tzpro.NewParams().WithMeta()
+	cp := tzpro.WithMeta()
 	addr := tezos.MustParseAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton") // main
 
 	// contract
@@ -92,7 +92,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 		bmuq := c.Contract.NewBigmapUpdateQuery().
 			WithLimit(2).
 			WithDesc().
-			WithEqual("bigmap_id", bmid)
+			AndEqual("bigmap_id", bmid)
 		if _, err := bmuq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -103,7 +103,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 		bmvq := c.Contract.NewBigmapValueQuery().
 			WithLimit(2).
 			WithDesc().
-			WithEqual("bigmap_id", bmid)
+			AndEqual("bigmap_id", bmid)
 		if _, err := bmvq.Run(ctx); err != nil {
 			panic(err)
 		}

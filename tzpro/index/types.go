@@ -10,7 +10,7 @@ import (
 )
 
 type (
-	Params = client.Params
+	Query = client.Query
 
 	OpHash      = tezos.OpHash
 	OpStatus    = tezos.OpStatus
@@ -39,7 +39,7 @@ type (
 )
 
 var (
-	NewParams          = client.NewParams
+	NewQuery           = client.NewQuery
 	NewAddressSet      = tezos.NewAddressSet
 	NewValue           = micheline.NewValue
 	NewType            = micheline.NewType

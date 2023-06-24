@@ -58,7 +58,7 @@ func runExplorer(c *tzpro.Client) error {
 	a, err := c.Account.Get(
 		context.Background(),
 		tzpro.NewAddress(flag.Arg(0)),
-		tzpro.NewParams().WithMeta(),
+		tzpro.WithMeta(),
 	)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func runExplorer(c *tzpro.Client) error {
 
 func runTable(c *tzpro.Client) error {
 	// use table API to get raw account info
-	q := c.Account.NewQuery().WithEqual("address", flag.Arg(0))
+	q := c.Account.NewQuery().AndEqual("address", flag.Arg(0))
 	res, err := q.Run(context.Background())
 	if err != nil {
 		return err

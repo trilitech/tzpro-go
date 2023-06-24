@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-func (c *walletClient) ListDexEvents(ctx context.Context, addr Address, params Params) ([]*DexEvent, error) {
+func (c *walletClient) ListDexEvents(ctx context.Context, addr Address, params Query) ([]*DexEvent, error) {
 	list := make([]*DexEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/dex_events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -17,7 +17,7 @@ func (c *walletClient) ListDexEvents(ctx context.Context, addr Address, params P
 	return list, nil
 }
 
-func (c *walletClient) ListDexPositions(ctx context.Context, addr Address, params Params) ([]*DexPosition, error) {
+func (c *walletClient) ListDexPositions(ctx context.Context, addr Address, params Query) ([]*DexPosition, error) {
 	list := make([]*DexPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/dex_positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -26,7 +26,7 @@ func (c *walletClient) ListDexPositions(ctx context.Context, addr Address, param
 	return list, nil
 }
 
-func (c *walletClient) ListDexTrades(ctx context.Context, addr Address, params Params) ([]*DexTrade, error) {
+func (c *walletClient) ListDexTrades(ctx context.Context, addr Address, params Query) ([]*DexTrade, error) {
 	list := make([]*DexTrade, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/dex_trades", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -35,7 +35,7 @@ func (c *walletClient) ListDexTrades(ctx context.Context, addr Address, params P
 	return list, nil
 }
 
-func (c *walletClient) ListFarmEvents(ctx context.Context, addr Address, params Params) ([]*FarmEvent, error) {
+func (c *walletClient) ListFarmEvents(ctx context.Context, addr Address, params Query) ([]*FarmEvent, error) {
 	list := make([]*FarmEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/farm_events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -44,7 +44,7 @@ func (c *walletClient) ListFarmEvents(ctx context.Context, addr Address, params 
 	return list, nil
 }
 
-func (c *walletClient) ListFarmPositions(ctx context.Context, addr Address, params Params) ([]*FarmPosition, error) {
+func (c *walletClient) ListFarmPositions(ctx context.Context, addr Address, params Query) ([]*FarmPosition, error) {
 	list := make([]*FarmPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/farm_positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -53,7 +53,7 @@ func (c *walletClient) ListFarmPositions(ctx context.Context, addr Address, para
 	return list, nil
 }
 
-func (c *walletClient) ListLendingEvents(ctx context.Context, addr Address, params Params) ([]*LendingEvent, error) {
+func (c *walletClient) ListLendingEvents(ctx context.Context, addr Address, params Query) ([]*LendingEvent, error) {
 	list := make([]*LendingEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/lend_events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -62,7 +62,7 @@ func (c *walletClient) ListLendingEvents(ctx context.Context, addr Address, para
 	return list, nil
 }
 
-func (c *walletClient) ListLendingPositions(ctx context.Context, addr Address, params Params) ([]*LendingPosition, error) {
+func (c *walletClient) ListLendingPositions(ctx context.Context, addr Address, params Query) ([]*LendingPosition, error) {
 	list := make([]*LendingPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/lend_positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

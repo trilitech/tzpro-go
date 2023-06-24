@@ -67,7 +67,7 @@ type DexTrade struct {
 	VolumeUSD      float64   `json:"volume_usd,string"`
 }
 
-func (c *dexClient) ListTrades(ctx context.Context, params Params) ([]*DexTrade, error) {
+func (c *dexClient) ListTrades(ctx context.Context, params Query) ([]*DexTrade, error) {
 	list := make([]*DexTrade, 0)
 	u := params.WithPath("/v1/dex/trades").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -76,7 +76,7 @@ func (c *dexClient) ListTrades(ctx context.Context, params Params) ([]*DexTrade,
 	return list, nil
 }
 
-func (c *dexClient) ListPoolTrades(ctx context.Context, addr PoolAddress, params Params) ([]*DexTrade, error) {
+func (c *dexClient) ListPoolTrades(ctx context.Context, addr PoolAddress, params Query) ([]*DexTrade, error) {
 	list := make([]*DexTrade, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/dex/%s/trades", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

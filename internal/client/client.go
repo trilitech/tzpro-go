@@ -27,7 +27,7 @@ var (
 type Client struct {
 	transport  *http.Client
 	log        log.Logger
-	base       Params
+	base       Query
 	cache      *lru.TwoQueueCache
 	headers    http.Header
 	userAgent  string
@@ -36,7 +36,7 @@ type Client struct {
 }
 
 func NewClient(url string, httpClient *http.Client) *Client {
-	params, _ := NewParams().Parse(url)
+	params, _ := ParseQuery(url)
 	if httpClient == nil {
 		httpClient = &http.Client{
 			Transport: &http.Transport{
@@ -94,7 +94,7 @@ func (c *Client) WithApiKey(s string) *Client {
 }
 
 func (c *Client) WithUrl(url string) *Client {
-	if params, err := NewParams().Parse(url); err == nil {
+	if params, err := ParseQuery(url); err == nil {
 		c.base = params
 	}
 	return c

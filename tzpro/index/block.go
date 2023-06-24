@@ -12,11 +12,11 @@ import (
 )
 
 type BlockAPI interface {
-	GetHash(context.Context, BlockHash, Params) (*Block, error)
-	GetHead(context.Context, Params) (*Block, error)
-	GetHeight(context.Context, int64, Params) (*Block, error)
-	ListOpsHash(context.Context, BlockHash, Params) (OpList, error)
-	ListOpsHeight(context.Context, int64, Params) (OpList, error)
+	GetHash(context.Context, BlockHash, Query) (*Block, error)
+	GetHead(context.Context, Query) (*Block, error)
+	GetHeight(context.Context, int64, Query) (*Block, error)
+	ListOpsHash(context.Context, BlockHash, Query) (OpList, error)
+	ListOpsHeight(context.Context, int64, Query) (OpList, error)
 	NewQuery() *BlockQuery
 }
 
@@ -183,7 +183,7 @@ func (c blockClient) NewQuery() *BlockQuery {
 	return client.NewTableQuery[*Block](c.client, "block")
 }
 
-func (c *blockClient) GetHash(ctx context.Context, hash BlockHash, params Params) (*Block, error) {
+func (c *blockClient) GetHash(ctx context.Context, hash BlockHash, params Query) (*Block, error) {
 	b := &Block{}
 	u := params.WithPath(fmt.Sprintf("/explorer/block/%s", hash)).Url()
 	if err := c.client.Get(ctx, u, nil, b); err != nil {
@@ -192,7 +192,7 @@ func (c *blockClient) GetHash(ctx context.Context, hash BlockHash, params Params
 	return b, nil
 }
 
-func (c *blockClient) GetHead(ctx context.Context, params Params) (*Block, error) {
+func (c *blockClient) GetHead(ctx context.Context, params Query) (*Block, error) {
 	b := &Block{}
 	u := params.WithPath("/explorer/block/head").Url()
 	if err := c.client.Get(ctx, u, nil, b); err != nil {
@@ -201,7 +201,7 @@ func (c *blockClient) GetHead(ctx context.Context, params Params) (*Block, error
 	return b, nil
 }
 
-func (c *blockClient) GetHeight(ctx context.Context, height int64, params Params) (*Block, error) {
+func (c *blockClient) GetHeight(ctx context.Context, height int64, params Query) (*Block, error) {
 	b := &Block{}
 	u := params.WithPath(fmt.Sprintf("/explorer/block/%d", height)).Url()
 	if err := c.client.Get(ctx, u, nil, b); err != nil {
@@ -210,7 +210,7 @@ func (c *blockClient) GetHeight(ctx context.Context, height int64, params Params
 	return b, nil
 }
 
-func (c blockClient) ListOpsHash(ctx context.Context, hash BlockHash, params Params) (OpList, error) {
+func (c blockClient) ListOpsHash(ctx context.Context, hash BlockHash, params Query) (OpList, error) {
 	ops := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/block/%s/operations", hash)).Url()
 	if err := c.client.Get(ctx, u, nil, &ops); err != nil {
@@ -219,7 +219,7 @@ func (c blockClient) ListOpsHash(ctx context.Context, hash BlockHash, params Par
 	return ops, nil
 }
 
-func (c blockClient) ListOpsHeight(ctx context.Context, height int64, params Params) (OpList, error) {
+func (c blockClient) ListOpsHeight(ctx context.Context, height int64, params Query) (OpList, error) {
 	ops := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/block/%d/operations", height)).Url()
 	if err := c.client.Get(ctx, u, nil, &ops); err != nil {

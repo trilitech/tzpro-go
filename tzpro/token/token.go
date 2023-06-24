@@ -18,17 +18,17 @@ type TokenAPI interface {
 	GetTokenMetadata(context.Context, TokenAddress) (*TokenMetadata, error)
 	GetLedgerMetadata(context.Context, Address) (*TokenMetadata, error)
 
-	ListLedgerTokens(context.Context, Address, Params) ([]*Token, error)
-	ListLedgerEvents(context.Context, Address, Params) ([]*TokenEvent, error)
-	ListLedgerBalances(context.Context, Address, Params) ([]*TokenBalance, error)
+	ListLedgerTokens(context.Context, Address, Query) ([]*Token, error)
+	ListLedgerEvents(context.Context, Address, Query) ([]*TokenEvent, error)
+	ListLedgerBalances(context.Context, Address, Query) ([]*TokenBalance, error)
 
-	ListTokenEvents(context.Context, TokenAddress, Params) ([]*TokenEvent, error)
-	ListTokenBalances(context.Context, TokenAddress, Params) ([]*TokenBalance, error)
+	ListTokenEvents(context.Context, TokenAddress, Query) ([]*TokenEvent, error)
+	ListTokenBalances(context.Context, TokenAddress, Query) ([]*TokenBalance, error)
 
 	// firehose
-	ListTokens(context.Context, Params) ([]*Token, error)
-	ListLedgers(context.Context, Params) ([]*Ledger, error)
-	ListMetadata(context.Context, Params) ([]*TokenMetadata, error)
+	ListTokens(context.Context, Query) ([]*Token, error)
+	ListLedgers(context.Context, Query) ([]*Ledger, error)
+	ListMetadata(context.Context, Query) ([]*TokenMetadata, error)
 }
 
 func NewTokenAPI(c *client.Client) TokenAPI {
@@ -75,7 +75,7 @@ func (c *tokenClient) GetToken(ctx context.Context, addr TokenAddress) (*Token, 
 	return t, nil
 }
 
-func (c *tokenClient) ListTokens(ctx context.Context, params Params) ([]*Token, error) {
+func (c *tokenClient) ListTokens(ctx context.Context, params Query) ([]*Token, error) {
 	list := make([]*Token, 0)
 	u := params.WithPath("/v1/tokens").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

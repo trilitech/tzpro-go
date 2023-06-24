@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-func (c *walletClient) ListTokenBalances(ctx context.Context, addr Address, params Params) ([]*TokenBalance, error) {
+func (c *walletClient) ListTokenBalances(ctx context.Context, addr Address, params Query) ([]*TokenBalance, error) {
 	list := make([]*TokenBalance, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/token_balances", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -17,7 +17,7 @@ func (c *walletClient) ListTokenBalances(ctx context.Context, addr Address, para
 	return list, nil
 }
 
-func (c *walletClient) ListTokenEvents(ctx context.Context, addr Address, params Params) ([]*TokenEvent, error) {
+func (c *walletClient) ListTokenEvents(ctx context.Context, addr Address, params Query) ([]*TokenEvent, error) {
 	list := make([]*TokenEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/token_events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

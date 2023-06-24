@@ -14,7 +14,7 @@ func (c *opClient) loadScript(ctx context.Context, addr Address) (*ContractScrip
 		return script.(*ContractScript), nil
 	}
 	api := NewContractAPI(c.client)
-	script, err := api.GetScript(ctx, addr, NewParams().WithPrim())
+	script, err := api.GetScript(ctx, addr, NewQuery().WithPrim())
 	if err != nil {
 		return nil, err
 	}

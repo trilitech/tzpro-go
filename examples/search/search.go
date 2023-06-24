@@ -72,7 +72,7 @@ func searchCalls(ctx context.Context, c *tzpro.Client) error {
 	}
 	log.Infof("Searching calls to %s for address %s", recv, addr)
 
-	p := tzpro.NewParams().WithLimit(500)
+	p := tzpro.WithLimit(500)
 	plog := log.NewProgressLogger(log.Log)
 	var (
 		count int
@@ -152,8 +152,8 @@ func search(ctx context.Context, c *tzpro.Client) error {
 
 	q := c.Op.NewQuery().
 		WithLimit(50000).
-		WithEqual("type", "transaction").
-		WithEqual("receiver", recv).
+		AndEqual("type", "transaction").
+		AndEqual("receiver", recv).
 		WithColumns("id", "hash", "parameters", "big_map_diff", "is_contract", "receiver")
 
 	plog := log.NewProgressLogger(log.Log)

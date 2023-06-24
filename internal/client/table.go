@@ -58,7 +58,7 @@ type FormatType string
 // }
 
 type TableQuery[T any] struct {
-	Params  Params
+	Query   Query
 	Table   string     // "op", "block", "chain", "flow"
 	Format  FormatType // "json", "csv"
 	Columns []string
@@ -81,7 +81,7 @@ func NewTableQuery[T any](c *Client, name string) *TableQuery[T] {
 		panic(err)
 	}
 	return &TableQuery[T]{
-		Params:  c.base.Clone(),
+		Query:   c.base.Clone(),
 		Table:   name,
 		Format:  "json",
 		Limit:   DefaultLimit,
@@ -96,57 +96,57 @@ func (q *TableQuery[T]) GetColumns() []string {
 	return q.Columns
 }
 
-func (q *TableQuery[T]) WithFilter(mode FilterMode, col string, val ...any) *TableQuery[T] {
+func (q *TableQuery[T]) AndFilter(mode FilterMode, col string, val ...any) *TableQuery[T] {
 	q.Filter.Add(mode, col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithEqual(col string, val any) *TableQuery[T] {
+func (q *TableQuery[T]) AndEqual(col string, val any) *TableQuery[T] {
 	q.Filter.Add("eq", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithNotEqual(col string, val any) *TableQuery[T] {
+func (q *TableQuery[T]) AndNotEqual(col string, val any) *TableQuery[T] {
 	q.Filter.Add("ne", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithGt(col string, val any) *TableQuery[T] {
+func (q *TableQuery[T]) AndGt(col string, val any) *TableQuery[T] {
 	q.Filter.Add("gt", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithGte(col string, val any) *TableQuery[T] {
+func (q *TableQuery[T]) AndGte(col string, val any) *TableQuery[T] {
 	q.Filter.Add("gte", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithLt(col string, val any) *TableQuery[T] {
+func (q *TableQuery[T]) AndLt(col string, val any) *TableQuery[T] {
 	q.Filter.Add("lt", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithLte(col string, val any) *TableQuery[T] {
+func (q *TableQuery[T]) AndLte(col string, val any) *TableQuery[T] {
 	q.Filter.Add("lte", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithIn(col string, val ...any) *TableQuery[T] {
+func (q *TableQuery[T]) AndIn(col string, val ...any) *TableQuery[T] {
 	q.Filter.Add("in", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithNotIn(col string, val ...any) *TableQuery[T] {
+func (q *TableQuery[T]) AndNotIn(col string, val ...any) *TableQuery[T] {
 	q.Filter.Add("nin", col, val)
 	return q
 }
 
-func (q *TableQuery[T]) WithRange(col string, from, to any) *TableQuery[T] {
+func (q *TableQuery[T]) AndRange(col string, from, to any) *TableQuery[T] {
 	q.Filter.Add("rg", col, from, to)
 	return q
 }
 
-func (q *TableQuery[T]) WithRegexp(col string, re string) *TableQuery[T] {
+func (q *TableQuery[T]) AndRegexp(col string, re string) *TableQuery[T] {
 	q.Filter.Add("re", col, re)
 	return q
 }
@@ -219,7 +219,7 @@ func (q *TableQuery[T]) WithCursor(c uint64) *TableQuery[T] {
 }
 
 func (p TableQuery[T]) Check() error {
-	if err := p.Params.Check(); err != nil {
+	if err := p.Query.Check(); err != nil {
 		return err
 	}
 	if p.Table == "" {
@@ -246,7 +246,7 @@ func (p TableQuery[T]) Check() error {
 }
 
 func (p TableQuery[T]) Url() string {
-	base := p.Params.Clone()
+	base := p.Query.Clone()
 	if p.Cursor > 0 {
 		base.Query.Set("cursor", strconv.FormatUint(p.Cursor, 10))
 	}

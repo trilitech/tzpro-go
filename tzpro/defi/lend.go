@@ -13,13 +13,13 @@ import (
 
 type LendingAPI interface {
 	GetPool(context.Context, PoolAddress) (*LendingPool, error)
-	ListPoolEvents(context.Context, PoolAddress, Params) ([]*LendingEvent, error)
-	ListPoolPositions(context.Context, PoolAddress, Params) ([]*LendingPosition, error)
+	ListPoolEvents(context.Context, PoolAddress, Query) ([]*LendingEvent, error)
+	ListPoolPositions(context.Context, PoolAddress, Query) ([]*LendingPosition, error)
 
 	// firehose
-	ListPools(context.Context, Params) ([]*LendingPool, error)
-	ListEvents(context.Context, Params) ([]*LendingEvent, error)
-	ListPositions(context.Context, Params) ([]*LendingPosition, error)
+	ListPools(context.Context, Query) ([]*LendingPool, error)
+	ListEvents(context.Context, Query) ([]*LendingEvent, error)
+	ListPositions(context.Context, Query) ([]*LendingPosition, error)
 }
 
 func NewLendingAPI(c *client.Client) LendingAPI {
@@ -62,7 +62,7 @@ func (c *lendClient) GetPool(ctx context.Context, addr PoolAddress) (*LendingPoo
 	return p, nil
 }
 
-func (c *lendClient) ListPools(ctx context.Context, params Params) ([]*LendingPool, error) {
+func (c *lendClient) ListPools(ctx context.Context, params Query) ([]*LendingPool, error) {
 	list := make([]*LendingPool, 0)
 	u := params.WithPath("/v1/lend").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

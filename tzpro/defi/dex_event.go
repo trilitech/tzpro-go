@@ -35,7 +35,7 @@ type DexEvent struct {
 	Time       time.Time `json:"time"`
 }
 
-func (c *dexClient) ListEvents(ctx context.Context, params Params) ([]*DexEvent, error) {
+func (c *dexClient) ListEvents(ctx context.Context, params Query) ([]*DexEvent, error) {
 	list := make([]*DexEvent, 0)
 	u := params.WithPath("/v1/dex/events").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -44,7 +44,7 @@ func (c *dexClient) ListEvents(ctx context.Context, params Params) ([]*DexEvent,
 	return list, nil
 }
 
-func (c *dexClient) ListPoolEvents(ctx context.Context, addr PoolAddress, params Params) ([]*DexEvent, error) {
+func (c *dexClient) ListPoolEvents(ctx context.Context, addr PoolAddress, params Query) ([]*DexEvent, error) {
 	list := make([]*DexEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/dex/%s/events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

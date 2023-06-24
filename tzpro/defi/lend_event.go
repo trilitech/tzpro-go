@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022 Blockwatch Data Inc.
+// Copyright (c) 2020-2023 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package defi
@@ -7,8 +7,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"blockwatch.cc/tzgo/tezos"
 )
 
 type LendingEvent struct {
@@ -26,11 +24,11 @@ type LendingEvent struct {
 	CollateralSymbol   string    `json:"collateral_symbol"`
 	Owner              string    `json:"owner"`
 	StakeId            int64     `json:"stake_id"`
-	Volume             tezos.Z   `json:"volume"`
-	Debt               tezos.Z   `json:"debt"`
-	Collateral         tezos.Z   `json:"collateral"`
-	Fee                tezos.Z   `json:"fee"`
-	Interest           tezos.Z   `json:"interest"`
+	Volume             Z         `json:"volume"`
+	Debt               Z         `json:"debt"`
+	Collateral         Z         `json:"collateral"`
+	Fee                Z         `json:"fee"`
+	Interest           Z         `json:"interest"`
 	Signer             string    `json:"signer"`
 	Sender             string    `json:"sender"`
 	Receiver           string    `json:"receiver"`
@@ -40,7 +38,7 @@ type LendingEvent struct {
 	Time               time.Time `json:"time"`
 }
 
-func (c *lendClient) ListEvents(ctx context.Context, params Params) ([]*LendingEvent, error) {
+func (c *lendClient) ListEvents(ctx context.Context, params Query) ([]*LendingEvent, error) {
 	list := make([]*LendingEvent, 0)
 	u := params.WithPath("/v1/lend/events").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -49,7 +47,7 @@ func (c *lendClient) ListEvents(ctx context.Context, params Params) ([]*LendingE
 	return list, nil
 }
 
-func (c *lendClient) ListPoolEvents(ctx context.Context, addr PoolAddress, params Params) ([]*LendingEvent, error) {
+func (c *lendClient) ListPoolEvents(ctx context.Context, addr PoolAddress, params Query) ([]*LendingEvent, error) {
 	list := make([]*LendingEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/lend/%s/events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

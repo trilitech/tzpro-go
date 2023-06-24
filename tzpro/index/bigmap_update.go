@@ -138,7 +138,7 @@ func (c *contractClient) NewBigmapUpdateQuery() *BigmapUpdateQuery {
 	return client.NewTableQuery[*BigmapUpdateRow](c.client, "bigmap_updates")
 }
 
-func (c *contractClient) ListBigmapUpdates(ctx context.Context, id int64, params Params) (BigmapUpdateList, error) {
+func (c *contractClient) ListBigmapUpdates(ctx context.Context, id int64, params Query) (BigmapUpdateList, error) {
 	upd := make(BigmapUpdateList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/updates", id)).Url()
 	if err := c.client.Get(ctx, u, nil, &upd); err != nil {
@@ -147,7 +147,7 @@ func (c *contractClient) ListBigmapUpdates(ctx context.Context, id int64, params
 	return upd, nil
 }
 
-func (c *contractClient) ListBigmapKeyUpdates(ctx context.Context, id int64, key string, params Params) (BigmapUpdateList, error) {
+func (c *contractClient) ListBigmapKeyUpdates(ctx context.Context, id int64, key string, params Query) (BigmapUpdateList, error) {
 	upd := make(BigmapUpdateList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/bigmap/%d/%s/updates", id, key)).Url()
 	if err := c.client.Get(ctx, u, nil, &upd); err != nil {

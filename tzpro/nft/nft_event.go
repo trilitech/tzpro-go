@@ -34,7 +34,7 @@ type NftEvent struct {
 	Time       time.Time `json:"time"`
 }
 
-func (c *nftClient) ListEvents(ctx context.Context, params Params) ([]*NftEvent, error) {
+func (c *nftClient) ListEvents(ctx context.Context, params Query) ([]*NftEvent, error) {
 	list := make([]*NftEvent, 0)
 	u := params.WithPath("/v1/nft/events").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -43,7 +43,7 @@ func (c *nftClient) ListEvents(ctx context.Context, params Params) ([]*NftEvent,
 	return list, nil
 }
 
-func (c *nftClient) ListMarketEvents(ctx context.Context, addr Address, params Params) ([]*NftEvent, error) {
+func (c *nftClient) ListMarketEvents(ctx context.Context, addr Address, params Query) ([]*NftEvent, error) {
 	list := make([]*NftEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/nft/%s/events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

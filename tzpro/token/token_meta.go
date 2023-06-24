@@ -21,7 +21,7 @@ type TokenMetadata struct {
 	Data        json.RawMessage `json:"data"`
 }
 
-func (c *tokenClient) ListMetadata(ctx context.Context, params Params) ([]*TokenMetadata, error) {
+func (c *tokenClient) ListMetadata(ctx context.Context, params Query) ([]*TokenMetadata, error) {
 	list := make([]*TokenMetadata, 0)
 	u := params.WithPath("/v1/meta").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

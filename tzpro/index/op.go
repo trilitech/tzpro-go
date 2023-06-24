@@ -22,7 +22,7 @@ var (
 )
 
 type OpAPI interface {
-	Get(context.Context, OpHash, Params) (OpList, error)
+	Get(context.Context, OpHash, Query) (OpList, error)
 	ResolveTypes(context.Context, ...*Op) error
 	NewQuery() *OpQuery
 }
@@ -489,7 +489,7 @@ func (c opClient) NewQuery() *OpQuery {
 	return client.NewTableQuery[*Op](c.client, "op")
 }
 
-func (c opClient) Get(ctx context.Context, hash OpHash, params Params) (OpList, error) {
+func (c opClient) Get(ctx context.Context, hash OpHash, params Query) (OpList, error) {
 	o := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/op/%s", hash)).Url()
 	if err := c.client.Get(ctx, u, nil, &o); err != nil {

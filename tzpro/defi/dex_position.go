@@ -43,7 +43,7 @@ type DexPosition struct {
 	ProfitLossBps    float64    `json:"pnl_bps,string"`
 }
 
-func (c *dexClient) ListPositions(ctx context.Context, params Params) ([]*DexPosition, error) {
+func (c *dexClient) ListPositions(ctx context.Context, params Query) ([]*DexPosition, error) {
 	list := make([]*DexPosition, 0)
 	u := params.WithPath("/v1/dex/positions").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -52,7 +52,7 @@ func (c *dexClient) ListPositions(ctx context.Context, params Params) ([]*DexPos
 	return list, nil
 }
 
-func (c *dexClient) ListPoolPositions(ctx context.Context, addr PoolAddress, params Params) ([]*DexPosition, error) {
+func (c *dexClient) ListPoolPositions(ctx context.Context, addr PoolAddress, params Query) ([]*DexPosition, error) {
 	list := make([]*DexPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/dex/%s/positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

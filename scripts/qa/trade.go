@@ -7,7 +7,7 @@ import (
 )
 
 func TestNft(ctx context.Context, c *tzpro.Client) {
-	p := tzpro.NewParams()
+	p := tzpro.NewQuery()
 	// dex
 	try("ListNftMarkets", func() {
 		if _, err := c.Nft.ListMarkets(ctx, p); err != nil {

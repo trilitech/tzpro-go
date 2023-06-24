@@ -63,7 +63,7 @@ type CandleParams struct {
 }
 
 func (c CandleParams) Url() string {
-	p := client.NewParams()
+	p := client.NewQuery()
 	if c.Limit > 0 && p.Query.Get("limit") == "" {
 		p.Query.Set("limit", strconv.Itoa(c.Limit))
 	}

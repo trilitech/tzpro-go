@@ -13,17 +13,17 @@ import (
 )
 
 type ContractAPI interface {
-	Get(context.Context, Address, Params) (*Contract, error)
-	GetScript(context.Context, Address, Params) (*ContractScript, error)
-	GetStorage(context.Context, Address, Params) (*ContractValue, error)
-	ListCalls(context.Context, Address, Params) (OpList, error)
-	GetConstant(context.Context, ExprHash, Params) (*Constant, error)
-	GetBigmap(context.Context, int64, Params) (*Bigmap, error)
-	GetBigmapValue(context.Context, int64, string, Params) (*BigmapValue, error)
-	// ListBigmapKeys(context.Context, int64, Params) (BigmapKeyList, error)
-	ListBigmapValues(context.Context, int64, Params) (BigmapValueList, error)
-	ListBigmapKeyUpdates(context.Context, int64, string, Params) (BigmapUpdateList, error)
-	ListBigmapUpdates(context.Context, int64, Params) (BigmapUpdateList, error)
+	Get(context.Context, Address, Query) (*Contract, error)
+	GetScript(context.Context, Address, Query) (*ContractScript, error)
+	GetStorage(context.Context, Address, Query) (*ContractValue, error)
+	ListCalls(context.Context, Address, Query) (OpList, error)
+	GetConstant(context.Context, ExprHash, Query) (*Constant, error)
+	GetBigmap(context.Context, int64, Query) (*Bigmap, error)
+	GetBigmapValue(context.Context, int64, string, Query) (*BigmapValue, error)
+	// ListBigmapKeys(context.Context, int64, Query) (BigmapKeyList, error)
+	ListBigmapValues(context.Context, int64, Query) (BigmapValueList, error)
+	ListBigmapKeyUpdates(context.Context, int64, string, Query) (BigmapUpdateList, error)
+	ListBigmapUpdates(context.Context, int64, Query) (BigmapUpdateList, error)
 
 	NewQuery() *ContractQuery
 	NewEventQuery() *EventQuery
@@ -102,7 +102,7 @@ func (a contractClient) NewQuery() *ContractQuery {
 	return client.NewTableQuery[*Contract](a.client, "contract")
 }
 
-func (c *contractClient) Get(ctx context.Context, addr Address, params Params) (*Contract, error) {
+func (c *contractClient) Get(ctx context.Context, addr Address, params Query) (*Contract, error) {
 	cc := &Contract{}
 	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, cc); err != nil {
@@ -111,7 +111,7 @@ func (c *contractClient) Get(ctx context.Context, addr Address, params Params) (
 	return cc, nil
 }
 
-func (c *contractClient) GetScript(ctx context.Context, addr Address, params Params) (*ContractScript, error) {
+func (c *contractClient) GetScript(ctx context.Context, addr Address, params Query) (*ContractScript, error) {
 	cc := &ContractScript{}
 	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/script", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, cc); err != nil {
@@ -120,7 +120,7 @@ func (c *contractClient) GetScript(ctx context.Context, addr Address, params Par
 	return cc, nil
 }
 
-func (c *contractClient) GetStorage(ctx context.Context, addr Address, params Params) (*ContractValue, error) {
+func (c *contractClient) GetStorage(ctx context.Context, addr Address, params Query) (*ContractValue, error) {
 	cc := &ContractValue{}
 	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/storage", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, cc); err != nil {
@@ -129,7 +129,7 @@ func (c *contractClient) GetStorage(ctx context.Context, addr Address, params Pa
 	return cc, nil
 }
 
-func (c *contractClient) ListCalls(ctx context.Context, addr Address, params Params) (OpList, error) {
+func (c *contractClient) ListCalls(ctx context.Context, addr Address, params Query) (OpList, error) {
 	calls := make(OpList, 0)
 	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/calls", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &calls); err != nil {

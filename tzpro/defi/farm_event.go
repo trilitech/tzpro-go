@@ -38,7 +38,7 @@ type FarmEvent struct {
 	Time           time.Time `json:"time"`
 }
 
-func (c *farmClient) ListEvents(ctx context.Context, params Params) ([]*FarmEvent, error) {
+func (c *farmClient) ListEvents(ctx context.Context, params Query) ([]*FarmEvent, error) {
 	list := make([]*FarmEvent, 0)
 	u := params.WithPath("/v1/farm/events").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -47,7 +47,7 @@ func (c *farmClient) ListEvents(ctx context.Context, params Params) ([]*FarmEven
 	return list, nil
 }
 
-func (c *farmClient) ListPoolEvents(ctx context.Context, addr PoolAddress, params Params) ([]*FarmEvent, error) {
+func (c *farmClient) ListPoolEvents(ctx context.Context, addr PoolAddress, params Query) ([]*FarmEvent, error) {
 	list := make([]*FarmEvent, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/farm/%s/events", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

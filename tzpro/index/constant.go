@@ -30,7 +30,7 @@ func (a contractClient) NewConstantQuery() *ConstantQuery {
 	return client.NewTableQuery[*Constant](a.client, "constant")
 }
 
-func (c *contractClient) GetConstant(ctx context.Context, addr ExprHash, params Params) (*Constant, error) {
+func (c *contractClient) GetConstant(ctx context.Context, addr ExprHash, params Query) (*Constant, error) {
 	cc := &Constant{}
 	u := params.WithPath(fmt.Sprintf("/explorer/constant/%s", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, cc); err != nil {

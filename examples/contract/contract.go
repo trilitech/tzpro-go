@@ -131,7 +131,7 @@ func run() error {
 }
 
 func getContractInfo(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	cc, err := c.Contract.Get(ctx, addr, tzpro.NewParams())
+	cc, err := c.Contract.Get(ctx, addr, tzpro.NoQuery)
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func getContractInfo(ctx context.Context, c *tzpro.Client, addr tezos.Address) e
 }
 
 func getContractType(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	script, err := c.Contract.GetScript(ctx, addr, tzpro.NewParams().WithPrim())
+	script, err := c.Contract.GetScript(ctx, addr, tzpro.WithPrim())
 	if err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ func getContractType(ctx context.Context, c *tzpro.Client, addr tezos.Address) e
 }
 
 func getContractEntrypoints(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	cc, err := c.Contract.GetScript(ctx, addr, tzpro.NewParams().WithPrim())
+	cc, err := c.Contract.GetScript(ctx, addr, tzpro.WithPrim())
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func getContractEntrypoints(ctx context.Context, c *tzpro.Client, addr tezos.Add
 }
 
 func getContractStorage(ctx context.Context, c *tzpro.Client, addr tezos.Address) error {
-	p := tzpro.NewParams().WithPrim()
+	p := tzpro.WithPrim()
 	cc, err := c.Contract.GetScript(ctx, addr, p)
 	if err != nil {
 		return err
@@ -192,7 +192,7 @@ func getContractStorage(ctx context.Context, c *tzpro.Client, addr tezos.Address
 }
 
 func getContractCall(ctx context.Context, c *tzpro.Client, hash tezos.OpHash) error {
-	ops, err := c.Op.Get(ctx, hash, tzpro.NewParams().WithPrim())
+	ops, err := c.Op.Get(ctx, hash, tzpro.WithPrim())
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func getContractCall(ctx context.Context, c *tzpro.Client, hash tezos.OpHash) er
 			continue
 		}
 		if op.HasParameters() {
-			script, err := c.Contract.GetScript(ctx, op.Receiver, tzpro.NewParams().WithPrim())
+			script, err := c.Contract.GetScript(ctx, op.Receiver, tzpro.WithPrim())
 			if err != nil {
 				return err
 			}

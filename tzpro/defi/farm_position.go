@@ -36,7 +36,7 @@ type FarmPosition struct {
 	CloseTime      *time.Time `json:"close_time,omitempty"`
 }
 
-func (c *farmClient) ListPositions(ctx context.Context, params Params) ([]*FarmPosition, error) {
+func (c *farmClient) ListPositions(ctx context.Context, params Query) ([]*FarmPosition, error) {
 	list := make([]*FarmPosition, 0)
 	u := params.WithPath("/v1/farm/positions").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
@@ -45,7 +45,7 @@ func (c *farmClient) ListPositions(ctx context.Context, params Params) ([]*FarmP
 	return list, nil
 }
 
-func (c *farmClient) ListFarmPoolPositions(ctx context.Context, addr PoolAddress, params Params) ([]*FarmPosition, error) {
+func (c *farmClient) ListFarmPoolPositions(ctx context.Context, addr PoolAddress, params Query) ([]*FarmPosition, error) {
 	list := make([]*FarmPosition, 0)
 	u := params.WithPath(fmt.Sprintf("/v1/farm/%s/positions", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

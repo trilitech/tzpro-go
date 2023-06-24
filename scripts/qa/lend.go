@@ -7,7 +7,7 @@ import (
 )
 
 func TestLend(ctx context.Context, c *tzpro.Client) {
-	p := tzpro.NewParams()
+	p := tzpro.NewQuery()
 	// dex
 	try("ListLendings", func() {
 		if _, err := c.Lend.ListPools(ctx, p); err != nil {

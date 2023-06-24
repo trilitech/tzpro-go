@@ -13,13 +13,13 @@ import (
 
 type FarmAPI interface {
 	GetFarm(context.Context, PoolAddress) (*Farm, error)
-	ListPoolEvents(context.Context, PoolAddress, Params) ([]*FarmEvent, error)
-	ListFarmPoolPositions(context.Context, PoolAddress, Params) ([]*FarmPosition, error)
+	ListPoolEvents(context.Context, PoolAddress, Query) ([]*FarmEvent, error)
+	ListFarmPoolPositions(context.Context, PoolAddress, Query) ([]*FarmPosition, error)
 
 	// firehose
-	ListFarms(context.Context, Params) ([]*Farm, error)
-	ListEvents(context.Context, Params) ([]*FarmEvent, error)
-	ListPositions(context.Context, Params) ([]*FarmPosition, error)
+	ListFarms(context.Context, Query) ([]*Farm, error)
+	ListEvents(context.Context, Query) ([]*FarmEvent, error)
+	ListPositions(context.Context, Query) ([]*FarmPosition, error)
 }
 
 func NewFarmAPI(c *client.Client) FarmAPI {
@@ -63,7 +63,7 @@ func (c *farmClient) GetFarm(ctx context.Context, addr PoolAddress) (*Farm, erro
 	return p, nil
 }
 
-func (c *farmClient) ListFarms(ctx context.Context, params Params) ([]*Farm, error) {
+func (c *farmClient) ListFarms(ctx context.Context, params Query) ([]*Farm, error) {
 	list := make([]*Farm, 0)
 	u := params.WithPath("/v1/farm").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {

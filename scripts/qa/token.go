@@ -8,7 +8,7 @@ import (
 )
 
 func TestToken(ctx context.Context, c *tzpro.Client) {
-	p := tzpro.NewParams()
+	p := tzpro.NewQuery()
 	// ledgers
 	try("ListLedgers", func() {
 		if _, err := c.Token.ListLedgers(ctx, p); err != nil {

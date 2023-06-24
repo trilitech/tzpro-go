@@ -10,8 +10,8 @@ import (
 
 func TestWallet(ctx context.Context, c *tzpro.Client) {
 	addr := tezos.MustParseAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // Main
-	ap := tzpro.NewParams().WithMeta()
-	op := tzpro.NewParams().WithStorage().WithMeta()
+	ap := tzpro.WithMeta()
+	op := tzpro.WithStorage().WithMeta()
 
 	// account
 	try("GetAccount", func() {

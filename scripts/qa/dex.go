@@ -7,7 +7,7 @@ import (
 )
 
 func TestDex(ctx context.Context, c *tzpro.Client) {
-	p := tzpro.NewParams()
+	p := tzpro.NewQuery()
 	// dex
 	try("ListDexes", func() {
 		if _, err := c.Dex.ListDex(ctx, p); err != nil {

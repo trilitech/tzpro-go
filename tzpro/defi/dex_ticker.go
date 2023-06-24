@@ -42,7 +42,7 @@ func (c *dexClient) GetTicker(ctx context.Context, addr PoolAddress) (*DexTicker
 	return tick, nil
 }
 
-func (c *dexClient) ListTickers(ctx context.Context, params Params) ([]*DexTicker, error) {
+func (c *dexClient) ListTickers(ctx context.Context, params Query) ([]*DexTicker, error) {
 	list := make([]*DexTicker, 0)
 	u := params.WithPath("/v1/dex/tickers").Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
