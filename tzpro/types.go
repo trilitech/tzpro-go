@@ -115,51 +115,51 @@ const (
 	OpTypeInvalid              = index.OpTypeInvalid
 )
 
-func AndArg(key string, val ...any) Query {
+func Arg(key string, val ...any) Query {
 	return NewQuery().AndArg(key, val...)
 }
 
-func AndFilter(key string, mode FilterMode, val ...any) Query {
+func Filter(key string, mode FilterMode, val ...any) Query {
 	return NewQuery().AndFilter(key, mode, val...)
 }
 
-func AndEqual(key string, val any) Query {
+func Equal(key string, val any) Query {
 	return NewQuery().AndEqual(key, val)
 }
 
-func AndNotEqual(key string, val any) Query {
+func NotEqual(key string, val any) Query {
 	return NewQuery().AndNotEqual(key, val)
 }
 
-func AndGt(key string, val any) Query {
+func Gt(key string, val any) Query {
 	return NewQuery().AndGt(key, val)
 }
 
-func AndGte(key string, val any) Query {
+func Gte(key string, val any) Query {
 	return NewQuery().AndGte(key, val)
 }
 
-func AndLt(key string, val any) Query {
+func Lt(key string, val any) Query {
 	return NewQuery().AndLt(key, val)
 }
 
-func AndLte(key string, val any) Query {
+func Lte(key string, val any) Query {
 	return NewQuery().AndLte(key, val)
 }
 
-func AndIn(key string, val ...any) Query {
+func In(key string, val ...any) Query {
 	return NewQuery().AndIn(key, val...)
 }
 
-func AndNotIn(key string, val ...any) Query {
+func NotIn(key string, val ...any) Query {
 	return NewQuery().AndNotIn(key, val...)
 }
 
-func AndRange(key string, from, to any) Query {
+func Range(key string, from, to any) Query {
 	return NewQuery().AndRange(key, from, to)
 }
 
-func AndRegexp(key string, re string) Query {
+func Regexp(key string, re string) Query {
 	return NewQuery().AndRegexp(key, re)
 }
 
@@ -167,7 +167,7 @@ func And(key string) Query {
 	return NewQuery().And(key)
 }
 
-func AndNot(key string) Query {
+func Not(key string) Query {
 	return NewQuery().AndNot(key)
 }
 
