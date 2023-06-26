@@ -47,7 +47,7 @@ func run() error {
 	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
 	// fetch block
-	q := c.Block.NewQuery().WithLimit(1).WithDesc()
+	q := c.Block.NewQuery().WithLimit(1).Desc()
 	res, err := q.Run(ctx)
 	if err != nil {
 		return err
