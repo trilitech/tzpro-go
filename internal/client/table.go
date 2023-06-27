@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+
 	// "io"
 	// "net/http"
 	"reflect"
@@ -332,7 +333,7 @@ func (r *TableQueryResult[T]) Cursor() uint64 {
 	if !tinfo.Fields[0].ContainsFlag(fieldFlagUint64) {
 		return 0
 	}
-	val := derefValue(reflect.ValueOf(r.rows[0]))
+	val := derefValue(reflect.ValueOf(r.Last()))
 	return val.Field(tinfo.Fields[0].Idx[0]).Uint()
 }
 
