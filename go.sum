@@ -1,5 +1,5 @@
-blockwatch.cc/tzgo v1.17.1-0.20230623201949-5304348e3b12 h1:s4BezAxCbCrT+hN5GbJ6VK+77PaV4Z9WJ+N9b/2w31Y=
-blockwatch.cc/tzgo v1.17.1-0.20230623201949-5304348e3b12/go.mod h1:tTgPzOH1pMhQod2sh2/jjOLabdCQegb8FZG23+fv1XE=
+blockwatch.cc/tzgo v1.17.1-0.20230629122525-67503288527a h1:cwz7iyO91eYsXoZchCSm4ygTP17s2MSB+ogWzAk93PY=
+blockwatch.cc/tzgo v1.17.1-0.20230629122525-67503288527a/go.mod h1:tTgPzOH1pMhQod2sh2/jjOLabdCQegb8FZG23+fv1XE=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/daviddengcn/go-colortext v1.0.0 h1:ANqDyC0ys6qCSvuEK7l3g5RaehL/Xck9EX8ATG8oKsE=
 github.com/daviddengcn/go-colortext v1.0.0/go.mod h1:zDqEI5NVUop5QPpVJUxE9UO10hRnmkD5G4Pmri9+m4c=
