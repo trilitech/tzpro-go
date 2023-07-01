@@ -10,7 +10,7 @@ import (
 
 func (c *walletClient) ListTokenBalances(ctx context.Context, addr Address, params Query) ([]*TokenBalance, error) {
 	list := make([]*TokenBalance, 0)
-	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/token_balances", addr)).Url()
+	u := params.WithPath(fmt.Sprintf("/v1/wallets/%s/balances", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}
