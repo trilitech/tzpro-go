@@ -14,7 +14,7 @@ type Income struct {
 	Address                Address   `json:"address"`    // table only
 	AccountId              uint64    `json:"account_id"` // table only
 	Cycle                  int64     `json:"cycle"`
-	Rolls                  int64     `json:"snapshot_rolls"`
+	Rolls                  int64     `json:"snapshot_rolls"    tzpro:"rolls"`
 	Balance                float64   `json:"own_balance"       tzpro:"balance"`
 	Delegated              float64   `json:"delegated_balance" tzpro:"delegated"`
 	Staking                float64   `json:"staking_balance"   tzpro:"-"`
