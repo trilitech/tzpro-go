@@ -41,7 +41,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	})
 
 	try("Contract query", func() {
-		ccq := c.Contract.NewQuery().WithLimit(2).WithDesc()
+		ccq := c.Contract.NewQuery().WithLimit(2).Desc()
 		if _, err := ccq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -81,7 +81,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 
 	// bigmap table
 	try("Bigmap query", func() {
-		bmq := c.Contract.NewBigmapQuery().WithLimit(2).WithDesc()
+		bmq := c.Contract.NewBigmapQuery().WithLimit(2).Desc()
 		if _, err := bmq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -91,7 +91,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	try("Bigmap update query", func() {
 		bmuq := c.Contract.NewBigmapUpdateQuery().
 			WithLimit(2).
-			WithDesc().
+			Desc().
 			AndEqual("bigmap_id", bmid)
 		if _, err := bmuq.Run(ctx); err != nil {
 			panic(err)
@@ -102,7 +102,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	try("Bigmap value query", func() {
 		bmvq := c.Contract.NewBigmapValueQuery().
 			WithLimit(2).
-			WithDesc().
+			Desc().
 			AndEqual("bigmap_id", bmid)
 		if _, err := bmvq.Run(ctx); err != nil {
 			panic(err)
@@ -113,7 +113,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	// Constant
 	//
 	try("Constant query", func() {
-		coq := c.Contract.NewConstantQuery().WithLimit(2).WithDesc()
+		coq := c.Contract.NewConstantQuery().WithLimit(2).Desc()
 		if _, err := coq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -123,7 +123,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	// Events
 	//
 	try("Event query", func() {
-		coq := c.Contract.NewEventQuery().WithLimit(2).WithDesc()
+		coq := c.Contract.NewEventQuery().WithLimit(2).Desc()
 		if _, err := coq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -134,7 +134,7 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	//
 	// try("Ticket query", func() {
 	//     coq := c.NewTicketQuery()
-	//     coq.WithLimit(2).WithDesc()
+	//     coq.WithLimit(2).Desc()
 	//     if _, err := coq.Run(ctx); err != nil {
 	//         panic(err)
 	//     }

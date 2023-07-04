@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+
 	// "runtime/debug"
 	"strings"
 
@@ -73,6 +74,8 @@ func run() error {
 	TestFarm(ctx, c)
 	TestLend(ctx, c)
 	TestNft(ctx, c)
+	TestDomain(ctx, c)
+	TestProfile(ctx, c)
 
 	if nFail > 0 {
 		fmt.Printf("%d tests have FAILED.", nFail)

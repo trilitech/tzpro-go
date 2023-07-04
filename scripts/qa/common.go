@@ -52,7 +52,7 @@ func TestCommon(ctx context.Context, c *tzpro.Client) (tip *index.Tip) {
 
 	// Chain
 	try("Chain query", func() {
-		chq := c.Explorer.NewChainQuery().WithLimit(2).WithDesc()
+		chq := c.Explorer.NewChainQuery().WithLimit(2).Desc()
 		if _, err := chq.Run(ctx); err != nil {
 			panic(err)
 		}

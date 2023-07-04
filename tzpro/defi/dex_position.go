@@ -39,6 +39,8 @@ type DexPosition struct {
 	CloseTime        *time.Time `json:"close_time,omitempty"`
 	PositionValueUSD string     `json:"position_value_usd"`
 	ShareValueUSD    string     `json:"share_value_usd"`
+	OpenValueUSD     string     `json:"open_value_usd"`
+	CloseValueUSD    string     `json:"close_value_usd"`
 	ProfitLossUSD    string     `json:"pnl_usd"`
 	ProfitLossBps    float64    `json:"pnl_bps,string"`
 }

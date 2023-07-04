@@ -42,7 +42,7 @@ func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
 
 	// block table
 	try("Block query", func() {
-		bq := c.Block.NewQuery().WithLimit(2).WithDesc()
+		bq := c.Block.NewQuery().WithLimit(2).Desc()
 		if _, err := bq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -55,7 +55,7 @@ func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
 		oq := c.Op.NewQuery().
 			AndEqual("type", "transaction").
 			WithLimit(100).
-			WithDesc()
+			Desc()
 		ores, err := oq.Run(ctx)
 		if err != nil {
 			panic(err)

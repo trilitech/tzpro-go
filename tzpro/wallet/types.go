@@ -7,6 +7,7 @@ import (
 	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/internal/client"
 	"blockwatch.cc/tzpro-go/tzpro/defi"
+	"blockwatch.cc/tzpro-go/tzpro/identity"
 	"blockwatch.cc/tzpro-go/tzpro/nft"
 	"blockwatch.cc/tzpro-go/tzpro/token"
 )
@@ -35,6 +36,12 @@ type (
 	NftEvent    = nft.NftEvent
 	NftPosition = nft.NftPosition
 	NftTrade    = nft.NftTrade
+
+	Domain       = identity.Domain
+	DomainEvent  = identity.DomainEvent
+	Profile      = identity.Profile
+	ProfileEvent = identity.ProfileEvent
+	ProfileClaim = identity.ProfileClaim
 )
 
 var (

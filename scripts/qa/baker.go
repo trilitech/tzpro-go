@@ -71,7 +71,7 @@ func TestBaker(ctx context.Context, c *tzpro.Client) {
 
 	// rights table
 	try("Rights query", func() {
-		rq := c.Baker.NewRightsQuery().WithLimit(2).WithDesc()
+		rq := c.Baker.NewRightsQuery().WithLimit(2).Desc()
 		if _, err := rq.Run(ctx); err != nil {
 			panic(err)
 		}
@@ -79,7 +79,7 @@ func TestBaker(ctx context.Context, c *tzpro.Client) {
 
 	// snapshot table
 	try("Snapshot query", func() {
-		sq := c.Baker.NewStakeSnapshotQuery().WithLimit(2).WithDesc()
+		sq := c.Baker.NewStakeSnapshotQuery().WithLimit(2).Desc()
 		if _, err := sq.Run(ctx); err != nil {
 			panic(err)
 		}

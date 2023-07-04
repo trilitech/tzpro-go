@@ -11,19 +11,21 @@ import (
 
 	"blockwatch.cc/tzpro-go/internal/client"
 	"blockwatch.cc/tzpro-go/tzpro/defi"
+	"blockwatch.cc/tzpro-go/tzpro/identity"
 	"blockwatch.cc/tzpro-go/tzpro/index"
 	"blockwatch.cc/tzpro-go/tzpro/ipfs"
 	"blockwatch.cc/tzpro-go/tzpro/market"
 	"blockwatch.cc/tzpro-go/tzpro/nft"
 	"blockwatch.cc/tzpro-go/tzpro/token"
 	"blockwatch.cc/tzpro-go/tzpro/wallet"
+
 	// "blockwatch.cc/tzpro-go/tzpro/zmq"
 	"github.com/echa/log"
 	lru "github.com/hashicorp/golang-lru"
 )
 
 var (
-	SdkVersion    = "0.17.0"
+	SdkVersion    = "0.17.1"
 	DefaultClient = NewClient("https://api.tzpro.io", nil)
 )
 
@@ -41,6 +43,8 @@ type Client struct {
 	Lend     defi.LendingAPI
 	Nft      nft.NftAPI
 	Token    token.TokenAPI
+	Domain   identity.DomainAPI
+	Profile  identity.ProfileAPI
 	Wallet   wallet.WalletAPI
 	Market   market.MarketAPI
 	Ipfs     ipfs.IpfsAPI
@@ -68,6 +72,8 @@ func NewClient(url string, httpClient *http.Client) *Client {
 		Lend:     defi.NewLendingAPI(c),
 		Nft:      nft.NewNftAPI(c),
 		Token:    token.NewTokenAPI(c),
+		Domain:   identity.NewDomainAPI(c),
+		Profile:  identity.NewProfileAPI(c),
 		Wallet:   wallet.NewWalletAPI(c),
 		Market:   market.NewMarketAPI(c),
 		Ipfs: ipfs.NewIpfsAPI(

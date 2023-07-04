@@ -21,7 +21,7 @@ func TestMarket(ctx context.Context, c *tzpro.Client) {
 		}
 	})
 	try("ListCandles", func() {
-		args := market.CandleParams{
+		args := market.CandleQuery{
 			Market:   "kraken",
 			Pair:     "XTZ_USD",
 			Collapse: tzpro.Collapse1d,

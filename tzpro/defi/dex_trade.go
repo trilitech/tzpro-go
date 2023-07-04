@@ -55,6 +55,7 @@ type DexTrade struct {
 	Signer         string    `json:"signer"`
 	Sender         string    `json:"sender"`
 	Receiver       string    `json:"receiver"`
+	Router         string    `json:"router"`
 	IsWash         bool      `json:"is_wash_trade"`
 	TxHash         string    `json:"tx_hash"`
 	TxFee          int64     `json:"tx_fee,string"`

@@ -27,7 +27,7 @@ type NftTrade struct {
 	Seller     Address   `json:"seller"`
 	Buyer      Address   `json:"buyer"`
 	TxHash     OpHash    `json:"tx_hash"`
-	TxFee      int64     `json:"tx_fee"`
+	TxFee      int64     `json:"tx_fee,string"`
 	Block      int64     `json:"block"`
 	Time       time.Time `json:"time"`
 }

@@ -17,9 +17,9 @@ type DexEvent struct {
 	Entity     string    `json:"entity"`
 	Pair       string    `json:"pair"`
 	Type       string    `json:"event_type"`
-	VolumeA    Z         `json:"vol_token_a"`
-	VolumeB    Z         `json:"vol_token_b"`
-	VolumeLP   Z         `json:"vol_lp"`
+	VolumeA    Z         `json:"volume_a"`
+	VolumeB    Z         `json:"volume_b"`
+	VolumeLP   Z         `json:"volume_lp"`
 	DecimalsA  int       `json:"decimals_a"`
 	DecimalsB  int       `json:"decimals_b"`
 	DecimalsLP int       `json:"decimals_lp"`
@@ -29,6 +29,7 @@ type DexEvent struct {
 	Signer     string    `json:"signer"`
 	Sender     string    `json:"sender"`
 	Receiver   string    `json:"receiver"`
+	Router     string    `json:"router"`
 	TxHash     OpHash    `json:"tx_hash"`
 	TxFee      int64     `json:"tx_fee,string"`
 	Block      int64     `json:"block"`

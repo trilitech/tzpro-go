@@ -36,7 +36,7 @@ func TestWallet(ctx context.Context, c *tzpro.Client) {
 
 	// account table
 	try("Account query", func() {
-		aq := c.Account.NewQuery().WithLimit(2).WithDesc()
+		aq := c.Account.NewQuery().WithLimit(2).Desc()
 		if acc, err := aq.Run(ctx); err != nil {
 			panic(err)
 		} else if acc.Len() == 0 {
