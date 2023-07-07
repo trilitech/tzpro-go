@@ -11,7 +11,7 @@ import (
 type TokenBalance struct {
 	Id         int64   `json:"id"`
 	Owner      Address `json:"owner"`
-	Ledger     Address `json:"ledger"`
+	Contract   Address `json:"contract"`
 	TokenId    Z       `json:"token_id"`
 	Kind       string  `json:"token_kind"`
 	Type       string  `json:"token_type"`

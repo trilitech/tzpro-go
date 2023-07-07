@@ -11,7 +11,7 @@ import (
 
 type TokenMetadata struct {
 	Id          int64           `json:"id"`
-	Ledger      Address         `json:"contract"`
+	Contract    Address         `json:"contract"`
 	TokenId     Z               `json:"token_id"`
 	Kind        string          `json:"kind"`
 	Status      string          `json:"status"`

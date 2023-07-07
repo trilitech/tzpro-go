@@ -11,8 +11,8 @@ import (
 
 type DexEvent struct {
 	Id         uint64    `json:"id"`
-	Contract   string    `json:"contract"`
-	PairId     int64     `json:"pair_id"`
+	Contract   Address   `json:"contract"`
+	PairId     int       `json:"pair_id"`
 	Name       string    `json:"name"`
 	Entity     string    `json:"entity"`
 	Pair       string    `json:"pair"`
@@ -26,10 +26,11 @@ type DexEvent struct {
 	SupplyA    Z         `json:"supply_a"`
 	SupplyB    Z         `json:"supply_b"`
 	SupplyLP   Z         `json:"supply_lp"`
-	Signer     string    `json:"signer"`
-	Sender     string    `json:"sender"`
-	Receiver   string    `json:"receiver"`
-	Router     string    `json:"router"`
+	ValueUSD   float64   `json:"value_usd,string"`
+	Signer     Address   `json:"signer"`
+	Sender     Address   `json:"sender"`
+	Receiver   Address   `json:"receiver"`
+	Router     Address   `json:"router"`
 	TxHash     OpHash    `json:"tx_hash"`
 	TxFee      int64     `json:"tx_fee,string"`
 	Block      int64     `json:"block"`

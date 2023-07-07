@@ -10,27 +10,27 @@ import (
 )
 
 type DexTicker struct {
-	Pair             string    `json:"pair"`
-	Pool             string    `json:"pool"`
-	Name             string    `json:"name"`
-	Entity           string    `json:"entity"`
-	PriceChange      string    `json:"price_change"`
-	PriceChangeBps   string    `json:"price_change_bps"`
-	AskPrice         string    `json:"ask_price"`
-	WeightedAvgPrice string    `json:"weighted_avg_price"`
-	LastPrice        string    `json:"last_price"`
-	LastQty          string    `json:"last_qty"`
-	LastTradeTime    string    `json:"last_trade_time"`
-	BaseVolume       string    `json:"base_volume"`
-	QuoteVolume      string    `json:"quote_volume"`
-	OpenPrice        string    `json:"open_price"`
-	HighPrice        string    `json:"high_price"`
-	LowPrice         string    `json:"low_price"`
-	OpenTime         time.Time `json:"open_time"`
-	CloseTime        time.Time `json:"close_time"`
-	NumTrades        int       `json:"num_trades"`
-	LiquidityUSD     string    `json:"liquidity_usd"`
-	PriceUSD         string    `json:"price_usd"`
+	Pair             string      `json:"pair"`
+	Pool             PoolAddress `json:"pool"`
+	Name             string      `json:"name"`
+	Entity           string      `json:"entity"`
+	PriceChange      float64     `json:"price_change,string"`
+	PriceChangeBps   float64     `json:"price_change_bps,string"`
+	AskPrice         float64     `json:"ask_price,string"`
+	WeightedAvgPrice float64     `json:"weighted_avg_price,string"`
+	LastPrice        float64     `json:"last_price,string"`
+	LastQty          float64     `json:"last_qty,string"`
+	LastTradeTime    float64     `json:"last_trade_time,string"`
+	BaseVolume       float64     `json:"base_volume,string"`
+	QuoteVolume      float64     `json:"quote_volume,string"`
+	OpenPrice        float64     `json:"open_price,string"`
+	HighPrice        float64     `json:"high_price,string"`
+	LowPrice         float64     `json:"low_price,string"`
+	OpenTime         time.Time   `json:"open_time"`
+	CloseTime        time.Time   `json:"close_time"`
+	NumTrades        int         `json:"num_trades"`
+	LiquidityUSD     string      `json:"liquidity_usd"`
+	PriceUSD         string      `json:"price_usd"`
 }
 
 func (c *dexClient) GetTicker(ctx context.Context, addr PoolAddress) (*DexTicker, error) {

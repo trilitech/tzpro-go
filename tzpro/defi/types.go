@@ -16,7 +16,8 @@ type (
 	Address = tezos.Address
 	Z       = tezos.Z
 
-	Token = token.Token
+	Token        = token.Token
+	TokenAddress = tezos.Token
 )
 
 var (

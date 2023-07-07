@@ -11,7 +11,7 @@ import (
 
 type DexTrade struct {
 	Id             uint64    `json:"id"`
-	Contract       string    `json:"contract"`
+	Contract       Address   `json:"contract"`
 	PairId         int       `json:"pair_id"`
 	Name           string    `json:"name"`
 	Entity         string    `json:"entity"`

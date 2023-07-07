@@ -34,19 +34,14 @@ type nftClient struct {
 
 type NftMarket struct {
 	Id         uint64    `json:"id"`
-	Contract   string    `json:"contract"`
+	Contract   Address   `json:"contract"`
 	Kind       string    `json:"kind"`
-	Creator    string    `json:"creator"`
+	Creator    Address   `json:"creator"`
 	Name       string    `json:"name"`
 	Entity     string    `json:"entity"`
 	Tags       []string  `json:"tags"`
 	FirstBlock int64     `json:"first_block"`
 	FirstTime  time.Time `json:"first_time"`
-}
-
-func (m NftMarket) Address() Address {
-	a, _ := ParseAddress(m.Contract)
-	return a
 }
 
 func (c *nftClient) GetMarket(ctx context.Context, addr Address) (*NftMarket, error) {

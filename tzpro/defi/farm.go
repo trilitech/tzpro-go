@@ -32,9 +32,9 @@ type farmClient struct {
 
 type Farm struct {
 	Id               uint64     `json:"id"`
-	Contract         string     `json:"contract"`
+	Contract         Address    `json:"contract"`
 	PoolId           int        `json:"pool_id"`
-	Creator          string     `json:"creator"`
+	Creator          Address    `json:"creator"`
 	Name             string     `json:"name"`
 	Entity           string     `json:"entity"`
 	StakeToken       *Token     `json:"stake_token"`
@@ -42,16 +42,15 @@ type Farm struct {
 	FirstBlock       int64      `json:"first_block"`
 	FirstTime        time.Time  `json:"first_time"`
 	Tags             []string   `json:"tags"`
-	TotalStake       string     `json:"total_stake"`
-	RemainingRewards string     `json:"remaining_rewards"`
+	TotalStake       Z          `json:"total_stake"`
+	RemainingRewards Z          `json:"remaining_rewards"`
 	NumPositions     int        `json:"num_positions"`
 	StartTime        *time.Time `json:"start_time,omitempty"`
 	EndTime          *time.Time `json:"end_time,omitempty"`
 }
 
 func (p Farm) Address() PoolAddress {
-	a, _ := ParseAddress(p.Contract)
-	return NewPoolAddress(a, p.PoolId)
+	return NewPoolAddress(p.Contract, p.PoolId)
 }
 
 func (c *farmClient) GetFarm(ctx context.Context, addr PoolAddress) (*Farm, error) {

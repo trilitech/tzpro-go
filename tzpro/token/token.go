@@ -41,7 +41,7 @@ type tokenClient struct {
 
 type Token struct {
 	Id             uint64    `json:"id"`
-	Ledger         string    `json:"ledger"`
+	Contract       Address   `json:"contract"`
 	TokenId        Z         `json:"token_id"`
 	Kind           string    `json:"token_kind"`
 	Type           string    `json:"token_type"`
@@ -62,8 +62,7 @@ type Token struct {
 }
 
 func (t Token) Address() TokenAddress {
-	addr, _ := ParseAddress(t.Ledger)
-	return NewTokenAddress(addr, t.TokenId)
+	return NewTokenAddress(t.Contract, t.TokenId)
 }
 
 func (c *tokenClient) GetToken(ctx context.Context, addr TokenAddress) (*Token, error) {

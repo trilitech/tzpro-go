@@ -11,14 +11,14 @@ import (
 
 type NftEvent struct {
 	Id         uint64    `json:"id"`
-	Contract   string    `json:"contract"`
+	Contract   Address   `json:"contract"`
 	Name       string    `json:"name"`
 	Entity     string    `json:"entity"`
 	Category   string    `json:"category"`
 	EventType  string    `json:"event_type"`
 	SaleId     int64     `json:"sale_id"`
 	SaleType   string    `json:"sale_type"`
-	Collection string    `json:"collection"`
+	Collection Address   `json:"collection"`
 	TokenId    Z         `json:"token_id,omitempty"`
 	Currency   *Token    `json:"currency,omitempty"`
 	NumUnits   int64     `json:"num_units,omitempty"`
@@ -26,9 +26,9 @@ type NftEvent struct {
 	Fee        Z         `json:"fee,omitempty"`
 	Royalty    Z         `json:"royalty,omitempty"`
 	RoyaltyBps int64     `json:"royalty_bps,omitempty"`
-	Signer     string    `json:"signer"`
-	Sender     string    `json:"sender"`
-	TxHash     string    `json:"tx_hash"`
+	Signer     Address   `json:"signer"`
+	Sender     Address   `json:"sender"`
+	TxHash     OpHash    `json:"tx_hash"`
 	TxFee      int64     `json:"tx_fee,string"`
 	Block      int64     `json:"block"`
 	Time       time.Time `json:"time"`

@@ -11,7 +11,7 @@ import (
 
 type NftPosition struct {
 	Id         uint64     `json:"id"`
-	Contract   string     `json:"contract"`
+	Contract   Address    `json:"contract"`
 	Name       string     `json:"name"`
 	Entity     string     `json:"entity"`
 	Category   string     `json:"category"`
@@ -19,8 +19,8 @@ type NftPosition struct {
 	SaleType   string     `json:"sale_type"`
 	SaleStatus string     `json:"sale_status"`
 	IsClosed   bool       `json:"is_closed"`
-	Seller     string     `json:"seller"`
-	Buyer      string     `json:"buyer"`
+	Seller     Address    `json:"seller"`
+	Buyer      Address    `json:"buyer"`
 	AskPrice   Z          `json:"ask_price"`
 	BidPrice   Z          `json:"bid_price"`
 	MaxUnits   int64      `json:"max_units"`

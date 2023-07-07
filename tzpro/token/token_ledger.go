@@ -11,7 +11,7 @@ import (
 
 type Ledger struct {
 	Id             uint64    `json:"id"`
-	Ledger         string    `json:"ledger"`
+	Contract       Address   `json:"contract"`
 	TokenId        Z         `json:"token_id"`
 	Kind           string    `json:"token_kind"`
 	Type           string    `json:"token_type"`
@@ -21,7 +21,7 @@ type Ledger struct {
 	Decimals       int       `json:"decimals"`
 	Logo           string    `json:"logo"`
 	Tags           []string  `json:"tags"`
-	Creator        string    `json:"creator"`
+	Creator        Address   `json:"creator"`
 	FirstBlock     int64     `json:"first_block"`
 	FirstTime      time.Time `json:"first_time"`
 	Supply         Z         `json:"total_supply"`
@@ -29,11 +29,6 @@ type Ledger struct {
 	VolBurn        Z         `json:"total_burned"`
 	LastChange     int64     `json:"last_supply_change_block"`
 	LastChangeTime time.Time `json:"last_supply_change_time"`
-}
-
-func (t Ledger) Address() Address {
-	addr, _ := ParseAddress(t.Ledger)
-	return addr
 }
 
 func (c *tokenClient) GetLedger(ctx context.Context, addr Address) (*Ledger, error) {

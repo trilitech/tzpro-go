@@ -11,7 +11,7 @@ import (
 
 type NftTrade struct {
 	Id         uint64    `json:"id"`
-	Contract   string    `json:"contract"`
+	Contract   Address   `json:"contract"`
 	Name       string    `json:"name"`
 	Entity     string    `json:"entity"`
 	Category   string    `json:"category"`
