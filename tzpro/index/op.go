@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"blockwatch.cc/tzgo/micheline"
 	"blockwatch.cc/tzpro-go/internal/client"
 	"blockwatch.cc/tzpro-go/internal/util"
 )
@@ -230,28 +231,43 @@ func (o Op) DecodeParams(noFail bool, onError int) (*ContractParameters, error) 
 		if err != nil && noFail {
 			return nil, err
 		}
-		params := &Parameters{}
-		err = params.UnmarshalBinary(buf)
-		if err != nil && noFail {
-			return nil, err
-		}
-		if o.param.IsValid() {
-			ep, prim, _ := params.MapEntrypoint(o.param)
-			cp := &ContractParameters{
-				Entrypoint: ep.Name,
-			}
-			cp.Prim = &prim
-			typ := ep.Type()
-			typ.Prim.Anno = nil // strip entrypoint name annot
-			val := NewValue(typ, prim)
-			val.Render = onError
-			cp.ContractValue.Value, err = val.Map()
+		switch o.Type {
+		case OpTypeTransaction:
+			params := &Parameters{}
+			err = params.UnmarshalBinary(buf)
 			if err != nil && noFail {
-				return nil, fmt.Errorf("op %s (%d) decoding params %s: %v", o.Hash, o.Id, string(o.Parameters), err)
+				return nil, err
+			}
+			if o.param.IsValid() {
+				ep, prim, _ := params.MapEntrypoint(o.param)
+				cp := &ContractParameters{
+					Entrypoint: ep.Name,
+				}
+				cp.Prim = &prim
+				typ := ep.Type()
+				typ.Prim.Anno = nil // strip entrypoint name annot
+				val := NewValue(typ, prim)
+				val.Render = onError
+				cp.ContractValue.Value, err = val.Map()
+				if err != nil && noFail {
+					return nil, fmt.Errorf("op %s (%d) decoding params %s: %v", o.Hash, o.Id, string(o.Parameters), err)
+				}
+				return cp, nil
+			} else {
+				return nil, ErrNoType
+			}
+		case OpTypeRollupTransaction:
+			var pair micheline.Prim
+			if err := pair.UnmarshalBinary(buf); err != nil {
+				return nil, err
+			}
+			cp := &ContractParameters{
+				Kind:   "smart_rollup",
+				Method: string(o.Data),
+				Args:   pair.Args[0].Bytes,
+				Result: pair.Args[1].Bytes,
 			}
 			return cp, nil
-		} else {
-			return nil, ErrNoType
 		}
 	case '{':
 		cp := &ContractParameters{}

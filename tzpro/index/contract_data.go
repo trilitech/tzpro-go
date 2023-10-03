@@ -13,10 +13,12 @@ import (
 
 type ContractParameters struct {
 	ContractValue                 // contract
-	Entrypoint    string          `json:"entrypoint"`           // contract
+	Entrypoint    string          `json:"entrypoint,omitempty"` // contract
 	L2Address     *Address        `json:"l2_address,omitempty"` // rollup
+	Kind          string          `json:"kind,omitempty"`       // rollup
 	Method        string          `json:"method,omitempty"`     // rollup
-	Arguments     json.RawMessage `json:"arguments,omitempty"`  // rollup
+	Args          json.RawMessage `json:"args,omitempty"`       // rollup
+	Result        json.RawMessage `json:"result,omitempty"`     // rollup
 }
 
 type ContractScript struct {
