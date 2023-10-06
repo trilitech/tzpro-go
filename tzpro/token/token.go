@@ -59,6 +59,8 @@ type Token struct {
 	VolBurn        Z         `json:"total_burned"`
 	LastChange     int64     `json:"last_supply_change_block"`
 	LastChangeTime time.Time `json:"last_supply_change_time"`
+	PriceUSD       float64   `json:"price_usd,string"`
+	McapUSD        float64   `json:"mcap_usd,string"`
 }
 
 func (t Token) Address() TokenAddress {

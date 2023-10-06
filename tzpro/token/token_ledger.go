@@ -10,25 +10,23 @@ import (
 )
 
 type Ledger struct {
-	Id             uint64    `json:"id"`
-	Contract       Address   `json:"contract"`
-	TokenId        Z         `json:"token_id"`
-	Kind           string    `json:"token_kind"`
-	Type           string    `json:"token_type"`
-	Category       string    `json:"category"`
-	Name           string    `json:"name"`
-	Symbol         string    `json:"symbol"`
-	Decimals       int       `json:"decimals"`
-	Logo           string    `json:"logo"`
-	Tags           []string  `json:"tags"`
-	Creator        Address   `json:"creator"`
-	FirstBlock     int64     `json:"first_block"`
-	FirstTime      time.Time `json:"first_time"`
-	Supply         Z         `json:"total_supply"`
-	VolMint        Z         `json:"total_minted"`
-	VolBurn        Z         `json:"total_burned"`
-	LastChange     int64     `json:"last_supply_change_block"`
-	LastChangeTime time.Time `json:"last_supply_change_time"`
+	Id          uint64    `json:"id"`
+	Contract    Address   `json:"contract"`
+	Creator     Address   `json:"creator"`
+	Category    string    `json:"category"`
+	Kind        string    `json:"token_kind"`
+	Type        string    `json:"token_type"`
+	FirstBlock  int64     `json:"first_block"`
+	FirstTime   time.Time `json:"first_time"`
+	NumUsers    int       `json:"num_users"`
+	NumHolders  int       `json:"num_holders"`
+	NumTokens   int       `json:"num_tokens"`
+	Tags        []string  `json:"tags"`
+	CodeHash    string    `json:"code_hash"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Homepage    string    `json:"homepage"`
+	Version     string    `json:"version"`
 }
 
 func (c *tokenClient) GetLedger(ctx context.Context, addr Address) (*Ledger, error) {

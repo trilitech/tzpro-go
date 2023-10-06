@@ -31,21 +31,23 @@ type lendClient struct {
 }
 
 type LendingPool struct {
-	Id              uint64    `json:"id"`
-	Contract        Address   `json:"contract"`
-	PoolId          int       `json:"pool_id"`
-	Creator         Address   `json:"creator"`
-	Name            string    `json:"name"`
-	Entity          string    `json:"entity"`
-	DebtToken       *Token    `json:"debt_token"`
-	CollateralToken *Token    `json:"collateral_token"`
-	FirstBlock      int64     `json:"first_block"`
-	FirstTime       time.Time `json:"first_time"`
-	Tags            []string  `json:"tags"`
-	TotalCollateral Z         `json:"total_collateral"`
-	TotalDebt       Z         `json:"total_debt"`
-	NumDeposits     int       `json:"num_deposits"`
-	NumBorrows      int       `json:"num_borrows"`
+	Id                 uint64    `json:"id"`
+	Contract           Address   `json:"contract"`
+	PoolId             int       `json:"pool_id"`
+	Creator            Address   `json:"creator"`
+	Name               string    `json:"name"`
+	Entity             string    `json:"entity"`
+	DebtToken          *Token    `json:"debt_token"`
+	CollateralToken    *Token    `json:"collateral_token"`
+	FirstBlock         int64     `json:"first_block"`
+	FirstTime          time.Time `json:"first_time"`
+	Tags               []string  `json:"tags"`
+	TotalCollateral    Z         `json:"total_collateral"`
+	TotalDebt          Z         `json:"total_debt"`
+	NumDeposits        int       `json:"num_deposits"`
+	NumBorrows         int       `json:"num_borrows"`
+	CollateralValueUSD float64   `json:"collateral_value_usd,string"`
+	DebtValueUSD       float64   `json:"debt_value_usd,string"`
 }
 
 func (p LendingPool) Address() PoolAddress {

@@ -47,6 +47,8 @@ type Farm struct {
 	NumPositions     int        `json:"num_positions"`
 	StartTime        *time.Time `json:"start_time,omitempty"`
 	EndTime          *time.Time `json:"end_time,omitempty"`
+	StakeValueUSD    float64    `json:"stake_value_usd,string"`
+	RewardsValueUSD  float64    `json:"rewards_value_usd,string"`
 }
 
 func (p Farm) Address() PoolAddress {
