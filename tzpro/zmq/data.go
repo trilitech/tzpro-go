@@ -3,7 +3,7 @@
 
 package zmq
 
-func zmqFields(topic string) []string {
+func Fields(topic string) []string {
 	switch topic {
 	case "raw_block", "raw_block/rollback":
 		return ZmqRawBlockColumns
