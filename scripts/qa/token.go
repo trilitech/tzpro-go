@@ -22,6 +22,12 @@ func TestToken(ctx context.Context, c *tzpro.Client) {
 			panic(err)
 		}
 	})
+	try("ListLedgerTokens", func() {
+		addr := tezos.MustParseAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton")
+		if _, err := c.Token.ListLedgerTokens(ctx, addr, p); err != nil {
+			panic(err)
+		}
+	})
 
 	// balances
 	try("ListLedgerBalances", func() {

@@ -64,6 +64,9 @@ func run() error {
 	c := tzpro.NewClient(api, nil).WithLogger(log.Log)
 
 	tip := TestCommon(ctx, c)
+	if tip == nil {
+		return fmt.Errorf("Fetching tip failed")
+	}
 	TestBlock(ctx, c, tip)
 	TestWallet(ctx, c)
 	TestBaker(ctx, c)
