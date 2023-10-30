@@ -79,7 +79,7 @@ func NewMetadata(a Address) *Metadata {
 func (m Metadata) ID() string {
 	id := m.Address.String()
 	if m.AssetId != nil {
-		id += "/" + strconv.FormatInt(*m.AssetId, 10)
+		id += "_" + strconv.FormatInt(*m.AssetId, 10)
 	}
 	return id
 }
