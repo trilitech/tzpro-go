@@ -20,7 +20,7 @@ type DexTicker struct {
 	WeightedAvgPrice float64     `json:"weighted_avg_price,string"`
 	LastPrice        float64     `json:"last_price,string"`
 	LastQty          float64     `json:"last_qty,string"`
-	LastTradeTime    float64     `json:"last_trade_time,string"`
+	LastTradeTime    time.Time   `json:"last_trade_time"`
 	BaseVolume       float64     `json:"base_volume,string"`
 	QuoteVolume      float64     `json:"quote_volume,string"`
 	OpenPrice        float64     `json:"open_price,string"`
