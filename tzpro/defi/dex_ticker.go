@@ -10,6 +10,7 @@ import (
 )
 
 type DexTicker struct {
+	Id               uint64      `json:"id"`
 	Pair             string      `json:"pair"`
 	Pool             PoolAddress `json:"pool"`
 	Name             string      `json:"name"`
