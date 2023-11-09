@@ -54,11 +54,15 @@ type Dex struct {
 	SupplyLP        Z         `json:"supply_lp"`
 	LastChangeBlock int64     `json:"last_change_block"`
 	LastChangeTime  time.Time `json:"last_change_time"`
+	LastTradeTime   time.Time `json:"last_trade_time"`
 	NumTrades       int       `json:"num_trades"`
 	FeesBps         float64   `json:"fees_bps,string"`
 	Price           float64   `json:"price,string"`
 	PriceUSD        float64   `json:"price_usd,string"`
 	LiquidityUSD    float64   `json:"liquidity_usd,string"`
+	NumCurrentLPs   int       `json:"num_lps"`
+	NumTotalLPs     int       `json:"num_total_lps"`
+	NumTotalUsers   int       `json:"num_total_users"`
 }
 
 func (p Dex) Address() PoolAddress {
