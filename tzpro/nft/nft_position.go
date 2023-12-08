@@ -19,6 +19,9 @@ type NftPosition struct {
 	SaleType   string     `json:"sale_type"`
 	SaleStatus string     `json:"sale_status"`
 	IsClosed   bool       `json:"is_closed"`
+	Collection Address    `json:"collection"`
+	TokenId    Z          `json:"token_id"`
+	Currency   *Token     `json:"currency"`
 	Seller     Address    `json:"seller"`
 	Buyer      Address    `json:"buyer"`
 	AskPrice   Z          `json:"ask_price"`
