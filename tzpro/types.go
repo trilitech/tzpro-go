@@ -23,9 +23,8 @@ type (
 	FillMode       = client.FillMode
 	OrderType      = client.OrderType
 	FormatType     = client.FormatType
-	ApiError       = client.ApiError
-	HttpError      = client.HttpError
-	ApiErrors      = client.ApiErrors
+	ErrApi         = client.ErrApi
+	ErrHttp        = client.ErrHttp
 	ErrRateLimited = client.ErrRateLimited
 )
 

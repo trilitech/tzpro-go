@@ -349,9 +349,9 @@ func (c *Client) handleRequest(req *request) {
 		if resp.StatusCode == 429 {
 			// TODO: read rate limit header
 			wait := 5 * time.Second
-			err = newRateLimitError(wait, resp)
+			err = newRateLimitError(resp, wait)
 		} else {
-			err = newHttpError(resp, respBytes, req.String())
+			err = newHttpErrorWithBody(resp, respBytes)
 		}
 		req.responseChan <- &response{
 			status:  resp.StatusCode,

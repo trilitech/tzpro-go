@@ -4,15 +4,11 @@
 package client
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-
-	"blockwatch.cc/tzpro-go/internal/util"
 )
 
 const (
@@ -45,7 +41,7 @@ func NewStreamResponse(header http.Header) (StreamResponse, error) {
 		r.Runtime = time.Duration(d) * time.Millisecond
 	}
 	if errStr, ok := header[trailerError]; ok && len(errStr) > 0 {
-		e := &ApiErrors{}
+		e := &ErrApi{}
 		if err := e.UnmarshalJSON([]byte(errStr[0])); err != nil {
 			return r, err
 		}
@@ -84,26 +80,18 @@ type response struct {
 type FutureResult chan *response
 
 func (r FutureResult) Receive(ctx context.Context) error {
-	resp, err := receiveFuture(ctx, r)
+	_, err := receiveFuture(ctx, r)
 	if err != nil {
-		if herr, ok := IsErrHttp(err); ok {
-			return herr
-		} else if rerr, ok := IsErrRateLimited(err); ok {
-			return rerr
-		} else if resp != nil {
-			buf := resp.result
-			if buf != nil && resp.status > 299 {
-				errs := ApiErrors{}
-				if err := json.Unmarshal(buf, &errs); err != nil {
-					buf = bytes.ReplaceAll(bytes.TrimRight(resp.result[:util.Min(len(buf), 512)], "\x00"), []byte{'\n'}, []byte{})
-					errs.Errors = append(errs.Errors, ApiError{
-						Status:  resp.status,
-						Message: string(buf),
-						Detail:  err.Error(),
-					})
-				}
-				return errs
+		if e, ok := IsErrRateLimited(err); ok {
+			return e
+		}
+		if e, ok := IsErrHttp(err); ok {
+			var ae ErrApi
+			if err := e.(*ErrHttp).Decode(&ae); err == nil {
+				ae.Request_ = e.(*ErrHttp).Request()
+				return &ae
 			}
+			return e
 		}
 		return err
 	}
