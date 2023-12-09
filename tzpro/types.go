@@ -18,13 +18,15 @@ type (
 	Token       = tezos.Token
 	Z           = tezos.Z
 
-	Query      = client.Query
-	FilterMode = client.FilterMode
-	FillMode   = client.FillMode
-	OrderType  = client.OrderType
-	FormatType = client.FormatType
-	ApiError   = client.ApiError
-	ApiErrors  = client.ApiErrors
+	Query          = client.Query
+	FilterMode     = client.FilterMode
+	FillMode       = client.FillMode
+	OrderType      = client.OrderType
+	FormatType     = client.FormatType
+	ApiError       = client.ApiError
+	HttpError      = client.HttpError
+	ApiErrors      = client.ApiErrors
+	ErrRateLimited = client.ErrRateLimited
 )
 
 var (

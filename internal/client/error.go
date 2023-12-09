@@ -214,6 +214,8 @@ func isNetError(err error) bool {
 	switch err.(type) {
 	case *net.OpError:
 		return true
+	case *net.DNSError:
+		return true
 	case *os.SyscallError:
 		return true
 	case *url.Error:
@@ -222,11 +224,14 @@ func isNetError(err error) bool {
 	// wrapped
 	var (
 		neterr *net.OpError
+		dnserr *net.DNSError
 		oserr  *os.SyscallError
 		urlerr *url.Error
 	)
 	switch {
 	case errors.As(err, &neterr):
+		return true
+	case errors.As(err, &dnserr):
 		return true
 	case errors.As(err, &oserr):
 		return true
