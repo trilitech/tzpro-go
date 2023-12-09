@@ -49,7 +49,7 @@ func (c *tokenClient) ListLedgers(ctx context.Context, params Query) ([]*Ledger,
 
 func (c *tokenClient) ListLedgerTokens(ctx context.Context, addr Address, params Query) ([]*Token, error) {
 	list := make([]*Token, 0)
-	u := params.WithPath("/v1/ledgers/%s/tokens").Url()
+	u := params.WithPath(fmt.Sprintf("/v1/ledgers/%s/tokens", addr)).Url()
 	if err := c.client.Get(ctx, u, nil, &list); err != nil {
 		return nil, err
 	}
