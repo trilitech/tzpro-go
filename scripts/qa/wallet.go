@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
 )
 
 func TestWallet(ctx context.Context, c *tzpro.Client) {
-	addr := tezos.MustParseAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // Main
+	addr := tzpro.NewAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // Main
 	ap := tzpro.WithMeta()
 	op := tzpro.WithStorage().WithMeta()
 
@@ -56,13 +55,13 @@ func TestWallet(ctx context.Context, c *tzpro.Client) {
 		}
 	})
 	try("GetAssetMetadata", func() {
-		addr := tezos.MustParseToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
+		addr := tzpro.NewToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
 		if _, err := c.Metadata.GetAsset(ctx, addr); err != nil {
 			panic(err)
 		}
 	})
 	try("Describe", func() {
-		addr := tezos.MustParseAddress("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o")
+		addr := tzpro.NewAddress("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o")
 		if _, err := c.Metadata.DescribeAddress(ctx, addr); err != nil {
 			panic(err)
 		}

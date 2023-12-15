@@ -15,9 +15,21 @@ func TestDex(ctx context.Context, c *tzpro.Client) {
 		}
 	})
 
+	addr := tzpro.NewPoolAddres("KT1J8Hr3BP8bpbfmgGpRPoC9nAMSYtStZG43_0")
+	try("GetDex", func() {
+		if _, err := c.Dex.GetDex(ctx, addr); err != nil {
+			panic(err)
+		}
+	})
+
 	// events
 	try("ListDexEvents", func() {
 		if _, err := c.Dex.ListEvents(ctx, p); err != nil {
+			panic(err)
+		}
+	})
+	try("ListDexPoolEvents", func() {
+		if _, err := c.Dex.ListPoolEvents(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})
@@ -25,6 +37,11 @@ func TestDex(ctx context.Context, c *tzpro.Client) {
 	// positions
 	try("ListDexPositions", func() {
 		if _, err := c.Dex.ListPositions(ctx, p); err != nil {
+			panic(err)
+		}
+	})
+	try("ListDexPoolPositions", func() {
+		if _, err := c.Dex.ListPoolPositions(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})
@@ -39,6 +56,11 @@ func TestDex(ctx context.Context, c *tzpro.Client) {
 	// trades
 	try("ListDexTrades", func() {
 		if _, err := c.Dex.ListTrades(ctx, p); err != nil {
+			panic(err)
+		}
+	})
+	try("ListDexPoolTrades", func() {
+		if _, err := c.Dex.ListPoolTrades(ctx, addr, p); err != nil {
 			panic(err)
 		}
 	})

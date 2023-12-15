@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 
-	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
 )
 
@@ -17,7 +16,7 @@ func TestDomain(ctx context.Context, c *tzpro.Client) {
 	})
 
 	try("LookupByAddress", func() {
-		if _, err := c.Domain.LookupByAddress(ctx, tezos.MustParseAddress("tz1g8vkmcde6sWKaG2NN9WKzCkDM6Rziq194")); err != nil {
+		if _, err := c.Domain.LookupByAddress(ctx, tzpro.NewAddress("tz1g8vkmcde6sWKaG2NN9WKzCkDM6Rziq194")); err != nil {
 			panic(err)
 		}
 	})

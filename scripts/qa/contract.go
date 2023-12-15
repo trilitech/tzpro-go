@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
 )
 
 func TestContract(ctx context.Context, c *tzpro.Client) {
 	cp := tzpro.WithMeta()
-	addr := tezos.MustParseAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton") // main
+	addr := tzpro.NewAddress("KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton") // main
 
 	// contract
 	try("GetContract", func() {

@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/tzpro"
 )
 
 func TestBaker(ctx context.Context, c *tzpro.Client) {
-	addr := tezos.MustParseAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // main
+	addr := tzpro.NewAddress("tz1go7f6mEQfT2xX2LuHAqgnRGN6c2zHPf5c") // main
 	bkp := tzpro.WithMeta()
 	op := tzpro.WithStorage().WithMeta()
 
