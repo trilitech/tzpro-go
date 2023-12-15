@@ -89,7 +89,7 @@ func (e *ErrApi) UnmarshalJSON(buf []byte) error {
 			return err
 		}
 		if len(arr) > 0 {
-			*e = ErrApi(*arr[0])
+			*e = *arr[0]
 		}
 		return nil
 	}
