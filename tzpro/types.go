@@ -8,11 +8,13 @@ import (
 
 	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/internal/client"
+	"blockwatch.cc/tzpro-go/tzpro/defi"
 	"blockwatch.cc/tzpro-go/tzpro/index"
 )
 
 type (
 	Address     = tezos.Address
+	PoolAddress = defi.PoolAddress
 	AddressType = tezos.AddressType
 	Key         = tezos.Key
 	Token       = tezos.Token
@@ -31,6 +33,9 @@ type (
 var (
 	NewAddress       = tezos.MustParseAddress
 	ParseAddress     = tezos.ParseAddress
+	NewPoolAddres    = defi.MustParsePoolAddress
+	ParsePoolAddress = defi.ParsePoolAddress
+	NewToken         = tezos.MustParseToken
 	NewQuery         = client.NewQuery
 	IsErrApi         = client.IsErrApi
 	IsErrHttp        = client.IsErrHttp
