@@ -10,7 +10,7 @@ import (
 )
 
 type TokenMetadata struct {
-	Id          int64           `json:"id"`
+	Id          uint64          `json:"id"`
 	Contract    Address         `json:"contract"`
 	TokenId     Z               `json:"token_id"`
 	Kind        string          `json:"kind"`

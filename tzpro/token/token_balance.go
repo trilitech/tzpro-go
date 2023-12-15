@@ -9,7 +9,7 @@ import (
 )
 
 type TokenBalance struct {
-	Id         int64   `json:"id"`
+	Id         uint64  `json:"id"`
 	Owner      Address `json:"owner"`
 	Contract   Address `json:"contract"`
 	TokenId    Z       `json:"token_id"`

@@ -27,6 +27,7 @@ type TokenAPI interface {
 
 	// firehose
 	ListTokens(context.Context, Query) ([]*Token, error)
+	ListEvents(context.Context, Query) ([]*TokenEvent, error)
 	ListLedgers(context.Context, Query) ([]*Ledger, error)
 	ListMetadata(context.Context, Query) ([]*TokenMetadata, error)
 }
