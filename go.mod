@@ -3,21 +3,21 @@ module blockwatch.cc/tzpro-go
 go 1.20
 
 require (
-	blockwatch.cc/tzgo v1.17.2
+	blockwatch.cc/tzgo v1.17.5-0.20240101090803-20d0969e714b
 	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/echa/code v1.0.1
 	github.com/echa/log v1.2.4
-	github.com/hashicorp/golang-lru v0.5.4
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 )
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/echa/bson v0.0.0-20220430141917-c0fbdf7f8b79 // indirect
-	github.com/fatih/color v1.15.0 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
-	golang.org/x/crypto v0.10.0 // indirect
-	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/exp v0.0.0-20231226003508-02704c960a9b // indirect
+	golang.org/x/sys v0.15.0 // indirect
 )

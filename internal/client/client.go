@@ -15,8 +15,9 @@ import (
 	"strings"
 	"time"
 
+	"blockwatch.cc/tzgo/tezos"
 	"github.com/echa/log"
-	lru "github.com/hashicorp/golang-lru"
+	lru "github.com/hashicorp/golang-lru/v2"
 )
 
 var (
@@ -28,7 +29,7 @@ type Client struct {
 	transport  *http.Client
 	log        log.Logger
 	base       Query
-	cache      *lru.TwoQueueCache
+	cache      *lru.TwoQueueCache[tezos.Address, any]
 	headers    http.Header
 	userAgent  string
 	numRetries int
@@ -56,7 +57,7 @@ func NewClient(url string, httpClient *http.Client) *Client {
 	if sz < 2 {
 		sz = 2
 	}
-	cache, _ := lru.New2Q(sz)
+	cache, _ := lru.New2Q[tezos.Address, any](sz)
 	c := &Client{
 		transport:  httpClient,
 		log:        log.Disabled,
@@ -131,12 +132,12 @@ func (c *Client) WithCacheSize(sz int) *Client {
 	if sz < 2 {
 		sz = 2
 	}
-	cache, _ := lru.New2Q(sz)
+	cache, _ := lru.New2Q[tezos.Address, any](sz)
 	c.cache = cache
 	return c
 }
 
-func (c *Client) UseScriptCache(cache *lru.TwoQueueCache) {
+func (c *Client) UseScriptCache(cache *lru.TwoQueueCache[tezos.Address, any]) {
 	c.cache = cache
 }
 
@@ -148,11 +149,11 @@ func (c Client) RetryDelay() time.Duration {
 	return c.retryDelay
 }
 
-func (c *Client) CacheGet(key any) (any, bool) {
+func (c *Client) CacheGet(key tezos.Address) (any, bool) {
 	return c.cache.Get(key)
 }
 
-func (c *Client) CacheAdd(key, val any) {
+func (c *Client) CacheAdd(key tezos.Address, val any) {
 	c.cache.Add(key, val)
 }
 

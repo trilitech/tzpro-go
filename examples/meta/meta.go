@@ -39,7 +39,7 @@ func run() error {
 	md, err := c.Metadata.GetWallet(ctx, addr)
 	if err != nil {
 		// handle 404 NotFound errors in a special way
-		if e, ok := tzpro.IsErrHttp(err); ok && e.Status == http.StatusNotFound {
+		if e, ok := tzpro.IsErrHttp(err); ok && e.StatusCode() == http.StatusNotFound {
 			return fmt.Errorf("No metadata for this account")
 		}
 		return err

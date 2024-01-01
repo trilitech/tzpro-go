@@ -21,7 +21,7 @@ import (
 
 	// "blockwatch.cc/tzpro-go/tzpro/zmq"
 	"github.com/echa/log"
-	lru "github.com/hashicorp/golang-lru"
+	lru "github.com/hashicorp/golang-lru/v2"
 )
 
 var (
@@ -144,7 +144,7 @@ func (s *Client) WithCacheSize(sz int) *Client {
 	return s
 }
 
-func (s *Client) UseScriptCache(cache *lru.TwoQueueCache) {
+func (s *Client) UseScriptCache(cache *lru.TwoQueueCache[Address, any]) {
 	s.client.UseScriptCache(cache)
 }
 
@@ -156,10 +156,10 @@ func (s Client) RetryDelay() time.Duration {
 	return s.client.RetryDelay()
 }
 
-func (s Client) CacheGet(key any) (any, bool) {
+func (s Client) CacheGet(key Address) (any, bool) {
 	return s.client.CacheGet(key)
 }
 
-func (s Client) CacheAdd(key, val any) {
+func (s Client) CacheAdd(key Address, val any) {
 	s.client.CacheAdd(key, val)
 }

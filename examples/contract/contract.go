@@ -72,7 +72,7 @@ func main() {
 	}
 	if err := run(); err != nil {
 		if e, ok := tzpro.IsErrApi(err); ok {
-			fmt.Printf("Error: %s: %s\n", e.Errors[0].Message, e.Errors[0].Detail)
+			fmt.Printf("Error: %s: %s\n", e.Message, e.Detail)
 		} else {
 			fmt.Printf("Error: %v\n", err)
 		}
