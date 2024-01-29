@@ -7,10 +7,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"blockwatch.cc/tzgo/contract"
+	"blockwatch.cc/tzgo/tezos"
 	"github.com/echa/code/iata"
 	"github.com/echa/code/iso"
 
@@ -41,19 +41,19 @@ type metaClient struct {
 }
 
 var Schemas = map[string]func() any{
-	"alias":    func() any { return new(AliasMetadata) },
-	"baker":    func() any { return new(BakerMetadata) },
-	"payout":   func() any { return new(PayoutMetadata) },
-	"asset":    func() any { return new(AssetMetadata) },
-	"dex":      func() any { return new(DexMetadata) },
-	"location": func() any { return new(LocationMetadata) },
-	"domain":   func() any { return new(DomainMetadata) },
-	"media":    func() any { return new(MediaMetadata) },
-	"rights":   func() any { return new(RightsMetadata) },
-	"social":   func() any { return new(SocialMetadata) },
-	"tz16":     func() any { return new(contract.Tz16) },
-	"tz21":     func() any { return new(Tz21Metadata) },
-	"updated":  func() any { return new(UpdatedMetadata) },
+	"alias":     func() any { return new(AliasMetadata) },
+	"baker":     func() any { return new(BakerMetadata) },
+	"payout":    func() any { return new(PayoutMetadata) },
+	"asset":     func() any { return new(AssetMetadata) },
+	"location":  func() any { return new(LocationMetadata) },
+	"tzdomain":  func() any { return new(DomainMetadata) },
+	"tzprofile": func() any { return new(ProfileMetadata) },
+	"media":     func() any { return new(MediaMetadata) },
+	"rights":    func() any { return new(RightsMetadata) },
+	"social":    func() any { return new(SocialMetadata) },
+	"tz16":      func() any { return new(contract.Tz16) },
+	"tz21":      func() any { return new(Tz21Metadata) },
+	"updated":   func() any { return new(UpdatedMetadata) },
 }
 
 type MetadataDescriptor struct {
@@ -65,7 +65,7 @@ type MetadataDescriptor struct {
 type Metadata struct {
 	// address + id together are used as unique identifier
 	Address  Address        `json:"address"`
-	AssetId  *int64         `json:"asset_id,omitempty"`
+	TokenId  *tezos.Z       `json:"token_id,omitempty"`
 	Contents map[string]any `json:"-"`
 }
 
@@ -78,8 +78,8 @@ func NewMetadata(a Address) *Metadata {
 
 func (m Metadata) ID() string {
 	id := m.Address.String()
-	if m.AssetId != nil {
-		id += "_" + strconv.FormatInt(*m.AssetId, 10)
+	if m.TokenId != nil {
+		id += "_" + m.TokenId.String()
 	}
 	return id
 }
@@ -147,8 +147,8 @@ func (m Metadata) MarshalJSON() ([]byte, error) {
 		out[n] = v
 	}
 	out["address"] = m.Address
-	if m.AssetId != nil {
-		out["asset_id"] = *m.AssetId
+	if m.TokenId != nil {
+		out["asset_id"] = *m.TokenId
 	}
 	return json.Marshal(out)
 }
@@ -165,7 +165,7 @@ func (m *Metadata) UnmarshalJSON(buf []byte) error {
 		case "address":
 			err = json.Unmarshal(v, &m.Address)
 		case "asset_id":
-			err = json.Unmarshal(v, &m.AssetId)
+			err = json.Unmarshal(v, &m.TokenId)
 		default:
 			var data any
 			schema, ok := Schemas[n]
@@ -226,16 +226,6 @@ func (m *Metadata) Asset() *AssetMetadata {
 	return model.(*AssetMetadata)
 }
 
-func (m *Metadata) Dex() *DexMetadata {
-	name := "dex"
-	model, ok := m.Contents[name]
-	if !ok {
-		model = Schemas[name]()
-		m.Set(name, model)
-	}
-	return model.(*DexMetadata)
-}
-
 func (m *Metadata) Location() *LocationMetadata {
 	name := "location"
 	model, ok := m.Contents[name]
@@ -247,13 +237,23 @@ func (m *Metadata) Location() *LocationMetadata {
 }
 
 func (m *Metadata) Domain() *DomainMetadata {
-	name := "domain"
+	name := "tzdomain"
 	model, ok := m.Contents[name]
 	if !ok {
 		model = Schemas[name]()
 		m.Set(name, model)
 	}
 	return model.(*DomainMetadata)
+}
+
+func (m *Metadata) Profile() *ProfileMetadata {
+	name := "tzprofile"
+	model, ok := m.Contents[name]
+	if !ok {
+		model = Schemas[name]()
+		m.Set(name, model)
+	}
+	return model.(*ProfileMetadata)
 }
 
 func (m *Metadata) Media() *MediaMetadata {
@@ -326,11 +326,16 @@ type AliasMetadata struct {
 }
 
 type AssetMetadata struct {
-	Standard string `json:"standard,omitempty"`
-	Symbol   string `json:"symbol,omitempty"`
-	Decimals int    `json:"decimals,omitempty"`
-	Version  string `json:"version,omitempty"`
-	Homepage string `json:"homepage,omitempty"`
+	Standard string          `json:"standard,omitempty"`
+	Tokens   []TokenMetadata `json:"tokens,omitempty"`
+	Version  string          `json:"version,omitempty"`
+	Homepage string          `json:"homepage,omitempty"`
+}
+
+type TokenMetadata struct {
+	Name     string `json:"name"`
+	Symbol   string `json:"symbol"`
+	Decimals int    `json:"decimals"`
 }
 
 type BakerMetadata struct {
@@ -354,16 +359,20 @@ type LocationMetadata struct {
 }
 
 type DomainMetadata struct {
-	Name    string         `json:"name"`
-	Records []DomainRecord `json:"records,omitempty"`
+	Name string `json:"name"`
 }
 
-type DomainRecord struct {
-	Address Address           `json:"address"`
-	Name    string            `json:"name"`
-	Owner   Address           `json:"owner"`
-	Expiry  time.Time         `json:"expiry"`
-	Data    map[string]string `json:"data,omitempty"`
+type ProfileMetadata struct {
+	Alias       string `json:"alias,omitempty"`
+	Description string `json:"description,omitempty"`
+	Logo        string `json:"logo,omitempty"`
+	Website     string `json:"website,omitempty"`
+	Twitter     string `json:"twitter,omitempty"`
+	Ethereum    string `json:"ethereum,omitempty"`
+	DomainName  string `json:"domain_name,omitempty"`
+	Discord     string `json:"discord,omitempty"`
+	Github      string `json:"github,omitempty"`
+	Serial      uint64 `json:"serial,omitempty"`
 }
 
 type MediaMetadata struct {
@@ -452,28 +461,6 @@ type UpdatedMetadata struct {
 	Time   time.Time `json:"time"`
 }
 
-// AMM and other decentralized exchanges
-type DexMetadata struct {
-	Kind       string    `json:"kind"`                  // quipu_v1, quipu_token, quipu_v2, vortex, ..
-	TradingFee float64   `json:"trading_fee,omitempty"` // trading fee
-	ExitFee    float64   `json:"exit_fee,omitempty"`    // remove liquidity fee
-	Url        string    `json:"url,omitempty"`         // homepage
-	Pairs      []DexPair `json:"pairs"`                 // trading pairs
-}
-
-type DexPair struct {
-	PairId *int64   `json:"pair_id,omitempty"` // 0 when single pool dex
-	TokenA DexToken `json:"token_a"`
-	TokenB DexToken `json:"token_b"`
-	Url    string   `json:"url,omitempty"` // deep link
-}
-
-type DexToken struct {
-	Type    string `json:"type"`               // tez, fa12, fa2
-	Address string `json:"address,omitempty"`  // token ledger, only used for FA*
-	TokenId *int64 `json:"token_id,omitempty"` // only used for FA2
-}
-
 func (c *metaClient) List(ctx context.Context) ([]Metadata, error) {
 	resp := make([]Metadata, 0)
 	if err := c.client.Get(ctx, "/metadata", nil, &resp); err != nil {
@@ -492,7 +479,7 @@ func (c *metaClient) GetWallet(ctx context.Context, addr Address) (Metadata, err
 
 func (c *metaClient) GetAsset(ctx context.Context, addr Token) (Metadata, error) {
 	var resp Metadata
-	if err := c.client.Get(ctx, fmt.Sprintf("/metadata/%s", addr), nil, &resp); err != nil {
+	if err := c.client.Get(ctx, "/metadata/"+addr.String(), nil, &resp); err != nil {
 		return resp, err
 	}
 	return resp, nil
@@ -507,8 +494,8 @@ func (c *metaClient) Create(ctx context.Context, metadata []Metadata) ([]Metadat
 func (c *metaClient) Update(ctx context.Context, alias Metadata) (Metadata, error) {
 	var resp Metadata
 	u := fmt.Sprintf("/metadata/%s", alias.Address)
-	if alias.AssetId != nil {
-		u += "_" + strconv.FormatInt(*alias.AssetId, 10)
+	if alias.TokenId != nil {
+		u += "_" + alias.TokenId.String()
 	}
 	if err := c.client.Put(ctx, u, nil, &alias, &resp); err != nil {
 		return resp, err

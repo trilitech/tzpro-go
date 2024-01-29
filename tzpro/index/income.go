@@ -14,11 +14,9 @@ type Income struct {
 	Address                Address   `json:"address"`    // table only
 	AccountId              uint64    `json:"account_id"` // table only
 	Cycle                  int64     `json:"cycle"`
-	Rolls                  int64     `json:"snapshot_rolls"    tzpro:"rolls"`
 	Balance                float64   `json:"own_balance"       tzpro:"balance"`
 	Delegated              float64   `json:"delegated_balance" tzpro:"delegated"`
 	Staking                float64   `json:"staking_balance"   tzpro:"-"`
-	ActiveStake            float64   `json:"active_stake"`
 	NDelegations           int64     `json:"n_delegations"`
 	NBakingRights          int64     `json:"n_baking_rights"`
 	NEndorsingRights       int64     `json:"n_endorsing_rights"`
@@ -35,7 +33,6 @@ type Income struct {
 	NSeedsRevealed         int64     `json:"n_seeds_revealed"`
 	ExpectedIncome         float64   `json:"expected_income"`
 	TotalIncome            float64   `json:"total_income"`
-	TotalDeposits          float64   `json:"total_deposits"`
 	BakingIncome           float64   `json:"baking_income"`
 	EndorsingIncome        float64   `json:"endorsing_income"`
 	AccusationIncome       float64   `json:"accusation_income"`

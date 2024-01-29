@@ -70,8 +70,10 @@ type Block struct {
 	GasUsed          int64               `json:"gas_used"`
 	StoragePaid      int64               `json:"storage_paid"`
 	PctAccountReuse  float64             `json:"pct_account_reuse"`
-	LbEscapeVote     string              `json:"lb_esc_vote"`
-	LbEscapeEma      int64               `json:"lb_esc_ema"`
+	LbVote           string              `json:"lb_vote"`
+	LbEma            int64               `json:"lb_ema"`
+	AiVote           string              `json:"ai_vote"`
+	AiEma            int64               `json:"ai_ema"`
 	Protocol         ProtocolHash        `json:"protocol"`
 	ProposerKeyId    uint64              `json:"proposer_consensus_key_id"`
 	BakerKeyId       uint64              `json:"baker_consensus_key_id"`

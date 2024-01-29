@@ -1,6 +1,6 @@
 ## TzPro-Go – Official Go SDK for the TzPro API
 
-The official Blockwatch Go client library for TzPro. This SDK is free to use under a permissive license and works with the most recent version of the TzPro API v017-2023-05-31. API documentation can be found [here](https://docs.tzpro.io/legacy-api-v0).
+The official Blockwatch Go client library for TzPro. This SDK is free to use under a permissive license and works with the most recent version of the TzPro API v018-2024-01-15. API documentation can be found [here](https://docs.tzpro.io/).
 
 This SDK is based on [TzGo](https://github.com/blockwatch-cc/tzgo), our open-source Go library for Tezos.
 
@@ -13,6 +13,7 @@ As long as TzPro-Go is in beta status we will use major version 0.x. Once interf
 
 Supported API and Tezos versions
 
+- **v0.18**: API release v018-2024-01-15, Tezos Oxford
 - **v0.17**: API release v017-2023-05-31, Tezos Nairobi
 - **v0.16**: API release v016-2023-02-26, Tezos Mumbai
 - **v0.15**: API release v015-2022-12-06, Tezos Lima
@@ -359,7 +360,7 @@ for {
 
 ## License
 
-The MIT License (MIT) Copyright (c) 2021-2023 Blockwatch Data Inc.
+The MIT License (MIT) Copyright (c) 2021-2024 Blockwatch Data Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

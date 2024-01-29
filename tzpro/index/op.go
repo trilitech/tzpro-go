@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"blockwatch.cc/tzgo/micheline"
+	"blockwatch.cc/tzgo/tezos"
 	"blockwatch.cc/tzpro-go/internal/client"
 	"blockwatch.cc/tzpro-go/internal/util"
 )
@@ -102,6 +103,8 @@ type Op struct {
 	Loser         Address             `json:"loser"                     tzpro:"-"` // smart rollup refutation game
 	Winner        Address             `json:"winner"                    tzpro:"-"` // smart rollup refutation game
 	Staker        Address             `json:"staker"                    tzpro:"-"` // smart rollup refutation game
+	Solution      tezos.HexBytes      `json:"solution,omitempty"        tzpro:"-"` // smart rollup refutation game
+	Proof         tezos.HexBytes      `json:"proof,omitempty"           tzpro:"-"` // smart rollup refutation game
 	Storage       json.RawMessage     `json:"storage,omitempty"         tzpro:"-"` // transaction, origination
 	Script        *Script             `json:"script,omitempty"          tzpro:"-"` // origination
 	Power         int                 `json:"power,omitempty"           tzpro:"-"` // endorsement

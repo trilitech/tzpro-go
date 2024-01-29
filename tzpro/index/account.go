@@ -57,11 +57,16 @@ type Account struct {
 	TotalFeesUsed      float64             `json:"total_fees_used"`
 	UnclaimedBalance   float64             `json:"unclaimed_balance,omitempty"`
 	SpendableBalance   float64             `json:"spendable_balance"`
-	FrozenBond         float64             `json:"frozen_bond"`
-	LostBond           float64             `json:"lost_bond"`
+	FrozenRollupBond   float64             `json:"frozen_rollup_bond,omitempty"`
+	LostRollupBond     float64             `json:"lost_rollup_bond,omitempty"`
+	StakedBalance      float64             `json:"staked_balance"`
+	UnstakedBalance    float64             `json:"unstaked_balance"`
+	FrozenRewards      float64             `json:"frozen_rewards"`
+	LostStake          float64             `json:"lost_stake"`
 	IsFunded           bool                `json:"is_funded"`
 	IsActivated        bool                `json:"is_activated"`
 	IsDelegated        bool                `json:"is_delegated"`
+	IsStaked           bool                `json:"is_staked"`
 	IsRevealed         bool                `json:"is_revealed"`
 	IsBaker            bool                `json:"is_baker"`
 	IsContract         bool                `json:"is_contract"`

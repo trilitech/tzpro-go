@@ -55,21 +55,15 @@ type Vote struct {
 	EndTime          time.Time   `json:"period_end_time"`
 	StartHeight      int64       `json:"period_start_block"`
 	EndHeight        int64       `json:"period_end_block"`
-	EligibleRolls    int         `json:"eligible_rolls"`
 	EligibleVoters   int         `json:"eligible_voters"`
 	QuorumPct        int         `json:"quorum_pct"`
-	QuorumRolls      int         `json:"quorum_rolls"`
-	TurnoutRolls     int         `json:"turnout_rolls"`
 	TurnoutVoters    int         `json:"turnout_voters"`
 	TurnoutPct       int         `json:"turnout_pct"`
 	TurnoutEma       int         `json:"turnout_ema"`
-	YayRolls         int         `json:"yay_rolls"`
 	YayStake         float64     `json:"yay_stake"`
 	YayVoters        int         `json:"yay_voters"`
-	NayRolls         int         `json:"nay_rolls"`
 	NayStake         float64     `json:"nay_stake"`
 	NayVoters        int         `json:"nay_voters"`
-	PassRolls        int         `json:"pass_rolls"`
 	PassStake        float64     `json:"pass_stake"`
 	PassVoters       int         `json:"pass_voters"`
 	IsOpen           bool        `json:"is_open"`
@@ -88,7 +82,6 @@ type Proposal struct {
 	OpHash        OpHash    `json:"op_hash"`
 	Height        int64     `json:"height"`
 	Time          time.Time `json:"time"`
-	Rolls         int64     `json:"rolls"`
 	Stake         float64   `json:"stake"`
 	Voters        int64     `json:"voters"`
 }
@@ -103,7 +96,6 @@ type Ballot struct {
 	Proposal         string    `json:"proposal"`
 	OpHash           OpHash    `json:"op"`
 	Ballot           string    `json:"ballot"`
-	Rolls            int64     `json:"rolls"`
 	Stake            float64   `json:"stake"`
 	Sender           Address   `json:"sender"`
 }
@@ -113,7 +105,6 @@ type BallotList []*Ballot
 type Voter struct {
 	RowId     uint64   `json:"row_id"`
 	Address   Address  `json:"address"`
-	Rolls     int64    `json:"rolls"`
 	Stake     float64  `json:"stake"`
 	Ballot    string   `json:"ballot"`
 	HasVoted  bool     `json:"has_voted"`

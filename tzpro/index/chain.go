@@ -53,8 +53,7 @@ type Chain struct {
 	SelfBakers           int64     `json:"self_bakers"`
 	SingleBakers         int64     `json:"single_bakers"`
 	MultiBakers          int64     `json:"multi_bakers"`
-	Rolls                int64     `json:"rolls"`
-	RollOwners           int64     `json:"roll_owners"`
+	RollOwners           int64     `json:"eligible_bakers"`
 }
 
 type ChainQuery = client.TableQuery[*Chain]
