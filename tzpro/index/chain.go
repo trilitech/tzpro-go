@@ -47,13 +47,15 @@ type Chain struct {
 	InactiveDelegators   int64     `json:"inactive_delegators"`
 	DustDelegators       int64     `json:"dust_delegators"`
 	TotalBakers          int64     `json:"total_bakers"`
+	RollOwners           int64     `json:"eligible_bakers"`
 	ActiveBakers         int64     `json:"active_bakers"`
 	InactiveBakers       int64     `json:"inactive_bakers"`
 	ZeroBakers           int64     `json:"zero_bakers"`
 	SelfBakers           int64     `json:"self_bakers"`
 	SingleBakers         int64     `json:"single_bakers"`
 	MultiBakers          int64     `json:"multi_bakers"`
-	RollOwners           int64     `json:"eligible_bakers"`
+	ActiveStakers        int64     `json:"active_stakers"`
+	InactiveStakers      int64     `json:"inactive_stakers"`
 }
 
 type ChainQuery = client.TableQuery[*Chain]

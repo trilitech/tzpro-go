@@ -16,8 +16,10 @@ type Income struct {
 	Cycle                  int64     `json:"cycle"`
 	Balance                float64   `json:"own_balance"       tzpro:"balance"`
 	Delegated              float64   `json:"delegated_balance" tzpro:"delegated"`
-	Staking                float64   `json:"staking_balance"   tzpro:"-"`
+	Staking                float64   `json:"staking_balance"`
+	OwnStake               float64   `json:"own_stake"`
 	NDelegations           int64     `json:"n_delegations"`
+	NStakers               int64     `json:"n_stakers"`
 	NBakingRights          int64     `json:"n_baking_rights"`
 	NEndorsingRights       int64     `json:"n_endorsing_rights"`
 	Luck                   float64   `json:"luck"`

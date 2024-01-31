@@ -61,7 +61,7 @@ type Account struct {
 	LostRollupBond     float64             `json:"lost_rollup_bond,omitempty"`
 	StakedBalance      float64             `json:"staked_balance"`
 	UnstakedBalance    float64             `json:"unstaked_balance"`
-	FrozenRewards      float64             `json:"frozen_rewards"`
+	FrozenRewards      float64             `json:"frozen_rewards"         tzpro:"-"`
 	LostStake          float64             `json:"lost_stake"`
 	IsFunded           bool                `json:"is_funded"`
 	IsActivated        bool                `json:"is_activated"`
