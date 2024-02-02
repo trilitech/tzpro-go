@@ -147,9 +147,6 @@ func (m Metadata) MarshalJSON() ([]byte, error) {
 		out[n] = v
 	}
 	out["address"] = m.Address
-	if m.TokenId != nil {
-		out["asset_id"] = *m.TokenId
-	}
 	return json.Marshal(out)
 }
 
@@ -164,15 +161,22 @@ func (m *Metadata) UnmarshalJSON(buf []byte) error {
 		switch n {
 		case "address":
 			err = json.Unmarshal(v, &m.Address)
-		case "asset_id":
-			err = json.Unmarshal(v, &m.TokenId)
 		default:
 			var data any
 			schema, ok := Schemas[n]
 			if ok {
 				data = schema()
 			} else {
-				data = make(map[string]any)
+				switch {
+				case v[0] == '{':
+					data = make(map[string]any)
+				case v[0] == '[':
+					data = make([]any, 0)
+				case v[0] == '"':
+					data = new(string)
+				default:
+					data = new(float64)
+				}
 			}
 			err = json.Unmarshal(v, &data)
 			if err == nil {
@@ -316,6 +320,19 @@ func (m *Metadata) Updated() *UpdatedMetadata {
 	return model.(*UpdatedMetadata)
 }
 
+func (m *Metadata) TryTz21() (*Tz21Metadata, error) {
+	var tz21 Tz21Metadata
+	buf, err := json.Marshal(m.Contents)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(buf, &tz21)
+	if err != nil {
+		return nil, err
+	}
+	return &tz21, nil
+}
+
 type AliasMetadata struct {
 	Name        string   `json:"name"`
 	Kind        string   `json:"kind"`
@@ -326,16 +343,17 @@ type AliasMetadata struct {
 }
 
 type AssetMetadata struct {
-	Standard string          `json:"standard,omitempty"`
-	Tokens   []TokenMetadata `json:"tokens,omitempty"`
-	Version  string          `json:"version,omitempty"`
-	Homepage string          `json:"homepage,omitempty"`
+	Standard string                   `json:"standard,omitempty"`
+	Tokens   map[string]TokenMetadata `json:"tokens,omitempty"`
+	Version  string                   `json:"version,omitempty"`
+	Homepage string                   `json:"homepage,omitempty"`
 }
 
 type TokenMetadata struct {
 	Name     string `json:"name"`
 	Symbol   string `json:"symbol"`
 	Decimals int    `json:"decimals"`
+	Logo     string `json:"logo,omitempty"`
 }
 
 type BakerMetadata struct {
