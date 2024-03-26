@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package tzpro
@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	SdkVersion    = "0.17.1"
+	SdkVersion    = "0.18.1"
 	DefaultClient = NewClient("https://api.tzpro.io", nil)
 )
 
@@ -38,6 +38,7 @@ type Client struct {
 	Metadata index.MetadataAPI
 	Op       index.OpAPI
 	Stats    index.StatsAPI
+	Ticket   index.TicketAPI
 	Dex      defi.DexAPI
 	Farm     defi.FarmAPI
 	Lend     defi.LendingAPI
@@ -67,6 +68,7 @@ func NewClient(url string, httpClient *http.Client) *Client {
 		Metadata: index.NewMetadataAPI(c),
 		Op:       index.NewOpAPI(c),
 		Stats:    index.NewStatsAPI(c),
+		Ticket:   index.NewTicketAPI(c),
 		Dex:      defi.NewDexAPI(c),
 		Farm:     defi.NewFarmAPI(c),
 		Lend:     defi.NewLendingAPI(c),

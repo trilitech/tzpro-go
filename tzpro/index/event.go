@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -9,7 +9,7 @@ import (
 
 type Event struct {
 	// table API only
-	RowId     uint64 `json:"row_id"`
+	Id        uint64 `json:"id"`
 	AccountId uint64 `json:"account_id"`
 	Height    int64  `json:"height"`
 	OpId      uint64 `json:"op_id"`

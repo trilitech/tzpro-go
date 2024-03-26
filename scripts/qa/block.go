@@ -14,7 +14,7 @@ func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
 
 	// block
 	try("GetBlock", func() {
-		if _, err := c.Block.GetHash(ctx, tip.Hash, bp); err != nil {
+		if _, err := c.Block.GetHash(ctx, tip.Block, bp); err != nil {
 			panic(err)
 		}
 	})
@@ -35,7 +35,7 @@ func TestBlock(ctx context.Context, c *tzpro.Client, tip *index.Tip) {
 
 	// block ops
 	try("GetBlockOps", func() {
-		if ops, err := c.Block.ListOpsHash(ctx, tip.Hash, op); err != nil || len(ops) == 0 {
+		if ops, err := c.Block.ListOpsHash(ctx, tip.Block, op); err != nil || len(ops) == 0 {
 			panic(fmt.Errorf("len=%d %v", len(ops), err))
 		}
 	})

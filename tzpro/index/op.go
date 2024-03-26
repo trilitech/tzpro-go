@@ -84,7 +84,6 @@ type Op struct {
 	BakerId      uint64          `json:"baker_id"`
 	Data         json.RawMessage `json:"data,omitempty"`
 	Parameters   json.RawMessage `json:"parameters,omitempty"`
-	BigmapDiff   json.RawMessage `json:"big_map_diff,omitempty"` // transaction, origination
 	StorageHash  util.HexBytes   `json:"storage_hash,omitempty"`
 	CodeHash     util.HexBytes   `json:"code_hash,omitempty"`
 	Errors       json.RawMessage `json:"errors,omitempty"`
@@ -98,8 +97,8 @@ type Op struct {
 	// explorer or ZMQ APIs only
 	PrevBaker     Address             `json:"previous_baker"            tzpro:"-"` // delegation
 	Source        Address             `json:"source"                    tzpro:"-"` // internal operations
-	Offender      Address             `json:"offender"                  tzpro:"-"` // double_x
 	Accuser       Address             `json:"accuser"                   tzpro:"-"` // double_x
+	Offender      Address             `json:"offender"                  tzpro:"-"` // double_x
 	Loser         Address             `json:"loser"                     tzpro:"-"` // smart rollup refutation game
 	Winner        Address             `json:"winner"                    tzpro:"-"` // smart rollup refutation game
 	Staker        Address             `json:"staker"                    tzpro:"-"` // smart rollup refutation game
@@ -107,6 +106,8 @@ type Op struct {
 	Proof         tezos.HexBytes      `json:"proof,omitempty"           tzpro:"-"` // smart rollup refutation game
 	Storage       json.RawMessage     `json:"storage,omitempty"         tzpro:"-"` // transaction, origination
 	Script        *Script             `json:"script,omitempty"          tzpro:"-"` // origination
+	BigmapDiff    json.RawMessage     `json:"big_map_diff,omitempty"    tzpro:"-"` // transaction, origination
+	Valie         *micheline.Prim     `json:"value,omitempty"           tzpro:"-"` // global constant
 	Power         int                 `json:"power,omitempty"           tzpro:"-"` // endorsement
 	Limit         *float64            `json:"limit,omitempty"           tzpro:"-"` // set deposits limit
 	Confirmations int64               `json:"confirmations"             tzpro:"-"`
@@ -126,7 +127,7 @@ type Op struct {
 func (o *Op) BlockId() BlockId {
 	return BlockId{
 		Height: o.Height,
-		Hash:   o.Block.Clone(),
+		Hash:   o.Block,
 		Time:   o.Timestamp,
 	}
 }

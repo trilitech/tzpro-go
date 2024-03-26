@@ -260,7 +260,7 @@ func (p TableQuery[T]) Url() string {
 		base.Query.Set("limit", strconv.Itoa(p.Limit))
 	}
 	if len(p.Columns) > 0 && base.Query.Get("columns") == "" {
-		base.Query.Set("columns", strings.Join(p.Columns, ","))
+		base.Query.Set("select", strings.Join(p.Columns, ","))
 	}
 	if p.Verbose {
 		base.Query.Set("verbose", "true")

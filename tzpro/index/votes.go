@@ -11,6 +11,7 @@ import (
 
 type Election struct {
 	Id                int       `json:"election_id"`
+	MaxPeriods        int       `json:"max_periods"`
 	NumPeriods        int       `json:"num_periods"`
 	NumProposals      int       `json:"num_proposals"`
 	StartTime         time.Time `json:"start_time"`
@@ -55,8 +56,11 @@ type Vote struct {
 	EndTime          time.Time   `json:"period_end_time"`
 	StartHeight      int64       `json:"period_start_block"`
 	EndHeight        int64       `json:"period_end_block"`
+	EligibleStake    float64     `json:"eligible_stake"`
 	EligibleVoters   int         `json:"eligible_voters"`
 	QuorumPct        int         `json:"quorum_pct"`
+	QuorumStake      float64     `json:"quorum_stake"`
+	TurnoutStake     float64     `json:"turnout_stake"`
 	TurnoutVoters    int         `json:"turnout_voters"`
 	TurnoutPct       int         `json:"turnout_pct"`
 	TurnoutEma       int         `json:"turnout_ema"`
@@ -78,8 +82,7 @@ type Vote struct {
 type Proposal struct {
 	Hash          string    `json:"hash"`
 	SourceAddress Address   `json:"source"`
-	BlockHash     BlockHash `json:"block_hash"`
-	OpHash        OpHash    `json:"op_hash"`
+	OpId          uint64    `json:"op"`
 	Height        int64     `json:"height"`
 	Time          time.Time `json:"time"`
 	Stake         float64   `json:"stake"`
@@ -87,14 +90,14 @@ type Proposal struct {
 }
 
 type Ballot struct {
-	RowId            uint64    `json:"row_id"`
+	Id               uint64    `json:"id"`
 	Height           int64     `json:"height"`
 	Timestamp        time.Time `json:"time"`
+	OpHash           uint64    `json:"op"`
 	ElectionId       int       `json:"election_id"`
 	VotingPeriod     int64     `json:"voting_period"`
 	VotingPeriodKind string    `json:"voting_period_kind"`
 	Proposal         string    `json:"proposal"`
-	OpHash           OpHash    `json:"op"`
 	Ballot           string    `json:"ballot"`
 	Stake            float64   `json:"stake"`
 	Sender           Address   `json:"sender"`
@@ -103,7 +106,7 @@ type Ballot struct {
 type BallotList []*Ballot
 
 type Voter struct {
-	RowId     uint64   `json:"row_id"`
+	Id        uint64   `json:"id"`
 	Address   Address  `json:"address"`
 	Stake     float64  `json:"stake"`
 	Ballot    string   `json:"ballot"`

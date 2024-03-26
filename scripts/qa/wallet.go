@@ -33,6 +33,20 @@ func TestWallet(ctx context.Context, c *tzpro.Client) {
 		}
 	})
 
+	// tickets
+	try("ListWalletTicketBalances", func() {
+		addr := tzpro.NewAddress("sr1EzLeJYWrvch2Mhvrk1nUVYrnjGQ8A4qdb")
+		if b, err := c.Account.ListTicketBalances(ctx, addr, ap); err != nil || len(b) == 0 {
+			panic(fmt.Errorf("len=%d %v", len(b), err))
+		}
+	})
+	try("ListWalletTicketEvents", func() {
+		addr := tzpro.NewAddress("sr1EzLeJYWrvch2Mhvrk1nUVYrnjGQ8A4qdb")
+		if e, err := c.Account.ListTicketEvents(ctx, addr, op); err != nil || len(e) == 0 {
+			panic(fmt.Errorf("len=%d %v", len(e), err))
+		}
+	})
+
 	// account table
 	try("Account query", func() {
 		aq := c.Account.NewQuery().WithLimit(2).Desc()
@@ -50,13 +64,7 @@ func TestWallet(ctx context.Context, c *tzpro.Client) {
 		}
 	})
 	try("GetWalletMetadata", func() {
-		if _, err := c.Metadata.GetWallet(ctx, addr); err != nil {
-			panic(err)
-		}
-	})
-	try("GetAssetMetadata", func() {
-		addr := tzpro.NewToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
-		if _, err := c.Metadata.GetAsset(ctx, addr); err != nil {
+		if _, err := c.Metadata.Get(ctx, addr); err != nil {
 			panic(err)
 		}
 	})

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -15,15 +15,14 @@ import (
 )
 
 type BigmapValue struct {
-	RowId     uint64      `json:"row_id"`
+	Id        uint64      `json:"id"`
 	BigmapId  int64       `json:"bigmap_id"`
-	KeyId     uint64      `json:"key_id"`
-	Hash      ExprHash    `json:"hash"`
+	Hash      ExprHash    `json:"key_hash"`
+	Key       MultiKey    `json:"key"                   tzpro:"-"`
+	Value     any         `json:"value,omitempty"       tzpro:"-"`
 	Height    int64       `json:"height"`
 	Time      time.Time   `json:"time"`
 	Meta      *BigmapMeta `json:"meta,omitempty"        tzpro:"-"`
-	Key       MultiKey    `json:"key"                   tzpro:"-"`
-	Value     any         `json:"value,omitempty"       tzpro:"-"`
 	KeyPrim   *Prim       `json:"key_prim,omitempty"    tzpro:"key,hex"`
 	ValuePrim *Prim       `json:"value_prim,omitempty"  tzpro:"value,hex"`
 }
@@ -106,7 +105,7 @@ func (l BigmapValueList) Cursor() uint64 {
 	if len(l) == 0 {
 		return 0
 	}
-	return l[len(l)-1].RowId
+	return l[len(l)-1].Id
 }
 
 type BigmapValueQuery = client.TableQuery[*BigmapValue]

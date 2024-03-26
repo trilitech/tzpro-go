@@ -28,7 +28,7 @@ type statsClient struct {
 }
 
 type AgeReport struct {
-	RowId      uint64    `json:"row_id"`
+	Id         uint64    `json:"id"`
 	Time       time.Time `json:"time"`
 	Height     int64     `json:"height"`
 	Year       int       `json:"year"`
@@ -75,7 +75,7 @@ func (c *statsClient) GetSupplyReport(ctx context.Context, params Query) ([]*Sup
 }
 
 type AccountsReport struct {
-	RowId            uint64    `json:"row_id"`
+	Id               uint64    `json:"id"`
 	Time             time.Time `json:"time"`
 	Height           int64     `json:"height"`
 	ActiveWallets    []byte    `json:"active_wallets"`
@@ -96,7 +96,7 @@ func (c *statsClient) GetAccountsReport(ctx context.Context, params Query) ([]*A
 }
 
 type ActivityReport struct {
-	RowId               uint64    `json:"row_id"`
+	Id                  uint64    `json:"id"`
 	Time                time.Time `json:"time"`
 	Height              int64     `json:"height"`
 	NumSeenWallets      int       `json:"num_seen_wallets"`
@@ -134,7 +134,7 @@ func (c *statsClient) GetActivityReport(ctx context.Context, params Query) ([]*A
 }
 
 type BalanceReport struct {
-	RowId              uint64    `json:"row_id"`
+	Id                 uint64    `json:"id"`
 	Time               time.Time `json:"time"`
 	Height             int64     `json:"height"`
 	NumFundedTotal     int       `json:"num_funded_total"`
@@ -203,7 +203,7 @@ func (c *statsClient) GetBalanceReport(ctx context.Context, params Query) ([]*Ba
 
 // fee, gas, vol, tdd, add
 type OpReport struct {
-	RowId  uint64    `json:"row_id"`
+	Id     uint64    `json:"id"`
 	Time   time.Time `json:"time"`
 	Height int64     `json:"height"`
 	Kind   string    `json:"kind"`

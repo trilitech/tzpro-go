@@ -1,43 +1,30 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
 type Tip struct {
-	Name               string       `json:"name"`
-	Network            string       `json:"network"`
-	Symbol             string       `json:"symbol"`
-	ChainId            ChainIdHash  `json:"chain_id"`
-	GenesisTime        time.Time    `json:"genesis_time"`
-	Hash               BlockHash    `json:"block_hash"`
-	Height             int64        `json:"height"`
-	Cycle              int64        `json:"cycle"`
-	Timestamp          time.Time    `json:"timestamp"`
-	Protocol           ProtocolHash `json:"protocol"`
-	TotalAccounts      int64        `json:"total_accounts"`
-	TotalContracts     int64        `json:"total_contracts"`
-	TotalRollups       int64        `json:"total_rollups"`
-	FundedAccounts     int64        `json:"funded_accounts"`
-	DustAccounts       int64        `json:"dust_accounts"`
-	DustDelegators     int64        `json:"dust_delegators"`
-	TotalOps           int64        `json:"total_ops"`
-	Delegators         int64        `json:"delegators"`
-	Bakers             int64        `json:"bakers"`
-	Rolls              int64        `json:"rolls"`
-	RollOwners         int64        `json:"roll_owners"`
-	NewAccounts30d     int64        `json:"new_accounts_30d"`
-	ClearedAccounts30d int64        `json:"cleared_accounts_30d"`
-	FundedAccounts30d  int64        `json:"funded_accounts_30d"`
-	Inflation1Y        float64      `json:"inflation_1y"`
-	InflationRate1Y    float64      `json:"inflation_rate_1y"`
-	Health             int          `json:"health"`
-	Supply             *Supply      `json:"supply,omitempty"`
-	Status             Status       `json:"status"`
+	Name        string       `json:"name"`
+	Network     string       `json:"network"`
+	Symbol      string       `json:"symbol"`
+	ChainId     ChainIdHash  `json:"chain_id"`
+	GenesisTime time.Time    `json:"genesis_time"`
+	Block       BlockHash    `json:"block"`
+	Height      int64        `json:"height"`
+	Cycle       int64        `json:"cycle"`
+	Time        time.Time    `json:"time"`
+	Protocol    ProtocolHash `json:"protocol"`
+
+	Stats  *Statistics `json:"stats,omitempty"`
+	Supply *Supply     `json:"supply,omitempty"`
+	Totals *Chain      `json:"totals,omitempty"`
+	Status *Status     `json:"status,omitempty"`
 }
 
 func (c *explorerClient) GetTip(ctx context.Context) (*Tip, error) {
@@ -48,8 +35,18 @@ func (c *explorerClient) GetTip(ctx context.Context) (*Tip, error) {
 	return tip, nil
 }
 
+type Statistics struct {
+	Time                 time.Time `json:"time"`
+	NewAccounts30d       int64     `json:"new_accounts_30d"`
+	NewContracts30d      int64     `json:"new_contracts_30d"`
+	NewFundedAccounts30d int64     `json:"new_funded_accounts_30d"`
+	NewGhostAccounts30d  int64     `json:"new_ghost_accounts_30d"`
+	ContractCalls30d     int64     `json:"contract_calls_30d"`
+	Inflation1Y          float64   `json:"inflation_1y"`
+	InflationRate1Y      float64   `json:"inflation_rate_1y"`
+}
+
 type Supply struct {
-	RowId               uint64    `json:"row_id"`
 	Height              int64     `json:"height"`
 	Cycle               int64     `json:"cycle"`
 	Timestamp           time.Time `json:"time"`
@@ -60,6 +57,7 @@ type Supply struct {
 	Liquid              float64   `json:"liquid"`
 	Delegated           float64   `json:"delegated"`
 	Staking             float64   `json:"staking"`
+	Unstaking           float64   `json:"unstaking"`
 	Shielded            float64   `json:"shielded"`
 	ActiveStake         float64   `json:"active_stake"`
 	ActiveDelegated     float64   `json:"active_delegated"`
@@ -80,11 +78,22 @@ type Supply struct {
 	BurnedStorage       float64   `json:"burned_storage"`
 	BurnedExplicit      float64   `json:"burned_explicit"`
 	BurnedSeedMiss      float64   `json:"burned_seed_miss"`
-	BurnedAbsence       float64   `json:"burned_absence"`
+	BurnedAbsence       float64   `json:"burned_offline"`
 	BurnedRollup        float64   `json:"burned_rollup"`
 	Frozen              float64   `json:"frozen"`
 	FrozenDeposits      float64   `json:"frozen_deposits"`
 	FrozenRewards       float64   `json:"frozen_rewards"`
 	FrozenFees          float64   `json:"frozen_fees"`
 	FrozenBonds         float64   `json:"frozen_bonds"`
+	FrozenStake         float64   `json:"frozen_stake"`
+	FrozenBakerStake    float64   `json:"frozen_baker_stake"`
+	FrozenStakerStake   float64   `json:"frozen_staker_stake"`
+}
+
+func (c *explorerClient) GetSupplyHeight(ctx context.Context, height int64) (*Supply, error) {
+	res := &Supply{}
+	if err := c.client.Get(ctx, fmt.Sprintf("/explorer/supply/%d", height), nil, res); err != nil {
+		return nil, err
+	}
+	return res, nil
 }

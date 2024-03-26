@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -7,16 +7,19 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"time"
 
 	"blockwatch.cc/tzpro-go/internal/client"
 )
 
 type Status struct {
-	Status    string  `json:"status"` // loading, connecting, stopping, stopped, waiting, syncing, synced, failed
-	Blocks    int64   `json:"blocks"`
-	Finalized int64   `json:"finalized"`
-	Indexed   int64   `json:"indexed"`
-	Progress  float64 `json:"progress"`
+	Status     string    `json:"status"` // loading, connecting, stopping, stopped, waiting, syncing, synced, failed
+	Blocks     int64     `json:"blocks"`
+	Finalized  int64     `json:"finalized"`
+	Indexed    int64     `json:"indexed"`
+	Progress   float64   `json:"progress"`
+	Health     int64     `json:"health"`
+	LastUpdate time.Time `json:"last_update"`
 }
 
 func (s *Status) UnmarshalJSON(data []byte) error {

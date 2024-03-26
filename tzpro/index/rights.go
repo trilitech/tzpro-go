@@ -21,7 +21,7 @@ type Right struct {
 }
 
 type Rights struct {
-	RowId     uint64        `json:"row_id"`
+	Id        uint64        `json:"id"`
 	Cycle     int64         `json:"cycle"`
 	Height    int64         `json:"height"`
 	AccountId uint64        `json:"account_id"`
@@ -103,7 +103,7 @@ func (l RightsList) Cursor() uint64 {
 	if len(l) == 0 {
 		return 0
 	}
-	return l[len(l)-1].RowId
+	return l[len(l)-1].Id
 }
 
 type RightsQuery = client.TableQuery[*Rights]

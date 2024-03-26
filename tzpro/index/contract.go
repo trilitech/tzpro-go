@@ -20,10 +20,12 @@ type ContractAPI interface {
 	GetConstant(context.Context, ExprHash, Query) (*Constant, error)
 	GetBigmap(context.Context, int64, Query) (*Bigmap, error)
 	GetBigmapValue(context.Context, int64, string, Query) (*BigmapValue, error)
-	// ListBigmapKeys(context.Context, int64, Query) (BigmapKeyList, error)
 	ListBigmapValues(context.Context, int64, Query) (BigmapValueList, error)
 	ListBigmapKeyUpdates(context.Context, int64, string, Query) (BigmapUpdateList, error)
 	ListBigmapUpdates(context.Context, int64, Query) (BigmapUpdateList, error)
+	ListTickets(context.Context, Address, Query) (TicketList, error)
+	ListTicketBalances(context.Context, Address, Query) (TicketBalanceList, error)
+	ListTicketEvents(context.Context, Address, Query) (TicketEventList, error)
 
 	NewQuery() *ContractQuery
 	NewEventQuery() *EventQuery
@@ -42,7 +44,7 @@ type contractClient struct {
 }
 
 type Contract struct {
-	RowId         uint64               `json:"row_id,omitempty"`
+	Id            uint64               `json:"id,omitempty"`
 	AccountId     uint64               `json:"account_id,omitempty"`
 	Address       Address              `json:"address"`
 	CreatorId     uint64               `json:"creator_id,omitempty"`
@@ -93,7 +95,7 @@ func (l ContractList) Cursor() uint64 {
 	if len(l) == 0 {
 		return 0
 	}
-	return l[len(l)-1].RowId
+	return l[len(l)-1].Id
 }
 
 type ContractQuery = client.TableQuery[*Contract]
@@ -136,4 +138,31 @@ func (c *contractClient) ListCalls(ctx context.Context, addr Address, params Que
 		return nil, err
 	}
 	return calls, nil
+}
+
+func (c *contractClient) ListTickets(ctx context.Context, addr Address, params Query) (TicketList, error) {
+	list := make(TicketList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/tickets", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *contractClient) ListTicketBalances(ctx context.Context, addr Address, params Query) (TicketBalanceList, error) {
+	list := make(TicketBalanceList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/ticket_balances", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *contractClient) ListTicketEvents(ctx context.Context, addr Address, params Query) (TicketEventList, error) {
+	list := make(TicketEventList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/contract/%s/ticket_events", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
 }

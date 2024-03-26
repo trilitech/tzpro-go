@@ -19,8 +19,8 @@ type BigmapUpdate struct {
 	KeyTypePrim   *Prim      `json:"key_type_prim,omitempty"`
 	ValueTypePrim *Prim      `json:"value_type_prim,omitempty"`
 	BigmapId      int64      `json:"bigmap_id"`
-	SourceId      int64      `json:"source_big_map,omitempty"`
-	DestId        int64      `json:"destination_big_map,omitempty"`
+	SourceId      int64      `json:"source_id,omitempty"`
+	DestId        int64      `json:"destination_id,omitempty"`
 }
 
 type BigmapUpdateList []*BigmapUpdate
@@ -63,13 +63,14 @@ func (l BigmapUpdateList) Events() (ev BigmapEvents) {
 // BigmapUpdateRow is a custom type for table query results which contain
 // raw bigmap data
 type BigmapUpdateRow struct {
-	RowId    uint64     `json:"row_id"`
+	Id       uint64     `json:"id"`
 	BigmapId int64      `json:"bigmap_id"`
-	KeyId    uint64     `json:"key_id"`
+	SourceId int64      `json:"source_id"`
 	Action   DiffAction `json:"action"`
 	Height   int64      `json:"height"`
 	Time     time.Time  `json:"time"`
-	Hash     ExprHash   `json:"hash,omitempty"`
+	OpId     uint64     `json:"op_id"`
+	Hash     ExprHash   `json:"key_hash,omitempty"`
 	Key      Prim       `json:"key,omitempty"     tzpro:",hex"`
 	Value    Prim       `json:"value,omitempty"   tzpro:",hex"`
 }
@@ -79,7 +80,7 @@ func (r BigmapUpdateRow) Event() (ev BigmapEvent) {
 	ev.Id = r.BigmapId
 	switch r.Action {
 	case DiffActionCopy:
-		ev.SourceId = int64(r.KeyId)
+		ev.SourceId = r.SourceId
 		ev.DestId = r.BigmapId
 	case DiffActionAlloc:
 		ev.KeyType = r.Key

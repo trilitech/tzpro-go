@@ -29,9 +29,9 @@ type blockClient struct {
 }
 
 type Block struct {
-	RowId            uint64              `json:"row_id"`
+	Id               uint64              `json:"id"`
 	Hash             BlockHash           `json:"hash"`
-	ParentHash       *BlockHash          `json:"predecessor,omitempty"`
+	ParentHash       *BlockHash          `json:"predecessor,omitempty"  tzpro:"-"`
 	FollowerHash     *BlockHash          `json:"successor,omitempty"    tzpro:"-"`
 	Timestamp        time.Time           `json:"time"`
 	Height           int64               `json:"height"`
@@ -176,7 +176,7 @@ func (l BlockList) Cursor() uint64 {
 	if len(l) == 0 {
 		return 0
 	}
-	return l[len(l)-1].RowId
+	return l[len(l)-1].Id
 }
 
 type BlockQuery = client.TableQuery[*Block]

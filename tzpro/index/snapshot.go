@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Blockwatch Data Inc.
+// Copyright (c) 2023-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -10,7 +10,7 @@ import (
 )
 
 type StakeSnapshot struct {
-	RowId          uint64    `json:"row_id"`
+	Id             uint64    `json:"id"`
 	Height         int64     `json:"height"`
 	Cycle          int64     `json:"cycle"`
 	Timestamp      time.Time `json:"time"`

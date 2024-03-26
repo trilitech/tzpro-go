@@ -4,13 +4,15 @@
 package index
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	"blockwatch.cc/tzpro-go/internal/client"
 )
 
 type Chain struct {
-	RowId                uint64    `json:"row_id"`
+	Id                   uint64    `json:"id"`
 	Height               int64     `json:"height"`
 	Cycle                int64     `json:"cycle"`
 	Timestamp            time.Time `json:"time"`
@@ -54,6 +56,7 @@ type Chain struct {
 	SelfBakers           int64     `json:"self_bakers"`
 	SingleBakers         int64     `json:"single_bakers"`
 	MultiBakers          int64     `json:"multi_bakers"`
+	TotalStakers         int64     `json:"total_stakers"`
 	ActiveStakers        int64     `json:"active_stakers"`
 	InactiveStakers      int64     `json:"inactive_stakers"`
 }
@@ -62,4 +65,12 @@ type ChainQuery = client.TableQuery[*Chain]
 
 func (c *explorerClient) NewChainQuery() *ChainQuery {
 	return client.NewTableQuery[*Chain](c.client, "chain")
+}
+
+func (c *explorerClient) GetTotalsHeight(ctx context.Context, height int64) (*Chain, error) {
+	res := &Chain{}
+	if err := c.client.Get(ctx, fmt.Sprintf("/explorer/chain/%d", height), nil, res); err != nil {
+		return nil, err
+	}
+	return res, nil
 }

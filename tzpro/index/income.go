@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -10,7 +10,7 @@ import (
 )
 
 type Income struct {
-	RowId                  uint64    `json:"row_id"`     // table only
+	Id                     uint64    `json:"id"`         // table only
 	Address                Address   `json:"address"`    // table only
 	AccountId              uint64    `json:"account_id"` // table only
 	Cycle                  int64     `json:"cycle"`
@@ -49,8 +49,10 @@ type Income struct {
 	LostAccusationDeposits float64   `json:"lost_accusation_deposits"`
 	LostSeedFees           float64   `json:"lost_seed_fees"`
 	LostSeedRewards        float64   `json:"lost_seed_rewards"`
-	StartTime              time.Time `json:"start_time"` // table only
-	EndTime                time.Time `json:"end_time"`   // table only
+	StartHeight            int64     `json:"start_height"` // table only
+	EndHeight              int64     `json:"end_height"`   // table only
+	StartTime              time.Time `json:"start_time"`   // table only
+	EndTime                time.Time `json:"end_time"`     // table only
 }
 
 type IncomeQuery = client.TableQuery[*Income]

@@ -14,6 +14,8 @@ type ExplorerAPI interface {
 	GetTip(context.Context) (*Tip, error)
 	GetConfigHead(context.Context) (*Config, error)
 	GetConfigHeight(context.Context, int64) (*Config, error)
+	GetSupplyHeight(context.Context, int64) (*Supply, error)
+	GetTotalsHeight(context.Context, int64) (*Chain, error)
 	ListProtocols(context.Context) ([]Deployment, error)
 	GetElection(context.Context, int) (*Election, error)
 	ListVoters(context.Context, int, int) ([]Voter, error)

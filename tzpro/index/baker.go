@@ -38,12 +38,13 @@ type Baker struct {
 	Address            Address          `json:"address"`
 	ConsensusKey       Key              `json:"consensus_key"`
 	ConsensusAddress   Address          `json:"consensus_address"`
-	BakerSince         time.Time        `json:"baker_since_time"`
+	BakerSince         time.Time        `json:"baker_since"`
 	BakerUntil         *time.Time       `json:"baker_until,omitempty"`
 	GracePeriod        int64            `json:"grace_period"`
 	BakerVersion       string           `json:"baker_version"`
 	TotalBalance       float64          `json:"total_balance"`
 	SpendableBalance   float64          `json:"spendable_balance"`
+	UnstakedBalance    float64          `json:"unstaked_balance"`
 	DelegatedBalance   float64          `json:"delegated_balance"`
 	OwnStake           float64          `json:"own_stake"`
 	TotalStake         float64          `json:"total_stake"`
@@ -51,7 +52,7 @@ type Baker struct {
 	StakingCapacity    float64          `json:"staking_capacity"`
 	StakingEdge        int64            `json:"staking_edge"`
 	StakingLimit       int64            `json:"staking_limit"`
-	BakingPower        int64            `json:"baking_power"`
+	BakingPower        float64          `json:"baking_power"`
 	NetworkShare       float64          `json:"network_share"`
 	ActiveDelegations  int64            `json:"active_delegations"`
 	ActiveStakers      int64            `json:"active_stakers"`
@@ -94,10 +95,8 @@ type BakerStatistics struct {
 
 type BakerEvents struct {
 	LastBakeHeight    int64     `json:"last_bake_height"`
-	LastBakeBlock     string    `json:"last_bake_block"`
 	LastBakeTime      time.Time `json:"last_bake_time"`
 	LastEndorseHeight int64     `json:"last_endorse_height"`
-	LastEndorseBlock  string    `json:"last_endorse_block"`
 	LastEndorseTime   time.Time `json:"last_endorse_time"`
 	NextBakeHeight    int64     `json:"next_bake_height"`
 	NextBakeTime      time.Time `json:"next_bake_time"`
@@ -108,6 +107,7 @@ type BakerEvents struct {
 type Staker struct {
 	Address  Address `json:"address"`
 	Balance  int64   `json:"balance"`
+	Stake    int64   `json:"stake"`
 	IsFunded bool    `json:"is_funded"`
 }
 

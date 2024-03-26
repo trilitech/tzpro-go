@@ -13,14 +13,14 @@ import (
 )
 
 type Constant struct {
-	RowId       uint64          `json:"row_id"`
+	Id          uint64          `json:"id"`
 	Address     ExprHash        `json:"address"`
 	CreatorId   uint64          `json:"creator_id"`
 	Creator     Address         `json:"creator"`
 	Height      int64           `json:"height"`
 	Time        time.Time       `json:"time"`
 	StorageSize int64           `json:"storage_size"`
-	Value       Prim            `json:"value"          tzpro:",hex"`
+	Value       Prim            `json:"value"          tzpro:"value,hex"`
 	Features    util.StringList `json:"features"`
 }
 

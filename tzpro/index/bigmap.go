@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -12,19 +12,16 @@ import (
 )
 
 type Bigmap struct {
-	RowId          uint64    `json:"row_id"`
+	Id             uint64    `json:"id"`
 	Contract       Address   `json:"contract"`
 	BigmapId       int64     `json:"bigmap_id"`
 	NUpdates       int64     `json:"n_updates"`
 	NKeys          int64     `json:"n_keys"`
 	AllocateHeight int64     `json:"alloc_height"`
-	AllocateBlock  BlockHash `json:"alloc_block"`
 	AllocateTime   time.Time `json:"alloc_time"`
 	UpdateHeight   int64     `json:"update_height"`
-	UpdateBlock    BlockHash `json:"update_block"`
 	UpdateTime     time.Time `json:"update_time"`
 	DeleteHeight   int64     `json:"delete_height"`
-	DeleteBlock    BlockHash `json:"delete_block"`
 	DeleteTime     time.Time `json:"delete_time"`
 	KeyType        Typedef   `json:"key_type"         tzpro:"-"`
 	ValueType      Typedef   `json:"value_type"       tzpro:"-"`
@@ -57,7 +54,7 @@ func (b Bigmap) GetValueType() Type {
 type BigmapQuery = client.TableQuery[*Bigmap]
 
 func (c *contractClient) NewBigmapQuery() *BigmapQuery {
-	return client.NewTableQuery[*Bigmap](c.client, "bigmaps")
+	return client.NewTableQuery[*Bigmap](c.client, "bigmap_types")
 }
 
 func (c *contractClient) GetBigmap(ctx context.Context, id int64, params Query) (*Bigmap, error) {

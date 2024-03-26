@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package index
@@ -21,6 +21,7 @@ type Config struct {
 	Decimals          int     `json:"decimals"`
 	MinimalStake      float64 `json:"minimal_stake"`
 	PreservedCycles   int64   `json:"preserved_cycles"`
+	BlocksPerCycle    int64   `json:"blocks_per_cycle"`
 	MinimalBlockDelay int     `json:"minimal_block_delay"`
 }
 

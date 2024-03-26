@@ -15,7 +15,10 @@ type AccountAPI interface {
 	Get(context.Context, Address, Query) (*Account, error)
 	ListOps(context.Context, Address, Query) (OpList, error)
 	ListContracts(context.Context, Address, Query) (ContractList, error)
+	ListTicketBalances(context.Context, Address, Query) (TicketBalanceList, error)
+	ListTicketEvents(context.Context, Address, Query) (TicketEventList, error)
 	NewQuery() *AccountQuery
+	NewFlowQuery() *FlowQuery
 }
 
 func NewAccountAPI(c *client.Client) AccountAPI {
@@ -27,14 +30,14 @@ type accountClient struct {
 }
 
 type Account struct {
-	RowId              uint64              `json:"row_id"`
+	RowId              uint64              `json:"id"`
 	Address            Address             `json:"address"`
 	AddressType        AddressType         `json:"address_type"`
 	Pubkey             Key                 `json:"pubkey"`
 	Counter            int64               `json:"counter"`
-	BakerId            uint64              `json:"baker_id,omitempty"    tzpro:"-"`
+	BakerId            uint64              `json:"baker_id,omitempty"`
 	Baker              *Address            `json:"baker,omitempty"`
-	CreatorId          uint64              `json:"creator_id,omitempty"  tzpro:"-"`
+	CreatorId          uint64              `json:"creator_id,omitempty"`
 	Creator            *Address            `json:"creator,omitempty"`
 	FirstIn            int64               `json:"first_in"`
 	FirstOut           int64               `json:"first_out"`
@@ -59,9 +62,9 @@ type Account struct {
 	SpendableBalance   float64             `json:"spendable_balance"`
 	FrozenRollupBond   float64             `json:"frozen_rollup_bond,omitempty"`
 	LostRollupBond     float64             `json:"lost_rollup_bond,omitempty"`
+	StakeShares        int64               `json:"stake_shares"`
 	StakedBalance      float64             `json:"staked_balance"`
 	UnstakedBalance    float64             `json:"unstaked_balance"`
-	FrozenRewards      float64             `json:"frozen_rewards"         tzpro:"-"`
 	LostStake          float64             `json:"lost_stake"`
 	IsFunded           bool                `json:"is_funded"`
 	IsActivated        bool                `json:"is_activated"`
@@ -74,9 +77,8 @@ type Account struct {
 	NTxFailed          int                 `json:"n_tx_failed"`
 	NTxOut             int                 `json:"n_tx_out"`
 	NTxIn              int                 `json:"n_tx_in"`
-	LifetimeRewards    float64             `json:"lifetime_rewards,omitempty" tzpro:"-"`
-	PendingRewards     float64             `json:"pending_rewards,omitempty"  tzpro:"-"`
-	Metadata           map[string]Metadata `json:"metadata,omitempty"         tzpro:"-"`
+	FrozenRewards      float64             `json:"frozen_rewards"     tzpro:"-"`
+	Metadata           map[string]Metadata `json:"metadata,omitempty" tzpro:"-"`
 }
 
 type AccountList []*Account
@@ -123,4 +125,22 @@ func (c *accountClient) ListOps(ctx context.Context, addr Address, params Query)
 		return nil, err
 	}
 	return ops, nil
+}
+
+func (c *accountClient) ListTicketBalances(ctx context.Context, addr Address, params Query) (TicketBalanceList, error) {
+	list := make(TicketBalanceList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/ticket_balances", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *accountClient) ListTicketEvents(ctx context.Context, addr Address, params Query) (TicketEventList, error) {
+	list := make(TicketEventList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/ticket_events", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
 }

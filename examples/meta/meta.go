@@ -36,7 +36,7 @@ func run() error {
 	}
 
 	// fetch metadata for the address
-	md, err := c.Metadata.GetWallet(ctx, addr)
+	md, err := c.Metadata.Get(ctx, addr)
 	if err != nil {
 		// handle 404 NotFound errors in a special way
 		if e, ok := tzpro.IsErrHttp(err); ok && e.StatusCode() == http.StatusNotFound {
