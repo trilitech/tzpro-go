@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023 Blockwatch Data Inc.
+// Copyright (c) 2020-2024 Blockwatch Data Inc.
 // Author: alex@blockwatch.cc
 
 package tzpro
@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	SdkVersion    = "0.17.1"
+	SdkVersion    = "0.18.0"
 	DefaultClient = NewClient("https://api.tzpro.io", nil)
 )
 
