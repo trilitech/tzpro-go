@@ -15,7 +15,10 @@ type AccountAPI interface {
 	Get(context.Context, Address, Query) (*Account, error)
 	ListOps(context.Context, Address, Query) (OpList, error)
 	ListContracts(context.Context, Address, Query) (ContractList, error)
+	ListTicketBalances(context.Context, Address, Query) (TicketBalanceList, error)
+	ListTicketEvents(context.Context, Address, Query) (TicketEventList, error)
 	NewQuery() *AccountQuery
+	NewFlowQuery() *FlowQuery
 }
 
 func NewAccountAPI(c *client.Client) AccountAPI {
@@ -123,4 +126,22 @@ func (c *accountClient) ListOps(ctx context.Context, addr Address, params Query)
 		return nil, err
 	}
 	return ops, nil
+}
+
+func (c *accountClient) ListTicketBalances(ctx context.Context, addr Address, params Query) (TicketBalanceList, error) {
+	list := make(TicketBalanceList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/ticket_balances", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *accountClient) ListTicketEvents(ctx context.Context, addr Address, params Query) (TicketEventList, error) {
+	list := make(TicketEventList, 0)
+	u := params.WithPath(fmt.Sprintf("/explorer/account/%s/ticket_events", addr)).Url()
+	if err := c.client.Get(ctx, u, nil, &list); err != nil {
+		return nil, err
+	}
+	return list, nil
 }
