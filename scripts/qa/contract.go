@@ -131,12 +131,18 @@ func TestContract(ctx context.Context, c *tzpro.Client) {
 	// -----------------------------------------------------------------
 	// Tickets
 	//
-	// try("Ticket query", func() {
-	//     coq := c.NewTicketQuery()
-	//     coq.WithLimit(2).Desc()
-	//     if _, err := coq.Run(ctx); err != nil {
-	//         panic(err)
-	//     }
-	// })
+	// tickets
+	try("ListContractTicketBalances", func() {
+		addr := tzpro.NewAddress("sr1EzLeJYWrvch2Mhvrk1nUVYrnjGQ8A4qdb")
+		if b, err := c.Contract.ListTicketBalances(ctx, addr, cp); err != nil || len(b) == 0 {
+			panic(fmt.Errorf("len=%d %v", len(b), err))
+		}
+	})
+	try("ListContractTicketEvents", func() {
+		addr := tzpro.NewAddress("sr1EzLeJYWrvch2Mhvrk1nUVYrnjGQ8A4qdb")
+		if e, err := c.Contract.ListTicketEvents(ctx, addr, cp); err != nil || len(e) == 0 {
+			panic(fmt.Errorf("len=%d %v", len(e), err))
+		}
+	})
 
 }
