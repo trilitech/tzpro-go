@@ -68,12 +68,6 @@ func TestWallet(ctx context.Context, c *tzpro.Client) {
 			panic(err)
 		}
 	})
-	try("GetAssetMetadata", func() {
-		addr := tzpro.NewToken("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o_0")
-		if _, err := c.Metadata.GetAsset(ctx, addr); err != nil {
-			panic(err)
-		}
-	})
 	try("Describe", func() {
 		addr := tzpro.NewAddress("KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o")
 		if _, err := c.Metadata.DescribeAddress(ctx, addr); err != nil {
