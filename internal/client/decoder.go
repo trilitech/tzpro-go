@@ -106,12 +106,14 @@ func (d *Decoder) decode(dec *json.Decoder, dst reflect.Value) error {
 			if err := dec.Decode(&s); err != nil {
 				return err
 			}
-			buf, err := hex.DecodeString(s)
-			if err != nil {
-				return err
-			}
-			if err := f.Addr().Interface().(encoding.BinaryUnmarshaler).UnmarshalBinary(buf); err != nil {
-				return err
+			if len(s) > 0 {
+				buf, err := hex.DecodeString(s)
+				if err != nil {
+					return err
+				}
+				if err := f.Addr().Interface().(encoding.BinaryUnmarshaler).UnmarshalBinary(buf); err != nil {
+					return err
+				}
 			}
 		case d.flags[i]&fieldFlagTime > 0:
 			// time: decode int or time string
