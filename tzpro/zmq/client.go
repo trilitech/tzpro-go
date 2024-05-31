@@ -6,7 +6,7 @@ package zmq
 import (
 	// "context"
 
-	"blockwatch.cc/tzpro-go/internal/client"
+	"github.com/trilitech/tzpro-go/internal/client"
 )
 
 type ZmqAPI interface {

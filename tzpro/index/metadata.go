@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"time"
 
-	"blockwatch.cc/tzgo/contract"
-	"blockwatch.cc/tzgo/tezos"
 	"github.com/echa/code/iata"
 	"github.com/echa/code/iso"
+	"github.com/trilitech/tzgo/contract"
+	"github.com/trilitech/tzgo/tezos"
 
-	"blockwatch.cc/tzpro-go/internal/client"
+	"github.com/trilitech/tzpro-go/internal/client"
 )
 
 type MetadataAPI interface {

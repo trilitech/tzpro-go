@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"blockwatch.cc/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro"
 )
 
 func TestFarm(ctx context.Context, c *tzpro.Client) {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"blockwatch.cc/tzpro-go/tzpro"
-	"blockwatch.cc/tzpro-go/tzpro/index"
+	"github.com/trilitech/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro/index"
 )
 
 func TestCommon(ctx context.Context, c *tzpro.Client) (tip *index.Tip) {

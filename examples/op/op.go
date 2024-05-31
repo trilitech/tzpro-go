@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"blockwatch.cc/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro"
 )
 
 func main() {

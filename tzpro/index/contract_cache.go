@@ -6,7 +6,7 @@ package index
 import (
 	"context"
 
-	"blockwatch.cc/tzgo/micheline"
+	"github.com/trilitech/tzgo/micheline"
 )
 
 func (c *opClient) loadScript(ctx context.Context, addr Address) (*ContractScript, error) {

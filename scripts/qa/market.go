@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"blockwatch.cc/tzpro-go/tzpro"
-	"blockwatch.cc/tzpro-go/tzpro/market"
+	"github.com/trilitech/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro/market"
 )
 
 func TestMarket(ctx context.Context, c *tzpro.Client) {

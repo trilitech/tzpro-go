@@ -4,9 +4,9 @@
 package nft
 
 import (
-	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go/internal/client"
-	"blockwatch.cc/tzpro-go/tzpro/token"
+	"github.com/trilitech/tzgo/tezos"
+	"github.com/trilitech/tzpro-go/internal/client"
+	"github.com/trilitech/tzpro-go/tzpro/token"
 )
 
 type (

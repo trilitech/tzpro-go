@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go/tzpro"
-	"blockwatch.cc/tzpro-go/tzpro/index"
 	"github.com/echa/log"
+	"github.com/trilitech/tzgo/tezos"
+	"github.com/trilitech/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro/index"
 )
 
 const (

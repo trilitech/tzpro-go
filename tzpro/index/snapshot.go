@@ -6,7 +6,7 @@ package index
 import (
 	"time"
 
-	"blockwatch.cc/tzpro-go/internal/client"
+	"github.com/trilitech/tzpro-go/internal/client"
 )
 
 type StakeSnapshot struct {

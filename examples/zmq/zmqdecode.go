@@ -1,8 +1,8 @@
 package main
 
 import (
-	// "blockwatch.cc/tzpro-go/tzpro"
-	"blockwatch.cc/tzpro-go/tzpro/zmq"
+	// "github.com/trilitech/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro/zmq"
 	// "context"
 	"encoding/json"
 	"fmt"

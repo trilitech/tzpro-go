@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"blockwatch.cc/tzpro-go/internal/client"
-	"blockwatch.cc/tzpro-go/internal/util"
+	"github.com/trilitech/tzpro-go/internal/client"
+	"github.com/trilitech/tzpro-go/internal/util"
 )
 
 type Candle struct {

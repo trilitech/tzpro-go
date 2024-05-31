@@ -15,11 +15,11 @@ import (
 	"strconv"
 	"strings"
 
-	"blockwatch.cc/tzgo/micheline"
-	"blockwatch.cc/tzgo/tezos"
-	"blockwatch.cc/tzpro-go/tzpro"
 	ct "github.com/daviddengcn/go-colortext"
 	"github.com/echa/log"
+	"github.com/trilitech/tzgo/micheline"
+	"github.com/trilitech/tzgo/tezos"
+	"github.com/trilitech/tzpro-go/tzpro"
 )
 
 var (

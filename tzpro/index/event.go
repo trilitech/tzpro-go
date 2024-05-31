@@ -4,7 +4,7 @@
 package index
 
 import (
-	"blockwatch.cc/tzpro-go/internal/client"
+	"github.com/trilitech/tzpro-go/internal/client"
 )
 
 type Event struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"blockwatch.cc/tzpro-go/tzpro"
+	"github.com/trilitech/tzpro-go/tzpro"
 )
 
 func TestContract(ctx context.Context, c *tzpro.Client) {

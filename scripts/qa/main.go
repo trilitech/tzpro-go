@@ -8,8 +8,8 @@ import (
 	// "runtime/debug"
 	"strings"
 
-	"blockwatch.cc/tzpro-go/tzpro"
 	"github.com/echa/log"
+	"github.com/trilitech/tzpro-go/tzpro"
 )
 
 var (

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"blockwatch.cc/tzgo/tezos"
+	"github.com/trilitech/tzgo/tezos"
 	"github.com/echa/log"
 	lru "github.com/hashicorp/golang-lru/v2"
 )

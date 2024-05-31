@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 
-	"blockwatch.cc/tzpro-go/internal/util"
+	"github.com/trilitech/tzpro-go/internal/util"
 )
 
 type Filter struct {

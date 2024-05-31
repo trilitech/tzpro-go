@@ -14,7 +14,7 @@ import (
 	"reflect"
 	"sync"
 
-	"blockwatch.cc/tzpro-go/internal/util"
+	"github.com/trilitech/tzpro-go/internal/util"
 )
 
 type Decoder struct {
